@@ -14,41 +14,18 @@ function urlBase64ToUint8Array(base64String) {
 
 export default function InstallAssistant({ loggedIn }) {
   const [dismissed, setDismissed] = useState(true);
-  const [installPromptEvent, setInstallPromptEvent] = useState(null);
-  const [isIos, setIsIos] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(true);
   const [notifStatus, setNotifStatus] = useState("idle");
 
   useEffect(() => {
-    const alreadyDismissed = localStorage.getItem("tc-immo-install-dismissed");
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      window.navigator.standalone === true;
-    setIsStandalone(standalone);
-    setIsIos(/iphone|ipad|ipod/i.test(window.navigator.userAgent));
-    setDismissed(!!alreadyDismissed || standalone);
-
-    const handler = (e) => {
-      e.preventDefault();
-      setInstallPromptEvent(e);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    const alreadyDismissed = localStorage.getItem("tc-immo-notif-dismissed");
+    setDismissed(!!alreadyDismissed);
   }, []);
 
   if (dismissed || !loggedIn) return null;
 
   const close = () => {
-    localStorage.setItem("tc-immo-install-dismissed", "1");
+    localStorage.setItem("tc-immo-notif-dismissed", "1");
     setDismissed(true);
-  };
-
-  const handleInstall = async () => {
-    if (installPromptEvent) {
-      installPromptEvent.prompt();
-      await installPromptEvent.userChoice;
-      setInstallPromptEvent(null);
-    }
   };
 
   const handleActivateNotifications = async () => {
@@ -82,16 +59,10 @@ export default function InstallAssistant({ loggedIn }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon-192.png" alt="" className="h-10 w-10 rounded-lg" />
           <div>
-            <p className="text-sm font-bold text-ink">Installe l'application TC-Immo</p>
-            {isIos && !isStandalone ? (
-              <p className="mt-0.5 text-xs text-gray-500">
-                Appuie sur <strong>Partager</strong> puis <strong>"Sur l'écran d'accueil"</strong> pour l'installer.
-              </p>
-            ) : (
-              <p className="mt-0.5 text-xs text-gray-500">
-                Reçois une alerte dès qu'un client t'écrit ou qu'un rendez-vous est proposé — comme WhatsApp.
-              </p>
-            )}
+            <p className="text-sm font-bold text-ink">Ne rien manquer</p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Reçois une alerte dès qu'un client t'écrit ou qu'un rendez-vous est proposé — comme WhatsApp.
+            </p>
           </div>
         </div>
         <button onClick={close} aria-label="Fermer" className="shrink-0 text-gray-400 hover:text-gray-600">
@@ -100,18 +71,10 @@ export default function InstallAssistant({ loggedIn }) {
       </div>
 
       <div className="mx-auto mt-3 flex max-w-2xl gap-2">
-        {!isIos && installPromptEvent && (
-          <button
-            onClick={handleInstall}
-            className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
-          >
-            Installer l'application
-          </button>
-        )}
         <button
           onClick={handleActivateNotifications}
           disabled={notifStatus === "loading" || notifStatus === "done"}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-bold text-ink hover:bg-gray-50 disabled:opacity-50"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark disabled:opacity-50"
         >
           {notifStatus === "done" ? "Notifications activées ✓" : "Activer les notifications"}
         </button>
