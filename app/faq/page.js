@@ -1,7 +1,7 @@
 const FAQS = [
   { q: "Comment mon argent est-il protégé ?", a: "Les paiements restent séquestrés sur la plateforme et ne sont libérés à l'artisan qu'après validation de chaque étape du chantier." },
   { q: "Comment les artisans sont-ils vérifiés ?", a: "Chaque artisan est audité (dont vérification RCCM) avant d'être référencé sur la plateforme." },
-  { q: "Puis-je suivre mon chantier à distance ?", a: "Oui, votre espace personnel affiche l'avancement en temps réel, avec accès à la caméra du chantier." },
+  { q: "Puis-je suivre mon chantier à distance ?", a: "Oui, votre espace personnel affiche l'avancement en temps réel de votre chantier." },
 ];
 
 export default function FaqPage() {

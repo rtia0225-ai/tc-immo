@@ -269,10 +269,10 @@ export default async function DashboardPage({ searchParams }) {
                     <div className="flex items-center justify-between">
                       <p className="font-heading font-bold">{activeProject.title}</p>
                       <Link
-                        href={`/live/${activeProject.id}`}
+                        href={`/suivi/${activeProject.id}`}
                         className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark"
                       >
-                        Ouvrir la caméra
+                        Suivi du chantier
                       </Link>
                     </div>
 

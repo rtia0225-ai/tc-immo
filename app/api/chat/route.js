@@ -9,7 +9,7 @@ Fonctionnement de la plateforme :
 - Il peut échanger par message ou prendre un rendez-vous vidéo avec l'artisan avant de s'engager.
 - Une fois d'accord sur un devis, un projet est créé avec un chronogramme standard (Fondations, Dalle, Murs, Toiture, Finitions).
 - Le paiement du client reste séquestré sur la plateforme et n'est libéré à l'artisan qu'au fur et à mesure de la validation des étapes du chantier — c'est le principe central de sécurité.
-- Le client peut suivre son chantier via une caméra installée sur place.
+- Le client peut suivre l'avancement de son chantier en direct depuis son espace.
 - Les artisans sont vérifiés (RCCM) avant d'être référencés.
 - Les échanges de numéros de téléphone dans la messagerie ne sont pas autorisés (pour garder les échanges et paiements sur la plateforme).
 

@@ -18,7 +18,7 @@ export default async function LiveFeedPage({ params }) {
 
   if (!project) return <p className="px-4 py-12">Projet introuvable.</p>;
 
-  // Le flux caméra est réservé au client, pour suivre son chantier.
+  // Réservé au client, pour suivre l'avancement de son chantier.
   if (user.id !== project.client_id) {
     redirect(`/projects/${projectId}`);
   }
@@ -32,12 +32,12 @@ export default async function LiveFeedPage({ params }) {
   return (
     <div>
       <h1 className="mb-4 text-2xl font-bold text-brand-dark">
-        Flux caméra du chantier
+        Suivi du chantier
       </h1>
 
       {!feed ? (
         <p className="text-gray-600">
-          Aucun flux caméra configuré pour ce projet pour le moment.
+          Le suivi en direct n'est pas encore configuré pour ce projet.
         </p>
       ) : feed.is_live && feed.playback_url ? (
         <div className="aspect-video overflow-hidden rounded-lg bg-black">

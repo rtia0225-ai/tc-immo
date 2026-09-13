@@ -235,7 +235,7 @@ export default async function ProjectPage({ params }) {
         })}
       </div>
 
-      {/* Raccourcis : messagerie, rendez-vous, documents, caméra */}
+      {/* Raccourcis : messagerie, rendez-vous, documents, suivi */}
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href={conversation ? `/messages/${conversation.id}` : "/messages"}
@@ -266,12 +266,12 @@ export default async function ProjectPage({ params }) {
 
         {!isArtisan && (
           <Link
-            href={`/live/${project.id}`}
+            href={`/suivi/${project.id}`}
             className="rounded-lg border border-brand-light bg-white p-4 hover:shadow-sm"
           >
-            <p className="font-medium">Ouvrir la caméra</p>
+            <p className="font-medium">Suivi du chantier</p>
             <p className="text-sm text-gray-500">
-              Voir le flux caméra du chantier
+              Voir l'avancement en direct
             </p>
           </Link>
         )}
