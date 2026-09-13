@@ -854,3 +854,21 @@ create policy "artisan envoie son livrable" on storage.objects
 -- 30. PHOTOS ET VIDÉOS DE RÉALISATIONS (même compteur de 5)
 -- ---------------------------------------------------------
 alter table artisan_photos add column if not exists media_type text default 'image';
+
+-- ---------------------------------------------------------
+-- 31. NOTIFICATIONS PUSH (application installable, gratuit — technologie
+-- native des navigateurs, pas de prestataire tiers payant)
+-- ---------------------------------------------------------
+create table push_subscriptions (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references profiles(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz default now()
+);
+
+alter table push_subscriptions enable row level security;
+
+create policy "gerer ses propres abonnements notifications" on push_subscriptions
+  for all using (auth.uid() = user_id);
