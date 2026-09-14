@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ensureProfile } from "@/lib/ensureProfile";
 import { toAuthIdentity } from "@/lib/authIdentity";
-import { containsPhoneNumber } from "@/lib/phoneFilter";
+import { containsPhoneNumber, containsExternalPlatformMention } from "@/lib/phoneFilter";
 
 export async function signup(formData) {
   const supabase = createClient();
@@ -36,6 +36,15 @@ export async function signup(formData) {
     redirect(
       `/auth/signup?${qs.toString()}&error=${encodeURIComponent(
         "Ta description ou ta tarification contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+      )}`
+    );
+  }
+
+  if (role === "artisan" && (containsExternalPlatformMention(bio) || containsExternalPlatformMention(pricingInfo))) {
+    const qs = new URLSearchParams({ role, ...(redirectTo ? { redirect: redirectTo } : {}) });
+    redirect(
+      `/auth/signup?${qs.toString()}&error=${encodeURIComponent(
+        "Ta description ou ta tarification mentionne un réseau social ou une appli externe. Retire cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }

@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { notifyNewMessage } from "@/lib/notifications";
-import { containsPhoneNumber } from "@/lib/phoneFilter";
+import { containsPhoneNumber, containsExternalPlatformMention, containsFullName } from "@/lib/phoneFilter";
 
 export async function startConversation(formData) {
   const supabase = createClient();
@@ -52,13 +52,36 @@ export async function sendMessage(formData) {
 
   if (!user || !content?.trim()) return;
 
-  // Interdiction d'échanger des numéros de téléphone dans les messages :
-  // les échanges doivent rester sur la plateforme (rendez-vous, paiement
-  // séquestré). Le message n'est pas envoyé, la personne doit le reformuler.
+  // Interdiction d'échanger des coordonnées dans les messages : numéro de
+  // téléphone, réseau social externe (Facebook, WhatsApp...), ou son
+  // propre nom complet (souvent utilisé pour être retrouvé ailleurs).
+  // Les échanges doivent rester sur la plateforme.
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
   if (containsPhoneNumber(content)) {
     redirect(
       `/messages/${conversationId}?error=${encodeURIComponent(
         "Ton message contient un numéro de téléphone. Les échanges de coordonnées ne sont pas autorisés ici — utilise la messagerie ou les rendez-vous de la plateforme."
+      )}`
+    );
+  }
+
+  if (containsExternalPlatformMention(content)) {
+    redirect(
+      `/messages/${conversationId}?error=${encodeURIComponent(
+        "Ton message mentionne un réseau social ou une appli externe. Les échanges doivent rester sur la plateforme."
+      )}`
+    );
+  }
+
+  if (containsFullName(content, senderProfile?.full_name)) {
+    redirect(
+      `/messages/${conversationId}?error=${encodeURIComponent(
+        "Merci de ne pas indiquer ton nom complet dans le message — les échanges doivent rester sur la plateforme."
       )}`
     );
   }

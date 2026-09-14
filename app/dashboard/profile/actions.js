@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { containsPhoneNumber } from "@/lib/phoneFilter";
+import { containsPhoneNumber, containsExternalPlatformMention } from "@/lib/phoneFilter";
 
 // Enregistre la position GPS capturée une seule fois (comme un partage de
 // position WhatsApp) — devient l'adresse fixe de l'artisan. Appelée
@@ -77,6 +77,13 @@ export async function updateArtisanProfile(formData) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(
         "Ta description ou ta tarification contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+      )}`
+    );
+  }
+  if (containsExternalPlatformMention(bio) || containsExternalPlatformMention(pricingInfo)) {
+    redirect(
+      `/dashboard/profile?error=${encodeURIComponent(
+        "Ta description ou ta tarification mentionne un réseau social ou une appli externe. Retire cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }
@@ -157,6 +164,13 @@ export async function addArtisanPhoto(formData) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(
         "La légende contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+      )}`
+    );
+  }
+  if (containsExternalPlatformMention(caption)) {
+    redirect(
+      `/dashboard/profile?error=${encodeURIComponent(
+        "La légende mentionne un réseau social ou une appli externe. Retire cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }
