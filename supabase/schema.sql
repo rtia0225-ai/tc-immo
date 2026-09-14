@@ -872,3 +872,9 @@ alter table push_subscriptions enable row level security;
 
 create policy "gerer ses propres abonnements notifications" on push_subscriptions
   for all using (auth.uid() = user_id);
+
+-- ---------------------------------------------------------
+-- 32. L'ARTISAN VOIT SES PROPRES REMARQUES ADMIN (notifié par push)
+-- ---------------------------------------------------------
+create policy "artisan voit ses propres remarques" on artisan_admin_notes
+  for select using (artisan_id = auth.uid());

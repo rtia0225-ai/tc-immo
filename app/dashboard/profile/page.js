@@ -37,6 +37,12 @@ export default async function ArtisanProfileEditPage({ searchParams }) {
     .eq("artisan_id", user.id)
     .order("created_at", { ascending: false });
 
+  const { data: adminNotes } = await supabase
+    .from("artisan_admin_notes")
+    .select("*")
+    .eq("artisan_id", user.id)
+    .order("created_at", { ascending: false });
+
   const selectedServices = artisan?.services || [];
   const selectedMobilityCities = artisan?.mobility_cities || [];
 
@@ -53,6 +59,24 @@ export default async function ArtisanProfileEditPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold">Modifier mon profil</h1>
+
+      {adminNotes && adminNotes.length > 0 && (
+        <div className="mt-4 rounded-lg border border-brand bg-brand-light p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-dark">
+            Remarques de l'équipe TC-Immo
+          </p>
+          <div className="mt-2 flex flex-col gap-2">
+            {adminNotes.map((n) => (
+              <div key={n.id} className="rounded-lg bg-white p-3 text-sm">
+                <p className="text-ink">{n.note}</p>
+                <p className="mt-1 text-xs text-gray-400">
+                  {new Date(n.created_at).toLocaleDateString("fr-FR")}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {searchParams?.success && (
         <p className="mt-4 rounded-lg bg-forest-light p-3 text-sm text-forest">

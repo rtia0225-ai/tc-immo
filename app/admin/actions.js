@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { sendPush } from "@/lib/notifications";
 
 async function requireAdmin(supabase) {
   const {
@@ -31,6 +32,15 @@ export async function addAdminNote(formData) {
     note,
     created_by: user.id,
   });
+
+  // L'artisan est notifié qu'une remarque a été laissée sur son profil,
+  // pour qu'il comprenne pourquoi quelque chose a pu être modifié.
+  await sendPush(
+    artisanId,
+    "Remarque sur votre profil",
+    "L'équipe TC-Immo a laissé une remarque sur votre profil. Consultez-la dans votre espace.",
+    "/dashboard/profile"
+  );
 
   redirect(`/admin/artisans/${artisanId}`);
 }
