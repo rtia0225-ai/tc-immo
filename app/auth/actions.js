@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ensureProfile } from "@/lib/ensureProfile";
 import { toAuthIdentity } from "@/lib/authIdentity";
+import { containsPhoneNumber } from "@/lib/phoneFilter";
 
 export async function signup(formData) {
   const supabase = createClient();
@@ -27,6 +28,17 @@ export async function signup(formData) {
   const emergencyContactPhone = formData.get("emergencyContactPhone");
   const mobileMoneyOperator = formData.get("mobileMoneyOperator");
   const mobileMoneyNumber = formData.get("mobileMoneyNumber");
+
+  // Ce que le client verra (description, tarification) ne doit jamais
+  // contenir de numéro de téléphone — même règle que la messagerie.
+  if (role === "artisan" && (containsPhoneNumber(bio) || containsPhoneNumber(pricingInfo))) {
+    const qs = new URLSearchParams({ role, ...(redirectTo ? { redirect: redirectTo } : {}) });
+    redirect(
+      `/auth/signup?${qs.toString()}&error=${encodeURIComponent(
+        "Ta description ou ta tarification contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+      )}`
+    );
+  }
 
   const { email, phone } = toAuthIdentity(identifier);
 

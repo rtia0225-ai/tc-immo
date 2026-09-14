@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { containsPhoneNumber } from "@/lib/phoneFilter";
 
 // Enregistre la position GPS capturée une seule fois (comme un partage de
 // position WhatsApp) — devient l'adresse fixe de l'artisan. Appelée
@@ -69,6 +70,16 @@ export async function updateArtisanProfile(formData) {
   const mobilityCities = formData.getAll("mobilityCities");
   const mobileMoneyOperator = formData.get("mobileMoneyOperator");
   const mobileMoneyNumber = formData.get("mobileMoneyNumber");
+
+  // Tout ce que le client peut lire (description, tarification) ne doit
+  // jamais contenir de numéro de téléphone — même règle que la messagerie.
+  if (containsPhoneNumber(bio) || containsPhoneNumber(pricingInfo)) {
+    redirect(
+      `/dashboard/profile?error=${encodeURIComponent(
+        "Ta description ou ta tarification contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+      )}`
+    );
+  }
 
   await supabase
     .from("artisan_profiles")
@@ -141,6 +152,14 @@ export async function addArtisanPhoto(formData) {
 
   const files = formData.getAll("photo").filter((f) => typeof f !== "string" && f.size > 0);
   const caption = formData.get("caption");
+
+  if (containsPhoneNumber(caption)) {
+    redirect(
+      `/dashboard/profile?error=${encodeURIComponent(
+        "La légende contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+      )}`
+    );
+  }
 
   if (files.length === 0) {
     redirect("/dashboard/profile?error=Aucune+photo+sélectionnée");
