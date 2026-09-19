@@ -1,4 +1,4 @@
-import { requestAppointment } from "../actions";
+import { bookAvailabilitySlot } from "@/app/dashboard/availabilityActions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -25,9 +25,27 @@ export default async function NewAppointmentPage({ searchParams }) {
     .eq("id", artisanId)
     .single();
 
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: slots } = await supabase
+    .from("availability_slots")
+    .select("*")
+    .eq("artisan_id", artisanId)
+    .eq("is_booked", false)
+    .gte("date", today)
+    .order("date", { ascending: true })
+    .order("start_time", { ascending: true });
+
+  // Regroupe les créneaux par jour, pour un affichage type calendrier
+  const slotsByDate = (slots || []).reduce((acc, s) => {
+    acc[s.date] = acc[s.date] || [];
+    acc[s.date].push(s);
+    return acc;
+  }, {});
+
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-1 text-2xl font-bold text-brand-dark">
+    <div className="mx-auto max-w-md px-4 py-10">
+      <h1 className="mb-1 font-heading text-2xl font-bold text-brand-dark">
         Prendre rendez-vous
       </h1>
       {artisan && (
@@ -42,49 +60,40 @@ export default async function NewAppointmentPage({ searchParams }) {
         </p>
       )}
 
-      <form action={requestAppointment} className="flex flex-col gap-4">
-        <input type="hidden" name="artisanId" value={artisanId} />
-        {projectId && (
-          <input type="hidden" name="projectId" value={projectId} />
-        )}
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Date et heure souhaitées
-          </label>
-          <input
-            type="datetime-local"
-            name="scheduledAt"
-            required
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Précisions (optionnel)
-          </label>
-          <textarea
-            name="notes"
-            rows={3}
-            placeholder="Sujet de l'appel, contexte du projet..."
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <p className="text-xs text-gray-500">
-          Le lien de réunion (Meet, Zoom...) sera ajouté par l'artisan lors
-          de la confirmation. Un SMS de rappel est envoyé avant le
-          rendez-vous.
+      {Object.keys(slotsByDate).length === 0 ? (
+        <p className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-500">
+          Aucun créneau disponible pour le moment — réessaie un peu plus tard.
         </p>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {Object.entries(slotsByDate).map(([date, daySlots]) => (
+            <div key={date}>
+              <p className="mb-2 text-sm font-bold text-ink">
+                {new Date(date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {daySlots.map((s) => (
+                  <form key={s.id} action={bookAvailabilitySlot}>
+                    <input type="hidden" name="slotId" value={s.id} />
+                    <input type="hidden" name="artisanId" value={artisanId} />
+                    {projectId && <input type="hidden" name="projectId" value={projectId} />}
+                    <button
+                      type="submit"
+                      className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-ink hover:border-brand hover:bg-brand-light"
+                    >
+                      {s.start_time.slice(0, 5)}
+                    </button>
+                  </form>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        <button
-          type="submit"
-          className="rounded-lg bg-brand py-2 font-medium text-white hover:bg-brand-dark"
-        >
-          Envoyer la demande de rendez-vous
-        </button>
-      </form>
+      <p className="mt-4 text-xs text-gray-500">
+        Un clic confirme directement le rendez-vous. Vous pourrez toujours proposer un autre moment ensuite si besoin, depuis "Mes rendez-vous".
+      </p>
     </div>
   );
 }

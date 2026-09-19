@@ -106,11 +106,25 @@ export async function cancelAppointment(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("availability_slot_id")
+    .eq("id", appointmentId)
+    .single();
+
   await supabase
     .from("appointments")
     .update({ status: "cancelled" })
     .eq("id", appointmentId)
     .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`);
+
+  // Le créneau redevient disponible pour quelqu'un d'autre
+  if (appointment?.availability_slot_id) {
+    await supabase
+      .from("availability_slots")
+      .update({ is_booked: false })
+      .eq("id", appointment.availability_slot_id);
+  }
 
   redirect("/appointments");
 }

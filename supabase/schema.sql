@@ -878,3 +878,29 @@ create policy "gerer ses propres abonnements notifications" on push_subscription
 -- ---------------------------------------------------------
 create policy "artisan voit ses propres remarques" on artisan_admin_notes
   for select using (artisan_id = auth.uid());
+
+-- ---------------------------------------------------------
+-- 33. DISPONIBILITÉS MENSUELLES + RÉSERVATION INSTANTANÉE (façon Calendly)
+-- Le technicien déclare des créneaux, modifiables à tout moment. Le
+-- client réserve directement un créneau libre → confirmation immédiate.
+-- La renégociation après coup reste libre (système déjà en place).
+-- ---------------------------------------------------------
+create table availability_slots (
+  id uuid primary key default uuid_generate_v4(),
+  artisan_id uuid references artisan_profiles(id) on delete cascade,
+  date date not null,
+  start_time time not null,
+  end_time time not null,
+  is_booked boolean default false,
+  created_at timestamptz default now()
+);
+
+alter table availability_slots enable row level security;
+
+create policy "creneaux visibles publiquement" on availability_slots
+  for select using (true);
+
+create policy "artisan gere ses propres creneaux" on availability_slots
+  for all using (auth.uid() = artisan_id);
+
+alter table appointments add column if not exists availability_slot_id uuid references availability_slots(id);

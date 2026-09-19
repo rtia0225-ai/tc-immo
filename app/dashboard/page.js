@@ -205,6 +205,14 @@ export default async function DashboardPage({ searchParams }) {
             <p className="mt-0.5 text-xs text-gray-500">Paiements perçus et en attente</p>
           </Link>
 
+          <Link
+            href="/dashboard/availability"
+            className="mt-3 block rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+          >
+            <span className="text-sm font-semibold text-ink">Mes disponibilités</span>
+            <p className="mt-0.5 text-xs text-gray-500">Créneaux visio proposés aux clients</p>
+          </Link>
+
           {/* Projets en cours */}
           <div className="mt-6">
             <p className="mb-2 text-sm font-semibold text-gray-700">Projets en cours</p>
