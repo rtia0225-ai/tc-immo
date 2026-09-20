@@ -71,6 +71,14 @@ export async function createProject(formData) {
   const amount = formData.get("amount");
   const currency = formData.get("currency") || "XOF";
 
+  const terrainLocation = formData.get("terrainLocation");
+  const terrainLatitude = formData.get("terrainLatitude") || null;
+  const terrainLongitude = formData.get("terrainLongitude") || null;
+  const terrainDocumentType = formData.get("terrainDocumentType");
+  const terrainReferenceNumber = formData.get("terrainReferenceNumber");
+  const terrainArea = formData.get("terrainArea");
+  const terrainNotes = formData.get("terrainNotes");
+
   const milestoneTitles = formData.getAll("milestoneTitle");
   const milestonePercentages = formData.getAll("milestonePercentage");
 
@@ -95,6 +103,13 @@ export async function createProject(formData) {
       amount,
       currency,
       status: "awaiting_payment",
+      terrain_location: terrainLocation || null,
+      terrain_latitude: terrainLatitude,
+      terrain_longitude: terrainLongitude,
+      terrain_document_type: terrainDocumentType || null,
+      terrain_reference_number: terrainReferenceNumber || null,
+      terrain_area: terrainArea || null,
+      terrain_notes: terrainNotes || null,
     })
     .select("id")
     .single();

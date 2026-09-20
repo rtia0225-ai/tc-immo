@@ -105,6 +105,61 @@ export default async function ProjectPage({ params }) {
       </h1>
       <p className="mb-6 text-gray-600">{project.description}</p>
 
+      {(project.terrain_location || project.terrain_reference_number || project.terrain_document_type || project.terrain_area || project.terrain_notes || project.terrain_latitude) && (
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
+          <p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
+            Informations sur le terrain
+          </p>
+          <dl className="grid grid-cols-2 gap-3 text-sm">
+            {project.terrain_location && (
+              <div className="col-span-2">
+                <dt className="text-gray-400">Localisation</dt>
+                <dd className="text-ink">{project.terrain_location}</dd>
+              </div>
+            )}
+            {project.terrain_latitude && project.terrain_longitude && (
+              <div className="col-span-2">
+                <dt className="text-gray-400">Position GPS</dt>
+                <dd>
+                  <a
+                    href={`https://www.google.com/maps?q=${project.terrain_latitude},${project.terrain_longitude}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-brand hover:underline"
+                  >
+                    Voir sur la carte
+                  </a>
+                </dd>
+              </div>
+            )}
+            {project.terrain_document_type && (
+              <div>
+                <dt className="text-gray-400">Document foncier</dt>
+                <dd className="text-ink">{project.terrain_document_type}</dd>
+              </div>
+            )}
+            {project.terrain_reference_number && (
+              <div>
+                <dt className="text-gray-400">N° de référence</dt>
+                <dd className="text-ink">{project.terrain_reference_number}</dd>
+              </div>
+            )}
+            {project.terrain_area && (
+              <div>
+                <dt className="text-gray-400">Superficie</dt>
+                <dd className="text-ink">{project.terrain_area}</dd>
+              </div>
+            )}
+            {project.terrain_notes && (
+              <div className="col-span-2">
+                <dt className="text-gray-400">Notes</dt>
+                <dd className="text-ink">{project.terrain_notes}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
+
       {unsignedContracts.length > 0 && (
         <div className="mb-6 flex flex-col gap-2">
           {unsignedContracts.map((a) => (

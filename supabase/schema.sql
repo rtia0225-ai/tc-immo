@@ -984,3 +984,15 @@ begin
   return new;
 end;
 $$;
+
+-- ---------------------------------------------------------
+-- 36. INFORMATIONS SUR LE TERRAIN (renseignées par le client au
+-- démarrage du projet — utiles en premier lieu au géomètre)
+-- ---------------------------------------------------------
+alter table projects add column if not exists terrain_location text;
+alter table projects add column if not exists terrain_latitude double precision;
+alter table projects add column if not exists terrain_longitude double precision;
+alter table projects add column if not exists terrain_reference_number text;
+alter table projects add column if not exists terrain_area text;
+alter table projects add column if not exists terrain_document_type text;
+alter table projects add column if not exists terrain_notes text;
