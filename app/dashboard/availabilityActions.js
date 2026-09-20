@@ -65,6 +65,7 @@ export async function bookAvailabilitySlot(formData) {
   const slotId = formData.get("slotId");
   const artisanId = formData.get("artisanId");
   const projectId = formData.get("projectId") || null;
+  const regardingArtisanId = formData.get("regardingArtisanId") || null;
 
   const { data: slot } = await supabase
     .from("availability_slots")
@@ -87,6 +88,7 @@ export async function bookAvailabilitySlot(formData) {
     client_id: user.id,
     artisan_id: artisanId,
     project_id: projectId,
+    regarding_artisan_id: regardingArtisanId,
     scheduled_at: scheduledAt,
     status: "confirmed",
     proposed_by: user.id,

@@ -13,6 +13,12 @@ export default async function ConversationPage({ params, searchParams }) {
 
   if (!user) redirect("/auth/login");
 
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .select("regarding:regarding_artisan_id ( profiles ( full_name ) )")
+    .eq("id", id)
+    .maybeSingle();
+
   const { data: messages } = await supabase
     .from("messages")
     .select("id, content, audio_url, sender_id, created_at")
@@ -21,7 +27,12 @@ export default async function ConversationPage({ params, searchParams }) {
 
   return (
     <div className="flex h-[70vh] flex-col">
-      <h1 className="mb-4 text-xl font-bold text-brand-dark">Conversation</h1>
+      <h1 className="mb-1 text-xl font-bold text-brand-dark">Conversation</h1>
+      {conversation?.regarding?.profiles?.full_name && (
+        <p className="mb-4 text-sm text-gray-500">
+          Au sujet de : <strong className="text-ink">{conversation.regarding.profiles.full_name}</strong>
+        </p>
+      )}
 
       {searchParams?.error && (
         <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">

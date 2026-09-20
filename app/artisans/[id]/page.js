@@ -29,8 +29,9 @@ export default async function ArtisanProfilePage({ params }) {
     .select(
       `id, trade, bio, years_experience, is_verified, pricing_info,
        services, projects_completed, mobility_scope, mobility_cities,
-       is_suspended,
-       profiles ( full_name, city, avatar_url )`
+       is_suspended, recruited_by_technician_id,
+       profiles ( full_name, city, avatar_url ),
+       technician:recruited_by_technician_id ( id, profiles ( full_name ) )`
     )
     .eq("id", id)
     .single();
@@ -173,7 +174,10 @@ export default async function ArtisanProfilePage({ params }) {
       </div>
 
       {/* Actions — un artisan ne peut ni se contacter ni démarrer un
-          projet avec lui-même ; seul un client peut démarrer un projet */}
+          projet avec lui-même ; seul un client peut démarrer un projet.
+          Si l'artisan est lié à un technicien recruteur, le contact
+          (message/RDV) est redirigé vers lui — le paiement et le projet,
+          eux, restent toujours directement liés à cet artisan. */}
       {isOwnProfile ? (
         <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center text-sm text-gray-500">
           Ceci est ton propre profil public.{" "}
@@ -182,28 +186,35 @@ export default async function ArtisanProfilePage({ params }) {
           </Link>
         </div>
       ) : (
-        <div className={`mt-4 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
-          <Link
-            href={`/appointments/new?artisan=${artisan.id}`}
-            className="rounded-md bg-brand px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-dark"
-          >
-            Rendez-vous visio
-          </Link>
-          <Link
-            href={`/messages/new?artisan=${artisan.id}`}
-            className="rounded-md border border-gray-300 px-4 py-3 text-center text-sm font-bold text-ink hover:bg-gray-50"
-          >
-            Message
-          </Link>
-          {!viewerIsArtisan && (
-            <Link
-              href={`/projects/new?artisan=${artisan.id}`}
-              className="rounded-md bg-forest px-4 py-3 text-center text-sm font-bold text-white hover:bg-forest-dark"
-            >
-              Démarrer un projet
-            </Link>
+        <>
+          {artisan.technician && (
+            <p className="mt-4 text-sm text-gray-500">
+              Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong> — c'est lui qui répond aux messages et rendez-vous pour cet artisan.
+            </p>
           )}
-        </div>
+          <div className={`mt-2 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+            <Link
+              href={`/appointments/new?artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`}
+              className="rounded-md bg-brand px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-dark"
+            >
+              Rendez-vous visio
+            </Link>
+            <Link
+              href={`/messages/new?artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`}
+              className="rounded-md border border-gray-300 px-4 py-3 text-center text-sm font-bold text-ink hover:bg-gray-50"
+            >
+              Message
+            </Link>
+            {!viewerIsArtisan && (
+              <Link
+                href={`/projects/new?artisan=${artisan.id}`}
+                className="rounded-md bg-forest px-4 py-3 text-center text-sm font-bold text-white hover:bg-forest-dark"
+              >
+                Démarrer un projet
+              </Link>
+            )}
+          </div>
+        </>
       )}
 
       {/* Avis */}

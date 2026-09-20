@@ -3,11 +3,25 @@ import Link from "next/link";
 import { CI_CITIES, CONSTRUCTION_SERVICES, MOBILE_MONEY_OPERATORS } from "@/lib/constants";
 import TradeAndServices from "@/components/TradeAndServices";
 import CitySelect from "@/components/CitySelect";
+import RecruiterSelect from "@/components/RecruiterSelect";
+import { createClient } from "@/lib/supabase/server";
 
-export default function SignupPage({ searchParams }) {
+export default async function SignupPage({ searchParams }) {
   const role = searchParams?.role; // 'client' ou 'artisan', choisi à l'étape précédente
   const redirectTo = searchParams?.redirect || "";
   const qs = redirectTo ? `&redirect=${encodeURIComponent(redirectTo)}` : "";
+
+  let technicians = [];
+  if (role === "artisan") {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("artisan_profiles")
+      .select("id, profiles ( full_name )")
+      .eq("trade", "Technicien BTP");
+    technicians = (data || [])
+      .filter((t) => t.profiles?.full_name)
+      .map((t) => ({ id: t.id, name: t.profiles.full_name }));
+  }
 
   if (!role) {
     // Étape 1 : choix du rôle
@@ -120,6 +134,18 @@ export default function SignupPage({ searchParams }) {
                   <input name="mobileMoneyNumber" placeholder="Numéro" className="rounded-lg border border-gray-300 p-2" />
                 </div>
               </div>
+
+              {technicians.length > 0 && (
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    Technicien qui t'a recommandé (si applicable)
+                  </label>
+                  <RecruiterSelect technicians={technicians} />
+                  <p className="mt-1 text-xs text-gray-500">
+                    C'est lui qui reçoit les demandes de contact des clients pour toi.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* --- Profil visible par les clients --- */}

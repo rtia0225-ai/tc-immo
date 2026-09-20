@@ -904,3 +904,83 @@ create policy "artisan gere ses propres creneaux" on availability_slots
   for all using (auth.uid() = artisan_id);
 
 alter table appointments add column if not exists availability_slot_id uuid references availability_slots(id);
+
+-- ---------------------------------------------------------
+-- 34. LIEN MAÇON ↔ TECHNICIEN RECRUTEUR
+-- Le maçon choisit son technicien recruteur à l'inscription (lien fixe,
+-- auto-service, pas de validation admin). Le contact (message/RDV) est
+-- redirigé vers ce technicien plutôt que vers le maçon directement — le
+-- paiement, lui, reste toujours directement lié au maçon (inchangé).
+-- ---------------------------------------------------------
+alter table artisan_profiles add column if not exists recruited_by_technician_id uuid references artisan_profiles(id);
+alter table conversations add column if not exists regarding_artisan_id uuid references artisan_profiles(id);
+alter table appointments add column if not exists regarding_artisan_id uuid references artisan_profiles(id);
+
+-- ---------------------------------------------------------
+-- 35. TRIGGER MIS À JOUR : inclut le lien technicien recruteur
+-- ---------------------------------------------------------
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_full_name text;
+  v_role user_role;
+  v_trade text;
+  v_phone text;
+  v_city text;
+  v_bio text;
+  v_years_experience int;
+  v_pricing_info text;
+  v_mobility_scope mobility_scope;
+  v_mobility_cities text[];
+  v_services text[];
+  v_emergency_contact_name text;
+  v_emergency_contact_phone text;
+  v_mobile_money_operator text;
+  v_mobile_money_number text;
+  v_recruited_by_technician_id uuid;
+begin
+  v_full_name := coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1));
+  v_role := coalesce((new.raw_user_meta_data->>'role')::user_role, 'client');
+  v_trade := new.raw_user_meta_data->>'trade';
+  v_phone := new.raw_user_meta_data->>'phone';
+  v_city := new.raw_user_meta_data->>'city';
+  v_bio := new.raw_user_meta_data->>'bio';
+  v_years_experience := nullif(new.raw_user_meta_data->>'years_experience', '')::int;
+  v_pricing_info := new.raw_user_meta_data->>'pricing_info';
+  v_mobility_scope := nullif(new.raw_user_meta_data->>'mobility_scope', '')::mobility_scope;
+  v_emergency_contact_name := new.raw_user_meta_data->>'emergency_contact_name';
+  v_emergency_contact_phone := new.raw_user_meta_data->>'emergency_contact_phone';
+  v_mobile_money_operator := new.raw_user_meta_data->>'mobile_money_operator';
+  v_mobile_money_number := new.raw_user_meta_data->>'mobile_money_number';
+  v_recruited_by_technician_id := nullif(new.raw_user_meta_data->>'recruited_by_technician_id', '')::uuid;
+
+  select array(select jsonb_array_elements_text(new.raw_user_meta_data->'mobility_cities'))
+    into v_mobility_cities;
+  select array(select jsonb_array_elements_text(new.raw_user_meta_data->'services'))
+    into v_services;
+
+  insert into public.profiles (id, full_name, role, phone, city, emergency_contact_name, emergency_contact_phone)
+  values (new.id, v_full_name, v_role, v_phone, v_city, v_emergency_contact_name, v_emergency_contact_phone)
+  on conflict (id) do nothing;
+
+  if v_role = 'artisan' then
+    insert into public.artisan_profiles (
+      id, trade, bio, years_experience, pricing_info,
+      mobility_scope, mobility_cities, services,
+      mobile_money_operator, mobile_money_number, recruited_by_technician_id
+    )
+    values (
+      new.id, coalesce(v_trade, 'Non spécifié'), v_bio, coalesce(v_years_experience, 0), v_pricing_info,
+      coalesce(v_mobility_scope, 'selected'), coalesce(v_mobility_cities, '{}'), coalesce(v_services, '{}'),
+      v_mobile_money_operator, v_mobile_money_number, v_recruited_by_technician_id
+    )
+    on conflict (id) do nothing;
+  end if;
+
+  return new;
+end;
+$$;

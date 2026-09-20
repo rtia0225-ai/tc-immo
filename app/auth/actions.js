@@ -28,6 +28,7 @@ export async function signup(formData) {
   const emergencyContactPhone = formData.get("emergencyContactPhone");
   const mobileMoneyOperator = formData.get("mobileMoneyOperator");
   const mobileMoneyNumber = formData.get("mobileMoneyNumber");
+  const recruitedByTechnicianId = formData.get("recruitedByTechnicianId") || null;
 
   // Ce que le client verra (description, tarification) ne doit jamais
   // contenir de numéro de téléphone — même règle que la messagerie.
@@ -74,6 +75,7 @@ export async function signup(formData) {
         emergency_contact_phone: emergencyContactPhone,
         mobile_money_operator: mobileMoneyOperator,
         mobile_money_number: mobileMoneyNumber,
+        recruited_by_technician_id: recruitedByTechnicianId,
       },
     },
   });
@@ -112,6 +114,7 @@ export async function signup(formData) {
         services,
         mobile_money_operator: mobileMoneyOperator || null,
         mobile_money_number: mobileMoneyNumber || null,
+        recruited_by_technician_id: recruitedByTechnicianId,
       });
     }
   }

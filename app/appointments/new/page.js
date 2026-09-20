@@ -5,18 +5,19 @@ import { redirect } from "next/navigation";
 export default async function NewAppointmentPage({ searchParams }) {
   const artisanId = searchParams?.artisan;
   const projectId = searchParams?.project;
+  const regardingArtisanId = searchParams?.regarding || null;
   const supabase = createClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    const currentPath = `/appointments/new?artisan=${artisanId}${projectId ? `&project=${projectId}` : ""}`;
+    const currentPath = `/appointments/new?artisan=${artisanId}${projectId ? `&project=${projectId}` : ""}${regardingArtisanId ? `&regarding=${regardingArtisanId}` : ""}`;
     redirect(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
   }
 
   if (user.id === artisanId) {
-    redirect(`/artisans/${artisanId}`);
+    redirect(`/artisans/${regardingArtisanId || artisanId}`);
   }
 
   const { data: artisan } = await supabase
@@ -24,6 +25,14 @@ export default async function NewAppointmentPage({ searchParams }) {
     .select("id, trade, profiles ( full_name )")
     .eq("id", artisanId)
     .single();
+
+  const { data: regardingArtisan } = regardingArtisanId
+    ? await supabase
+        .from("artisan_profiles")
+        .select("id, profiles ( full_name )")
+        .eq("id", regardingArtisanId)
+        .single()
+    : { data: null };
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -49,10 +58,16 @@ export default async function NewAppointmentPage({ searchParams }) {
         Prendre rendez-vous
       </h1>
       {artisan && (
-        <p className="mb-6 text-gray-600">
+        <p className="text-gray-600">
           avec {artisan.profiles?.full_name} ({artisan.trade})
         </p>
       )}
+      {regardingArtisan && (
+        <p className="mb-6 text-sm text-gray-500">
+          Au sujet de : <strong className="text-ink">{regardingArtisan.profiles?.full_name}</strong>
+        </p>
+      )}
+      {!regardingArtisan && <div className="mb-6" />}
 
       {searchParams?.error && (
         <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
@@ -77,6 +92,7 @@ export default async function NewAppointmentPage({ searchParams }) {
                     <input type="hidden" name="slotId" value={s.id} />
                     <input type="hidden" name="artisanId" value={artisanId} />
                     {projectId && <input type="hidden" name="projectId" value={projectId} />}
+                    {regardingArtisanId && <input type="hidden" name="regardingArtisanId" value={regardingArtisanId} />}
                     <button
                       type="submit"
                       className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-ink hover:border-brand hover:bg-brand-light"

@@ -29,7 +29,8 @@ export default async function AppointmentsPage() {
     .select(
       `id, scheduled_at, status, meeting_link, notes, proposed_by,
        client:client_id ( full_name ),
-       artisan:artisan_id ( trade, profiles ( full_name ) )`
+       artisan:artisan_id ( trade, profiles ( full_name ) ),
+       regarding:regarding_artisan_id ( profiles ( full_name ) )`
     )
     .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`)
     .order("scheduled_at", { ascending: true });
@@ -69,6 +70,11 @@ export default async function AppointmentsPage() {
                     ? a.client?.full_name
                     : a.artisan?.profiles?.full_name}
                 </p>
+                {a.regarding?.profiles?.full_name && (
+                  <p className="text-xs text-gray-500">
+                    Au sujet de : <strong className="text-ink">{a.regarding.profiles.full_name}</strong>
+                  </p>
+                )}
                 {a.notes && (
                   <p className="mt-1 text-sm text-gray-500">{a.notes}</p>
                 )}
