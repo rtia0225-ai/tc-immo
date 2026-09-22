@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CONSTRUCTION_SERVICES, SENIOR_TRADES } from "@/lib/constants";
+import { CONSTRUCTION_SERVICES, SENIOR_TRADES, SPECIALTY_SERVICES } from "@/lib/constants";
 
 export default function TradeAndServices({ initialTrade = "", initialServices = [] }) {
   const [trade, setTrade] = useState(initialTrade);
@@ -43,6 +43,28 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
         )}
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {availableServices.map((s) => (
+            <label key={s} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="services"
+                value={s}
+                defaultChecked={initialServices.includes(s)}
+              />
+              {s}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-medium">
+          Prestations spécifiques (en plus de ton métier)
+        </label>
+        <p className="mb-2 text-xs text-gray-500">
+          ex: un technicien BTP propose souvent le suivi de chantier, un architecte la réalisation 3D, un topographe le levé/bornage.
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {SPECIALTY_SERVICES.map((s) => (
             <label key={s} className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
