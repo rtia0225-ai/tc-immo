@@ -32,12 +32,12 @@ const ITEMS = [
   {
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 2 3 7v6c0 5.5 3.8 9.7 9 11 5.2-1.3 9-5.5 9-11V7l-9-5Z" />
-        <path d="M12 8v5M12 16h.01" />
+        <path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
+        <path d="M9 12h6M9 16h6M9 8h2" />
       </svg>
     ),
-    title: "Responsabilité assumée",
-    text: "Toute fraude concernant un paiement effectué sur la plateforme est de notre ressort.",
+    title: "Traçabilité totale",
+    text: "Contrats, échéanciers et paiements restent enregistrés sur la plateforme, ce qui limite fortement les risques de fraude autour d'un paiement.",
   },
 ];
 

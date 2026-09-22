@@ -8,23 +8,23 @@ import CitySelect from "@/components/CitySelect";
 const STEPS = [
   {
     n: 1,
-    title: "Choisissez votre prestataire",
-    text: "Consultez les profils vérifiés, les avis, les réalisations. Prenez rendez-vous en visio avec ceux qui vous intéressent.",
+    title: "Choisissez vos prestataires",
+    text: "Consultez les profils vérifiés — artisans, géomètre, architecte, technicien de suivi — et échangez avec eux avant de démarrer.",
   },
   {
     n: 2,
-    title: "Sécurisez vos travaux",
-    text: "Recevez le devis de votre prestataire et signez le contrat tripartite avec la planification des travaux.",
+    title: "Démarrez votre projet",
+    text: "Validez avec chaque prestataire un échéancier de paiement en plusieurs étapes, jamais en une seule fois. Un abonnement mensuel s'active dès le lancement du projet.",
   },
   {
     n: 3,
-    title: "Payez en sécurité, à votre rythme",
-    text: "Les fonds restent séquestrés jusqu'à validation de chaque étape — c'est vous qui gardez la main.",
+    title: "Payez en toute confiance",
+    text: "Chaque paiement correspond à une étape réellement validée — rien n'est versé d'un coup, tout reste tracé sur la plateforme.",
   },
   {
     n: 4,
-    title: "Suivez vos travaux",
-    text: "Consultez l'état d'avancement de votre chantier depuis votre espace, où que vous soyez.",
+    title: "Suivez vos travaux à distance",
+    text: "Consultez l'avancement depuis votre espace, où que vous soyez, et ajoutez d'autres professionnels au projet à tout moment si besoin.",
   },
 ];
 

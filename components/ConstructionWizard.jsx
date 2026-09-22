@@ -57,7 +57,7 @@ function buildRoadmap(answers) {
       text: "Un titre provisoire ne suffit pas pour la suite des démarches — il faut d'abord le faire transformer en titre permanent.",
       professional: {
         trade: "Topographe",
-        note: "Le topographe borne officiellement le terrain et monte le dossier technique pour obtenir l'ACD auprès de l'État.",
+        note: "Le géomètre-topographe prend en charge toute la procédure ACD : bornage du terrain, montage du dossier technique et dépôt auprès de l'État. Ses honoraires se discutent directement avec lui.",
       },
     });
   }
@@ -68,7 +68,7 @@ function buildRoadmap(answers) {
       text: "Ce document confirme officiellement ce qu'il est permis de construire sur ce terrain précis.",
       professional: {
         trade: "Topographe",
-        note: "Il prépare et imprime les plans topographiques officiels nécessaires à la demande du CU.",
+        note: "Le géomètre-topographe s'occupe aussi de toute la procédure du Certificat d'Urbanisme : plans topographiques officiels et dépôt du dossier. Ses honoraires se discutent directement avec lui.",
       },
     });
   }
