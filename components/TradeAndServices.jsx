@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CONSTRUCTION_SERVICES, SENIOR_TRADES, SPECIALTY_SERVICES } from "@/lib/constants";
+import { CONSTRUCTION_SERVICES, SENIOR_TRADES, SPECIALTY_SERVICES, SPECIALTY_UNRESTRICTED_TRADES } from "@/lib/constants";
 
 export default function TradeAndServices({ initialTrade = "", initialServices = [] }) {
   const [trade, setTrade] = useState(initialTrade);
@@ -13,6 +13,11 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
   const availableServices = isSenior
     ? CONSTRUCTION_SERVICES
     : CONSTRUCTION_SERVICES.filter((s) => !SENIOR_TRADES.includes(s));
+
+  const isSpecialtyUnrestricted = SPECIALTY_UNRESTRICTED_TRADES.includes(trade);
+  const availableSpecialties = isSpecialtyUnrestricted
+    ? SPECIALTY_SERVICES
+    : SPECIALTY_SERVICES.filter((s) => s === "Suivi de chantier");
 
   return (
     <>
@@ -61,10 +66,12 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
           Prestations spécifiques (en plus de ton métier)
         </label>
         <p className="mb-2 text-xs text-gray-500">
-          ex: un technicien BTP propose souvent le suivi de chantier, un architecte la réalisation 3D, un topographe le levé/bornage.
+          {isSpecialtyUnrestricted
+            ? "En tant qu'architecte, ingénieur ou topographe, tu peux cocher toutes les prestations pertinentes."
+            : "Réservé sans restriction aux architectes, ingénieurs et topographes. Pour ton métier, seul le suivi de chantier est disponible ici."}
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {SPECIALTY_SERVICES.map((s) => (
+          {availableSpecialties.map((s) => (
             <label key={s} className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
