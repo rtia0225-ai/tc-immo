@@ -6,6 +6,9 @@ const EVENT_LABELS = {
   appointment_booked: "A réservé un rendez-vous",
   project_started: "A démarré un projet",
   participant_added: "A ajouté un participant à un projet",
+  message_interest: "A cliqué sur \"Envoyer un message\" (non activé)",
+  appointment_interest: "A cliqué sur \"Rendez-vous visio\" (non activé)",
+  project_interest: "A cliqué sur \"Démarrer un projet\" (non activé)",
 };
 
 export default async function ClientActivityPage({ searchParams }) {

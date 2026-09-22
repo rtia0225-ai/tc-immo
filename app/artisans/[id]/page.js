@@ -194,20 +194,20 @@ export default async function ArtisanProfilePage({ params }) {
           )}
           <div className={`mt-2 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
             <Link
-              href={`/appointments/new?artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`}
+              href={`/interet?type=appointment&artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`}
               className="rounded-md bg-brand px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-dark"
             >
               Rendez-vous visio
             </Link>
             <Link
-              href={`/messages/new?artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`}
+              href={`/interet?type=message&artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`}
               className="rounded-md border border-gray-300 px-4 py-3 text-center text-sm font-bold text-ink hover:bg-gray-50"
             >
               Message
             </Link>
             {!viewerIsArtisan && (
               <Link
-                href={`/projects/new?artisan=${artisan.id}`}
+                href={`/interet?type=project&artisan=${artisan.id}`}
                 className="rounded-md bg-forest px-4 py-3 text-center text-sm font-bold text-white hover:bg-forest-dark"
               >
                 Démarrer un projet
