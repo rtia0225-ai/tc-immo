@@ -76,20 +76,20 @@ function buildRoadmap(answers) {
   if (answers.construction === "simple") {
     steps.push({
       title: "Concevoir les plans et déposer le Permis de Construire",
-      text: "Dernière étape avant de pouvoir démarrer les travaux.",
+      text: "L'architecte mène cette démarche en votre nom — le terrain et le permis restent bien à toi. Une fois obtenu, il livre le Permis de Construire directement sur la plateforme.",
       professional: {
         trade: "Architecture",
-        note: "L'architecte dessine les plans réglementaires de la maison et dépose le dossier de Permis de Construire en son nom.",
+        note: "L'architecte dessine les plans réglementaires de la maison, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TC-Immo.",
       },
     });
   } else if (answers.construction === "grand") {
     steps.push({
       title: "Étudier le sol, concevoir les plans et déposer le Permis de Construire",
-      text: "Un bâtiment de plusieurs étages demande en plus une étude technique de solidité avant le dépôt du dossier.",
+      text: "Un bâtiment de plusieurs étages demande en plus une étude technique de solidité avant le dépôt du dossier. L'architecte mène cette démarche en votre nom et livre le Permis de Construire directement sur la plateforme une fois obtenu.",
       professional: [
         {
           trade: "Architecture",
-          note: "L'architecte dessine les plans réglementaires et dépose le dossier de Permis de Construire.",
+          note: "L'architecte dessine les plans réglementaires, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TC-Immo.",
         },
         {
           trade: "Ingénieur génie civil",
@@ -98,6 +98,15 @@ function buildRoadmap(answers) {
       ],
     });
   }
+
+  steps.push({
+    title: "Trouver un technicien BTP pour la construction",
+    text: "Une fois le Permis de Construire obtenu, c'est lui qui prend en charge la construction de ta maison de bout en bout.",
+    professional: {
+      trade: "Technicien BTP",
+      note: "Le technicien BTP trouve et coordonne les maçons et autres corps de métier nécessaires, et supervise le chantier jusqu'à la livraison.",
+    },
+  });
 
   return steps;
 }
