@@ -250,3 +250,25 @@ export async function deleteArtisanPhoto(formData) {
 
   redirect("/dashboard/profile?success=1");
 }
+
+// Le client met à jour ses propres informations (nom, téléphone, pays,
+// ville). Formulaire volontairement plus simple que celui de l'artisan.
+export async function updateClientProfile(formData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const fullName = formData.get("fullName");
+  const phone = formData.get("phone");
+  const country = formData.get("country");
+  const city = formData.get("city");
+
+  await supabase
+    .from("profiles")
+    .update({ full_name: fullName, phone, country, city })
+    .eq("id", user.id);
+
+  redirect("/dashboard/profile?success=1");
+}

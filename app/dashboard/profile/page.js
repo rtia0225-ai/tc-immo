@@ -1,14 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { updateArtisanProfile, addArtisanPhoto, deleteArtisanPhoto, uploadAvatar } from "./actions";
+import { updateArtisanProfile, addArtisanPhoto, deleteArtisanPhoto, uploadAvatar, updateClientProfile } from "./actions";
 import { uploadIdDocument } from "@/lib/idDocumentActions";
 import { CI_CITIES, CONSTRUCTION_SERVICES, ID_DOCUMENT_TYPES, MOBILE_MONEY_OPERATORS } from "@/lib/constants";
 import ShareLocationButton from "@/components/ShareLocationButton";
 import FileInputButton from "@/components/FileInputButton";
 import TradeAndServices from "@/components/TradeAndServices";
 import CitySelect from "@/components/CitySelect";
+import CountryAndCitySelect from "@/components/CountryAndCitySelect";
 
-export default async function ArtisanProfileEditPage({ searchParams }) {
+export default async function ProfileEditPage({ searchParams }) {
   const supabase = createClient();
   const {
     data: { user },
@@ -20,6 +21,51 @@ export default async function ArtisanProfileEditPage({ searchParams }) {
     .select("*")
     .eq("id", user.id)
     .single();
+
+  // Espace client : formulaire simple, distinct de celui de l'artisan.
+  if (profile?.role === "client") {
+    return (
+      <div className="mx-auto max-w-md px-4 py-10">
+        <h1 className="font-heading text-2xl font-bold">Mes infos</h1>
+
+        {searchParams?.success && (
+          <p className="mt-4 rounded-lg bg-forest-light p-3 text-sm text-forest">Enregistré.</p>
+        )}
+        {searchParams?.error && (
+          <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
+        )}
+
+        <div className="mt-6 flex items-center gap-4">
+          {profile?.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={`${profile.avatar_url}?v=${Date.now()}`} alt="" className="h-16 w-16 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 font-heading text-lg font-bold text-gray-300">
+              {profile?.full_name?.slice(0, 2).toUpperCase()}
+            </div>
+          )}
+          <form action={uploadAvatar} className="flex items-center gap-2">
+            <FileInputButton name="avatar" accept="image/*" required label="Choisir une photo" autoSubmit />
+          </form>
+        </div>
+
+        <form action={updateClientProfile} className="mt-6 flex flex-col gap-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium">Nom complet</label>
+            <input name="fullName" defaultValue={profile?.full_name || ""} required className="w-full rounded-lg border border-gray-300 p-2" />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Téléphone</label>
+            <input name="phone" defaultValue={profile?.phone || ""} className="w-full rounded-lg border border-gray-300 p-2" />
+          </div>
+          <CountryAndCitySelect initialCountry={profile?.country || ""} initialCity={profile?.city || ""} />
+          <button type="submit" className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark">
+            Enregistrer
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   if (profile?.role !== "artisan") {
     redirect("/dashboard");

@@ -163,11 +163,9 @@ export default async function DashboardPage({ searchParams }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {isArtisan && (
-              <Link href="/dashboard/profile" className="text-xs text-white/80 underline hover:text-white">
-                Mes infos
-              </Link>
-            )}
+            <Link href="/dashboard/profile" className="text-xs text-white/80 underline hover:text-white">
+              Mes infos
+            </Link>
             <form action={logout}>
               <button className="text-xs text-white/70 hover:text-white">Déconnexion</button>
             </form>
