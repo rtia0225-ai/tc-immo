@@ -127,28 +127,26 @@ function SecuritySection({ title, body }) {
 
   return (
     <RevealSection>
-      <div className="rounded-2xl bg-forest px-6 py-10 sm:px-10">
-        <h2 className="font-heading text-2xl font-bold text-white">{title}</h2>
-        {intro.map((p, i) => (
-          <p key={i} className="mt-3 max-w-md text-sm leading-relaxed text-white/80">{p}</p>
-        ))}
+      <h2 className="font-heading text-2xl font-bold text-ink">{title}</h2>
+      {intro.map((p, i) => (
+        <p key={i} className="mt-3 max-w-md text-sm leading-relaxed text-gray-600">{p}</p>
+      ))}
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2">
-          {items.map((item) => {
-            const Icon = matchSecurityIcon(item.title);
-            return (
-              <div key={item.title} className="flex gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
-                  <Icon />
-                </div>
-                <div>
-                  <p className="font-heading font-bold text-white">{item.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-white/75">{item.text}</p>
-                </div>
+      <div className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2">
+        {items.map((item) => {
+          const Icon = matchSecurityIcon(item.title);
+          return (
+            <div key={item.title} className="flex gap-3 border-t border-gray-100 pt-5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-forest text-forest">
+                <Icon />
               </div>
-            );
-          })}
-        </div>
+              <div>
+                <p className="font-heading font-bold text-ink">{item.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-gray-600">{item.text}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </RevealSection>
   );
