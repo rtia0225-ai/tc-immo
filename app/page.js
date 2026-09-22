@@ -33,8 +33,9 @@ export default async function HomePage() {
 
   const { data: artisans } = await supabase
     .from("artisan_profiles")
-    .select(`id, trade, is_verified, profiles ( full_name, city, avatar_url )`)
+    .select(`id, trade, is_verified, profiles!inner ( full_name, city, avatar_url, approval_status )`)
     .eq("is_suspended", false)
+    .eq("profiles.approval_status", "approved")
     .order("is_verified", { ascending: false })
     .limit(6);
 

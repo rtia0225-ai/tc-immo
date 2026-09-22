@@ -23,6 +23,15 @@ export default async function NewConversationPage({ searchParams }) {
     redirect(`/artisans/${regardingArtisanId || artisanId}`);
   }
 
+  const { data: senderProfile } = await supabase
+    .from("profiles")
+    .select("approval_status")
+    .eq("id", user.id)
+    .single();
+  if (senderProfile?.approval_status !== "approved") {
+    redirect("/dashboard");
+  }
+
   let existingQuery = supabase
     .from("conversations")
     .select("id")

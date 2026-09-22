@@ -21,12 +21,16 @@ export default async function NewProjectPage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id_document_url, role")
+    .select("id_document_url, role, approval_status")
     .eq("id", user.id)
     .single();
 
   // Seul un client peut démarrer un projet — pas l'artisan.
   if (profile?.role === "artisan") {
+    redirect("/dashboard");
+  }
+
+  if (profile?.approval_status !== "approved") {
     redirect("/dashboard");
   }
 

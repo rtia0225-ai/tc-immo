@@ -30,15 +30,15 @@ export default async function ArtisanProfilePage({ params }) {
       `id, trade, bio, years_experience, is_verified, pricing_info,
        services, projects_completed, mobility_scope, mobility_cities,
        is_suspended, recruited_by_technician_id,
-       profiles ( full_name, city, avatar_url ),
+       profiles ( full_name, city, avatar_url, approval_status ),
        technician:recruited_by_technician_id ( id, profiles ( full_name ) )`
     )
     .eq("id", id)
     .single();
 
-  // Un profil suspendu reste consultable uniquement par l'artisan
-  // lui-même (pour comprendre sa situation) — pas par le public.
-  if (artisan?.is_suspended && !isOwnProfile) {
+  // Un profil suspendu ou pas encore approuvé reste consultable
+  // uniquement par l'artisan lui-même — pas par le public.
+  if ((artisan?.is_suspended || artisan?.profiles?.approval_status !== "approved") && !isOwnProfile) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <p className="text-gray-500">Ce profil n'est pas disponible pour le moment.</p>

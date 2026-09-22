@@ -26,12 +26,14 @@ export default async function ArtisansPage({ searchParams }) {
     .select(
       `id, trade, bio, years_experience, is_verified, pricing_info,
        services, projects_completed, mobility_scope, mobility_cities,
-       profiles ( full_name, city, avatar_url )`
+       profiles ( full_name, city, avatar_url, approval_status )`
     )
     .eq("is_suspended", false)
     .order("is_verified", { ascending: false });
 
-  let artisans = (allArtisans || []).filter((a) => {
+  let artisans = (allArtisans || []).filter((a) => a.profiles?.approval_status === "approved");
+
+  artisans = artisans.filter((a) => {
     const matchesTrade =
       !trade || a.trade === trade || (a.services || []).includes(trade);
     const matchesCity =

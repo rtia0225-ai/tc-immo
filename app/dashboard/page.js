@@ -23,10 +23,27 @@ export default async function DashboardPage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, created_at")
+    .select("full_name, role, created_at, approval_status")
     .eq("id", user.id)
     .single();
   const isArtisan = profile?.role === "artisan";
+
+  // Tant que le compte n'est pas approuvé par l'admin, pas d'accès au
+  // tableau de bord — règle temporaire avant le lancement officiel.
+  if (profile?.approval_status !== "approved") {
+    return (
+      <div className="mx-auto max-w-md px-4 py-16 text-center">
+        <h1 className="font-heading text-xl font-bold text-ink">
+          {profile?.approval_status === "rejected" ? "Inscription refusée" : "Inscription en attente de validation"}
+        </h1>
+        <p className="mt-3 text-sm text-gray-600">
+          {profile?.approval_status === "rejected"
+            ? "Ton inscription n'a pas été validée. Contacte-nous directement si tu penses qu'il s'agit d'une erreur."
+            : "Merci pour ton inscription ! Le temps que la plateforme finalise son lancement, chaque nouveau compte est validé manuellement. Tu recevras l'accès dès que ce sera fait."}
+        </p>
+      </div>
+    );
+  }
 
   const { data: projects } = await supabase
     .from("projects")

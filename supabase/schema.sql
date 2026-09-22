@@ -996,3 +996,20 @@ alter table projects add column if not exists terrain_reference_number text;
 alter table projects add column if not exists terrain_area text;
 alter table projects add column if not exists terrain_document_type text;
 alter table projects add column if not exists terrain_notes text;
+
+-- ---------------------------------------------------------
+-- 37. APPROBATION ADMIN OBLIGATOIRE POUR LES NOUVEAUX ARTISANS
+-- Jusqu'à nouvel ordre, tout nouvel artisan doit être approuvé par
+-- l'admin avant d'apparaître publiquement (recherche, fiche profil).
+-- Les artisans déjà inscrits au moment de cette migration sont
+-- automatiquement approuvés (non rétroactif).
+-- ---------------------------------------------------------
+alter table artisan_profiles add column if not exists is_approved boolean default false;
+
+-- ---------------------------------------------------------
+-- 37. VALIDATION MANUELLE DES INSCRIPTIONS (client ET artisan)
+-- Temporaire, avant le lancement officiel — chaque nouveau compte reste
+-- "pending" tant que l'admin ne l'a pas approuvé.
+-- ---------------------------------------------------------
+alter table profiles add column if not exists approval_status text default 'pending'
+  check (approval_status in ('pending', 'approved', 'rejected'));

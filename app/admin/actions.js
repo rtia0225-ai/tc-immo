@@ -77,3 +77,40 @@ export async function toggleSuspended(formData) {
 
   redirect(`/admin/artisans/${artisanId}`);
 }
+
+// Approuve un compte en attente (client ou artisan) — jusqu'au lancement
+// officiel, chaque nouvelle inscription reste bloquée sans cette action.
+export async function approveAccount(formData) {
+  const supabase = createClient();
+  await requireAdmin(supabase);
+
+  const userId = formData.get("userId");
+
+  await supabase
+    .from("profiles")
+    .update({ approval_status: "approved" })
+    .eq("id", userId);
+
+  await sendPush(
+    userId,
+    "Compte validé",
+    "Ton compte TC-Immo a été validé — tu as maintenant accès à ton espace.",
+    "/dashboard"
+  );
+
+  redirect("/admin/pending");
+}
+
+export async function rejectAccount(formData) {
+  const supabase = createClient();
+  await requireAdmin(supabase);
+
+  const userId = formData.get("userId");
+
+  await supabase
+    .from("profiles")
+    .update({ approval_status: "rejected" })
+    .eq("id", userId);
+
+  redirect("/admin/pending");
+}

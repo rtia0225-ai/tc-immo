@@ -20,6 +20,15 @@ export default async function NewAppointmentPage({ searchParams }) {
     redirect(`/artisans/${regardingArtisanId || artisanId}`);
   }
 
+  const { data: requesterProfile } = await supabase
+    .from("profiles")
+    .select("approval_status")
+    .eq("id", user.id)
+    .single();
+  if (requesterProfile?.approval_status !== "approved") {
+    redirect("/dashboard");
+  }
+
   const { data: artisan } = await supabase
     .from("artisan_profiles")
     .select("id, trade, profiles ( full_name )")
