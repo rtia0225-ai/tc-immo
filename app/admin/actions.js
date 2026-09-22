@@ -116,7 +116,22 @@ export async function rejectAccount(formData) {
 }
 
 // Gestion des sections de contenu modifiables (page "Comment ça marche",
-// et potentiellement d'autres pages plus tard).
+// "Ressources", et potentiellement d'autres pages plus tard).
+
+// Transforme le texte "Titre | URL" (une ligne par lien) en tableau JSON.
+function parseLinks(rawLinks) {
+  if (!rawLinks) return [];
+  return rawLinks
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [label, url] = line.split("|").map((s) => s.trim());
+      return url ? { label: label || url, url } : null;
+    })
+    .filter(Boolean);
+}
+
 export async function addPageSection(formData) {
   const supabase = createClient();
   await requireAdmin(supabase);
@@ -125,12 +140,14 @@ export async function addPageSection(formData) {
   const title = formData.get("title");
   const body = formData.get("body");
   const orderIndex = formData.get("orderIndex");
+  const links = parseLinks(formData.get("links"));
 
   await supabase.from("page_sections").insert({
     page,
     title,
     body,
     order_index: Number(orderIndex) || 0,
+    links,
   });
 
   redirect(`/admin/content?page=${page}`);
@@ -145,10 +162,11 @@ export async function updatePageSection(formData) {
   const title = formData.get("title");
   const body = formData.get("body");
   const orderIndex = formData.get("orderIndex");
+  const links = parseLinks(formData.get("links"));
 
   await supabase
     .from("page_sections")
-    .update({ title, body, order_index: Number(orderIndex) || 0, updated_at: new Date().toISOString() })
+    .update({ title, body, order_index: Number(orderIndex) || 0, links, updated_at: new Date().toISOString() })
     .eq("id", id);
 
   redirect(`/admin/content?page=${page}`);

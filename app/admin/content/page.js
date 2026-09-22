@@ -4,6 +4,7 @@ import { addPageSection, updatePageSection, deletePageSection } from "../actions
 
 const PAGES = [
   { value: "comment-ca-marche", label: "Comment ça marche" },
+  { value: "ressources", label: "Ressources" },
 ];
 
 export default async function ContentManagementPage({ searchParams }) {
@@ -70,6 +71,18 @@ export default async function ContentManagementPage({ searchParams }) {
                 </label>
                 <textarea name="body" defaultValue={s.body} required rows={10} className="w-full rounded-lg border border-gray-300 p-2 text-sm" />
               </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">
+                  Liens "en savoir plus" (un par ligne, format Titre | URL — optionnel)
+                </label>
+                <textarea
+                  name="links"
+                  defaultValue={(s.links || []).map((l) => `${l.label} | ${l.url}`).join("\n")}
+                  rows={3}
+                  placeholder="Guichet Unique du Foncier | https://sigfu.gouv.ci"
+                  className="w-full rounded-lg border border-gray-300 p-2 text-sm"
+                />
+              </div>
               <div className="flex gap-2">
                 <button type="submit" className="rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark">
                   Enregistrer
@@ -104,6 +117,17 @@ export default async function ContentManagementPage({ searchParams }) {
               Contenu (une ligne vide = nouveau paragraphe, **mot** = en gras)
             </label>
             <textarea name="body" required rows={6} className="w-full rounded-lg border border-gray-300 p-2 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Liens "en savoir plus" (un par ligne, format Titre | URL — optionnel)
+            </label>
+            <textarea
+              name="links"
+              rows={3}
+              placeholder="Guichet Unique du Foncier | https://sigfu.gouv.ci"
+              className="w-full rounded-lg border border-gray-300 p-2 text-sm"
+            />
           </div>
           <button type="submit" className="w-fit rounded-lg bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-dark">
             Ajouter la section

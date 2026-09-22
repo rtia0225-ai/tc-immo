@@ -1076,3 +1076,8 @@ create policy "sections visibles publiquement" on page_sections
 
 create policy "admin gere les sections" on page_sections
   for all using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true));
+
+-- ---------------------------------------------------------
+-- 42. LIENS "EN SAVOIR PLUS" SUR LES SECTIONS DE CONTENU
+-- ---------------------------------------------------------
+alter table page_sections add column if not exists links jsonb default '[]'::jsonb;
