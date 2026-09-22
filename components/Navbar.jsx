@@ -113,9 +113,9 @@ export default function Navbar({ user, isAdmin }) {
               <Link href="/faq" className="rounded px-2 py-2 hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                 FAQ
               </Link>
-              <a href="tel:+2250000000000" className="rounded px-2 py-2 hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
+              <Link href="/contact" className="rounded px-2 py-2 hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                 Nous contacter
-              </a>
+              </Link>
               {isAdmin && (
                 <>
                   <div className="my-1 border-t border-gray-100" />
