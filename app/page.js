@@ -14,7 +14,7 @@ const STEPS = [
   {
     n: 2,
     title: "Démarrez votre projet",
-    text: "Validez avec chaque prestataire un échéancier de paiement en plusieurs étapes, jamais en une seule fois. Un abonnement mensuel s'active dès le lancement du projet.",
+    text: "Validez avec chaque prestataire un échéancier de paiement en plusieurs étapes. Un abonnement mensuel s'active dès le lancement du projet.",
   },
   {
     n: 3,

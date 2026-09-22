@@ -126,7 +126,7 @@ export default async function ArtisanProfilePage({ params }) {
         ) : (
           <div>
             <p>
-              <strong>À savoir avant de négocier :</strong> ne paie jamais la totalité en une seule fois. La plateforme impose un échéancier d'au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes pour ce métier — prévois ce découpage dans ta discussion avec l'artisan.
+              <strong>À savoir avant de négocier :</strong> un échéancier de paiement en au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes est requis pour ce métier — prévois ce découpage dans ta discussion avec l'artisan.
             </p>
             <p className="mt-2">
               {artisan.trade === "Maçonnerie" ? (

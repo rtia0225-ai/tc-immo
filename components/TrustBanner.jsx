@@ -37,7 +37,7 @@ const ITEMS = [
       </svg>
     ),
     title: "Traçabilité totale",
-    text: "Contrats, échéanciers et paiements restent enregistrés sur la plateforme, ce qui limite fortement les risques de fraude autour d'un paiement.",
+    text: "Contrats, permis, rapports de suivi et paiements restent tous enregistrés sur la plateforme, ce qui limite fortement les risques de fraude autour d'un paiement.",
   },
 ];
 
