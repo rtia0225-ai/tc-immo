@@ -19,9 +19,10 @@ function matchProfessionalIcon(title) {
 function matchSecurityIcon(title) {
   const t = title.toLowerCase();
   if (t.includes("vérifi")) return IconShieldCheck;
-  if (t.includes("traçabilité") || t.includes("gestion")) return IconFolder;
+  if (t.includes("document") || t.includes("traçabilité") || t.includes("gestion")) return IconFolder;
   if (t.includes("paiement") || t.includes("échelonn")) return IconMilestones;
   if (t.includes("distance") || t.includes("suivi")) return IconSignal;
+  if (t.includes("assurance")) return IconShieldCheck;
   if (t.includes("partenaire")) return IconHandshake;
   return IconShieldCheck;
 }
