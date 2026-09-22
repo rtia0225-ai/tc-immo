@@ -14,6 +14,7 @@ export async function signup(formData) {
   const fullName = formData.get("fullName");
   const role = formData.get("role"); // 'client' ou 'artisan'
   const city = formData.get("city");
+  const country = formData.get("country");
   const redirectTo = formData.get("redirect"); // page à retrouver après connexion
 
   // Champs supplémentaires, uniquement utilisés si artisan
@@ -64,6 +65,7 @@ export async function signup(formData) {
         role,
         phone,
         city,
+        country,
         trade,
         bio,
         years_experience: yearsExperience,
@@ -98,6 +100,7 @@ export async function signup(formData) {
       role,
       phone,
       city,
+      country,
       emergency_contact_name: emergencyContactName,
       emergency_contact_phone: emergencyContactPhone,
     });
@@ -122,6 +125,7 @@ export async function signup(formData) {
   const confirmParams = new URLSearchParams();
   if (role) confirmParams.set("role", role);
   if (redirectTo) confirmParams.set("redirect", redirectTo);
+  confirmParams.set("viaEmail", phone ? "0" : "1");
   const confirmUrl = `/auth/confirm-email${confirmParams.toString() ? `?${confirmParams.toString()}` : ""}`;
   redirect(confirmUrl);
 }

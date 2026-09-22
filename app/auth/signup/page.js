@@ -4,6 +4,7 @@ import { CI_CITIES, CONSTRUCTION_SERVICES, MOBILE_MONEY_OPERATORS } from "@/lib/
 import TradeAndServices from "@/components/TradeAndServices";
 import CitySelect from "@/components/CitySelect";
 import RecruiterSelect from "@/components/RecruiterSelect";
+import CountryAndCitySelect from "@/components/CountryAndCitySelect";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function SignupPage({ searchParams }) {
@@ -99,12 +100,14 @@ export default async function SignupPage({ searchParams }) {
             <label className="mb-1 block text-sm font-medium">Mot de passe</label>
             <input type="password" name="password" required minLength={6} className="w-full rounded-lg border border-gray-300 p-2" />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              {role === "artisan" ? "Ville de base" : "Ville de résidence actuelle"}
-            </label>
-            <CitySelect cities={CI_CITIES} name="city" required />
-          </div>
+          {role === "artisan" ? (
+            <div>
+              <label className="mb-1 block text-sm font-medium">Ville de base</label>
+              <CitySelect cities={CI_CITIES} name="city" required />
+            </div>
+          ) : (
+            <CountryAndCitySelect />
+          )}
         </div>
 
         {role === "artisan" && (

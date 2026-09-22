@@ -1033,3 +1033,25 @@ create policy "admin voit le journal d'activite" on client_activity_events
 
 create policy "systeme peut journaliser" on client_activity_events
   for insert with check (auth.uid() = user_id);
+
+-- ---------------------------------------------------------
+-- 39. VÉRIFICATION EMAIL RÉTABLIE (uniquement pour les vrais emails,
+-- pas les comptes créés par numéro de téléphone)
+-- ---------------------------------------------------------
+create or replace function auto_confirm_email()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  if new.email like '%@tc-immo.local' then
+    new.email_confirmed_at := coalesce(new.email_confirmed_at, now());
+  end if;
+  return new;
+end;
+$$;
+
+-- ---------------------------------------------------------
+-- 40. PAYS DE RÉSIDENCE (client) — la ville reste libre hors CI
+-- ---------------------------------------------------------
+alter table profiles add column if not exists country text;
