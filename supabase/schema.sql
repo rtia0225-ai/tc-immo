@@ -1055,3 +1055,24 @@ $$;
 -- 40. PAYS DE RÉSIDENCE (client) — la ville reste libre hors CI
 -- ---------------------------------------------------------
 alter table profiles add column if not exists country text;
+
+-- ---------------------------------------------------------
+-- 41. SECTIONS DE PAGE MODIFIABLES PAR L'ADMIN (Comment ça marche, etc.)
+-- ---------------------------------------------------------
+create table page_sections (
+  id uuid primary key default uuid_generate_v4(),
+  page text not null,
+  order_index int not null default 0,
+  title text not null,
+  body text not null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table page_sections enable row level security;
+
+create policy "sections visibles publiquement" on page_sections
+  for select using (true);
+
+create policy "admin gere les sections" on page_sections
+  for all using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true));

@@ -114,3 +114,54 @@ export async function rejectAccount(formData) {
 
   redirect("/admin/pending");
 }
+
+// Gestion des sections de contenu modifiables (page "Comment ça marche",
+// et potentiellement d'autres pages plus tard).
+export async function addPageSection(formData) {
+  const supabase = createClient();
+  await requireAdmin(supabase);
+
+  const page = formData.get("page");
+  const title = formData.get("title");
+  const body = formData.get("body");
+  const orderIndex = formData.get("orderIndex");
+
+  await supabase.from("page_sections").insert({
+    page,
+    title,
+    body,
+    order_index: Number(orderIndex) || 0,
+  });
+
+  redirect(`/admin/content?page=${page}`);
+}
+
+export async function updatePageSection(formData) {
+  const supabase = createClient();
+  await requireAdmin(supabase);
+
+  const id = formData.get("id");
+  const page = formData.get("page");
+  const title = formData.get("title");
+  const body = formData.get("body");
+  const orderIndex = formData.get("orderIndex");
+
+  await supabase
+    .from("page_sections")
+    .update({ title, body, order_index: Number(orderIndex) || 0, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  redirect(`/admin/content?page=${page}`);
+}
+
+export async function deletePageSection(formData) {
+  const supabase = createClient();
+  await requireAdmin(supabase);
+
+  const id = formData.get("id");
+  const page = formData.get("page");
+
+  await supabase.from("page_sections").delete().eq("id", id);
+
+  redirect(`/admin/content?page=${page}`);
+}

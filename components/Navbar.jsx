@@ -128,6 +128,9 @@ export default function Navbar({ user, isAdmin }) {
                   <Link href="/admin/activity" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                     Admin — Parcours des clients
                   </Link>
+                  <Link href="/admin/content" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
+                    Admin — Contenu du site
+                  </Link>
                 </>
               )}
             </div>
