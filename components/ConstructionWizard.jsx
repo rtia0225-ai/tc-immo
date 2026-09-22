@@ -3,83 +3,98 @@
 import { useState } from "react";
 import Link from "next/link";
 
-const QUESTIONS = [
-  {
-    key: "q1",
-    question: "Où se situe votre terrain ?",
+// Chaque étape connaît sa question et calcule elle-même la prochaine
+// étape à afficher, selon la réponse donnée — permet de vraiment sauter
+// des questions (pas juste les ignorer après coup).
+const STEPS = {
+  loti: {
+    question: "Votre terrain est-il loti ?",
     options: [
-      { value: "A", label: "En zone villageoise / hors lotissement approuvé par l'État" },
-      { value: "B", label: "En ville, dans un quartier loti et approuvé par le Ministère" },
+      { value: "oui", label: "Oui, il est dans un lotissement reconnu" },
+      { value: "non", label: "Non, il n'est pas loti" },
     ],
+    next: (value) => (value === "non" ? "decline" : "titre"),
   },
-  {
-    key: "q2",
-    question: "Quel document avez-vous en main ?",
+  titre: {
+    question: "Quel type de titre avez-vous sur ce terrain ?",
     options: [
-      { value: "A", label: "Un papier provisoire (attestation villageoise, lettre d'attribution, attestation de cession)" },
-      { value: "B", label: "Un titre de propriété officiel et définitif de l'État (ACD ou Titre Foncier)" },
+      { value: "provisoire", label: "Un titre provisoire (attestation villageoise, lettre d'attribution...)" },
+      { value: "permanent", label: "Un titre permanent (ACD ou Titre Foncier)" },
     ],
+    // Avec un titre provisoire, impossible d'avoir un Certificat
+    // d'Urbanisme — inutile de poser la question, on saute directement
+    // à la suite.
+    next: (value) => (value === "provisoire" ? "construction" : "cu"),
   },
-  {
-    key: "q3",
-    question: "Avez-vous le Certificat d'Urbanisme (CU) du Guichet Unique ?",
+  cu: {
+    question: "Avez-vous déjà le Certificat d'Urbanisme (CU) ?",
     options: [
-      { value: "A", label: "Non" },
-      { value: "B", label: "Oui, j'ai déjà le Certificat d'Urbanisme signé et mes extraits topo tamponnés" },
+      { value: "oui", label: "Oui, je l'ai déjà" },
+      { value: "non", label: "Non, pas encore" },
     ],
+    next: () => "construction",
   },
-  {
-    key: "q4",
+  construction: {
     question: "Que souhaitez-vous construire ?",
     options: [
-      { value: "A", label: "Une maison d'habitation simple (villa basse ou duplex R+1)" },
-      { value: "B", label: "Un grand bâtiment (immeuble R+2 ou plus, sous-sol, local commercial/bureaux)" },
+      { value: "simple", label: "Une maison d'habitation simple (villa basse ou duplex R+1)" },
+      { value: "grand", label: "Un grand bâtiment (immeuble R+2 ou plus, sous-sol, local commercial)" },
     ],
+    next: () => "result",
   },
-];
+};
 
-// Construit la feuille de route complète, cumulée, jusqu'au dépôt du
-// Permis de Construire — pas seulement la toute prochaine étape.
+const FIRST_STEP = "loti";
+
+// Construit la feuille de route complète, avec une courte explication de
+// ce que fait chaque professionnel à chaque étape.
 function buildRoadmap(answers) {
   const steps = [];
 
-  if (answers.q1 === "A") {
+  if (answers.titre === "provisoire") {
     steps.push({
-      title: "Rattacher le terrain à un lotissement approuvé",
-      text: "Votre terrain relève encore du droit traditionnel coutumier. Il doit d'abord être officiellement rattaché à un lotissement approuvé par le Ministère de la Construction — sans cette reconnaissance, aucune demande de permis ne peut être reçue.",
-      professional: { trade: "Topographe" },
+      title: "Obtenir un titre permanent (ACD)",
+      text: "Un titre provisoire ne suffit pas pour la suite des démarches — il faut d'abord le faire transformer en titre permanent.",
+      professional: {
+        trade: "Topographe",
+        note: "Le topographe borne officiellement le terrain et monte le dossier technique pour obtenir l'ACD auprès de l'État.",
+      },
     });
   }
 
-  if (answers.q1 === "A" || answers.q2 === "A") {
+  if (answers.titre === "provisoire" || answers.cu === "non") {
     steps.push({
-      title: "Obtenir l'ACD (Arrêté de Concession Définitive)",
-      text: "L'État exige ce titre de propriété définitif pour délivrer un permis de construire. Un papier provisoire (attestation, lettre d'attribution...) ne suffit pas.",
-      professional: { trade: "Topographe", note: "pour monter le dossier technique de bornage" },
+      title: "Obtenir le Certificat d'Urbanisme (CU)",
+      text: "Ce document confirme officiellement ce qu'il est permis de construire sur ce terrain précis.",
+      professional: {
+        trade: "Topographe",
+        note: "Il prépare et imprime les plans topographiques officiels nécessaires à la demande du CU.",
+      },
     });
   }
 
-  if (answers.q1 === "A" || answers.q2 === "A" || answers.q3 === "A") {
+  if (answers.construction === "simple") {
     steps.push({
-      title: "Obtenir le Certificat d'Urbanisme (Guichet Unique, étape 1)",
-      text: "Ce document confirme ce qu'il est permis de bâtir sur la parcelle et valide les accès à l'eau, à l'électricité et à l'évacuation des eaux.",
-      professional: { trade: "Topographe", note: "pour imprimer les 5 exemplaires du plan officiel du terrain" },
+      title: "Concevoir les plans et déposer le Permis de Construire",
+      text: "Dernière étape avant de pouvoir démarrer les travaux.",
+      professional: {
+        trade: "Architecture",
+        note: "L'architecte dessine les plans réglementaires de la maison et dépose le dossier de Permis de Construire en son nom.",
+      },
     });
-  }
-
-  if (answers.q4 === "A") {
+  } else if (answers.construction === "grand") {
     steps.push({
-      title: "Concevoir les plans et déposer le Permis de Construire (Guichet Unique, étape 2)",
-      text: "Les plans officiels de la maison sont réalisés au format A3, puis le dossier complet est déposé pour obtenir le Permis de Construire.",
-      professional: { trade: "Architecture", note: "il dessine l'ensemble des plans réglementaires et appose son cachet officiel" },
-    });
-  } else if (answers.q4 === "B") {
-    steps.push({
-      title: "Concevoir les plans, étudier le sol et déposer le Permis de Construire (Guichet Unique, étape 2)",
-      text: "Un projet à charges lourdes (étages multiples, activité commerciale) demande en plus une étude de la résistance du sol et des calculs de solidité du béton avant le dépôt du dossier final.",
+      title: "Étudier le sol, concevoir les plans et déposer le Permis de Construire",
+      text: "Un bâtiment de plusieurs étages demande en plus une étude technique de solidité avant le dépôt du dossier.",
       professional: [
-        { trade: "Architecture", note: "pour les plans" },
-        { trade: "Ingénieur génie civil", note: "pour l'étude de sol et le ferraillage" },
+        {
+          trade: "Architecture",
+          note: "L'architecte dessine les plans réglementaires et dépose le dossier de Permis de Construire.",
+        },
+        {
+          trade: "Ingénieur génie civil",
+          note: "L'ingénieur calcule la résistance du sol et la solidité de la structure (béton, ferraillage).",
+        },
       ],
     });
   }
@@ -89,19 +104,29 @@ function buildRoadmap(answers) {
 
 export default function ConstructionWizard() {
   const [started, setStarted] = useState(false);
-  const [step, setStep] = useState(0); // index dans QUESTIONS, ou QUESTIONS.length pour le résultat
+  const [currentStep, setCurrentStep] = useState(FIRST_STEP);
+  const [history, setHistory] = useState([]); // pile des étapes précédentes, pour "← Question précédente"
   const [answers, setAnswers] = useState({});
 
   const choose = (value) => {
-    setAnswers((a) => ({ ...a, [QUESTIONS[step].key]: value }));
-    setStep((s) => s + 1);
+    const step = STEPS[currentStep];
+    const nextKey = step.next(value);
+    setAnswers((a) => ({ ...a, [currentStep]: value }));
+    setHistory((h) => [...h, currentStep]);
+    setCurrentStep(nextKey);
   };
 
-  const goBack = () => setStep((s) => Math.max(0, s - 1));
+  const goBack = () => {
+    if (history.length === 0) return;
+    const prev = history[history.length - 1];
+    setHistory((h) => h.slice(0, -1));
+    setCurrentStep(prev);
+  };
 
   const restart = () => {
     setAnswers({});
-    setStep(0);
+    setHistory([]);
+    setCurrentStep(FIRST_STEP);
   };
 
   if (!started) {
@@ -126,23 +151,25 @@ export default function ConstructionWizard() {
     );
   }
 
-  const isResult = step >= QUESTIONS.length;
-  const currentQuestion = QUESTIONS[step];
+  const isDecline = currentStep === "decline";
+  const isResult = currentStep === "result";
+  const isQuestion = !isDecline && !isResult;
+  const step = isQuestion ? STEPS[currentStep] : null;
   const roadmap = isResult ? buildRoadmap(answers) : [];
 
   return (
     <section className="border-b border-gray-100 bg-forest-light px-4 py-10">
       <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-6">
-        {!isResult && (
+        {isQuestion && (
           <>
             <p className="text-xs font-semibold uppercase tracking-wide text-forest">
-              Question {step + 1}/{QUESTIONS.length}
+              Étape {history.length + 1}
             </p>
             <h3 className="font-heading mt-2 text-lg font-bold text-ink">
-              {currentQuestion.question}
+              {step.question}
             </h3>
             <div className="mt-4 flex flex-col gap-2">
-              {currentQuestion.options.map((opt) => (
+              {step.options.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -153,7 +180,7 @@ export default function ConstructionWizard() {
                 </button>
               ))}
             </div>
-            {step > 0 && (
+            {history.length > 0 && (
               <button
                 type="button"
                 onClick={goBack}
@@ -162,6 +189,39 @@ export default function ConstructionWizard() {
                 ← Question précédente
               </button>
             )}
+          </>
+        )}
+
+        {isDecline && (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-wide text-forest">
+              Merci pour votre réponse
+            </p>
+            <h3 className="font-heading mt-2 text-lg font-bold text-ink">
+              Nous ne pouvons pas encore vous accompagner pour ce terrain
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-gray-600">
+              Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TC-Immo prend en charge pour le moment. Nous te conseillons de contacter ton propre géomètre-topographe pour entamer cette étape.
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              Une fois ton terrain loti, reviens avec plaisir pour la suite de ton projet — on sera là pour t'accompagner.
+            </p>
+            <div className="mt-5 flex gap-4">
+              <button
+                type="button"
+                onClick={goBack}
+                className="text-xs text-gray-500 hover:text-forest"
+              >
+                ← Question précédente
+              </button>
+              <button
+                type="button"
+                onClick={restart}
+                className="text-xs text-gray-500 hover:text-forest"
+              >
+                Recommencer
+              </button>
+            </div>
           </>
         )}
 
@@ -184,6 +244,11 @@ export default function ConstructionWizard() {
                     <p className="text-xs font-semibold text-forest">Étape {i + 1}</p>
                     <p className="font-heading font-bold text-ink">{s.title}</p>
                     <p className="mt-1 text-sm leading-relaxed text-gray-600">{s.text}</p>
+                    {pros.map((p) => (
+                      <p key={p.trade} className="mt-2 text-xs text-gray-500">
+                        <strong className="text-ink">{p.trade}</strong> — {p.note}
+                      </p>
+                    ))}
                     <div className="mt-2 flex flex-wrap gap-2">
                       {pros.map((p) => (
                         <Link
