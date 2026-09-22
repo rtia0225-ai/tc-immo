@@ -100,7 +100,9 @@ export default async function SignupPage({ searchParams }) {
             <input type="password" name="password" required minLength={6} className="w-full rounded-lg border border-gray-300 p-2" />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Ville de base</label>
+            <label className="mb-1 block text-sm font-medium">
+              {role === "artisan" ? "Ville de base" : "Ville de résidence actuelle"}
+            </label>
             <CitySelect cities={CI_CITIES} name="city" required />
           </div>
         </div>

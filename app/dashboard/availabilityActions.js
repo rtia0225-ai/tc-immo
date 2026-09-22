@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { logClientActivity } from "@/lib/activityLog";
 
 // L'artisan ajoute un créneau disponible (date + heure de début/fin).
 export async function addAvailabilitySlot(formData) {
@@ -103,6 +104,11 @@ export async function bookAvailabilitySlot(formData) {
     .from("availability_slots")
     .update({ is_booked: true })
     .eq("id", slot.id);
+
+  await logClientActivity(user.id, "appointment_booked", artisanId, {
+    regarding_artisan_id: regardingArtisanId,
+    scheduled_at: scheduledAt,
+  });
 
   redirect("/appointments");
 }

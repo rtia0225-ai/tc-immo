@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { logClientActivity } from "@/lib/activityLog";
 
 // Pas de page intermédiaire : dès que la personne clique "Discuter par
 // message" depuis un profil artisan, on retrouve (ou on crée) directement
@@ -25,7 +26,7 @@ export default async function NewConversationPage({ searchParams }) {
 
   const { data: senderProfile } = await supabase
     .from("profiles")
-    .select("approval_status")
+    .select("approval_status, role")
     .eq("id", user.id)
     .single();
   if (senderProfile?.approval_status !== "approved") {
@@ -46,6 +47,9 @@ export default async function NewConversationPage({ searchParams }) {
   const { data: existing } = await existingQuery.maybeSingle();
 
   if (existing) {
+    if (senderProfile?.role === "client") {
+      await logClientActivity(user.id, "message_started", artisanId, { conversation_id: existing.id, regarding_artisan_id: regardingArtisanId });
+    }
     redirect(`/messages/${existing.id}`);
   }
 
@@ -61,6 +65,10 @@ export default async function NewConversationPage({ searchParams }) {
 
   if (error) {
     redirect(`/artisans/${regardingArtisanId || artisanId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (senderProfile?.role === "client") {
+    await logClientActivity(user.id, "message_started", artisanId, { conversation_id: created.id, regarding_artisan_id: regardingArtisanId });
   }
 
   redirect(`/messages/${created.id}`);

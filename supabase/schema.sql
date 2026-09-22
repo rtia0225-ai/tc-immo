@@ -1013,3 +1013,23 @@ alter table artisan_profiles add column if not exists is_approved boolean defaul
 -- ---------------------------------------------------------
 alter table profiles add column if not exists approval_status text default 'pending'
   check (approval_status in ('pending', 'approved', 'rejected'));
+
+-- ---------------------------------------------------------
+-- 38. JOURNAL D'ACTIVITÉ CLIENT (étude de marché)
+-- ---------------------------------------------------------
+create table client_activity_events (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references profiles(id) on delete cascade,
+  event_type text not null,
+  target_artisan_id uuid references artisan_profiles(id),
+  metadata jsonb,
+  created_at timestamptz default now()
+);
+
+alter table client_activity_events enable row level security;
+
+create policy "admin voit le journal d'activite" on client_activity_events
+  for select using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true));
+
+create policy "systeme peut journaliser" on client_activity_events
+  for insert with check (auth.uid() = user_id);

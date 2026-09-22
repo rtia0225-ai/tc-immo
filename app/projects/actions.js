@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
+import { logClientActivity } from "@/lib/activityLog";
 
 // Vérifie que l'échéancier respecte la règle du métier : une seule
 // échéance (100%) pour Architecte/Topographe, au moins 5 pour tous les
@@ -177,6 +178,12 @@ export async function createProject(formData) {
     content: contractContent,
   });
 
+  await logClientActivity(user.id, "project_started", artisanId, {
+    project_id: project.id,
+    amount,
+    currency,
+  });
+
   redirect(`/projects/${project.id}/contract/${artisanId}`);
 }
 
@@ -334,6 +341,11 @@ export async function addParticipant(formData) {
     project_id: projectId,
     artisan_id: artisanId,
     content: contractContent,
+  });
+
+  await logClientActivity(user.id, "participant_added", artisanId, {
+    project_id: projectId,
+    amount,
   });
 
   redirect(`/projects/${projectId}/contract/${artisanId}`);
