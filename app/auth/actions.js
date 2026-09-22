@@ -46,7 +46,7 @@ export async function signup(formData) {
     const qs = new URLSearchParams({ role, ...(redirectTo ? { redirect: redirectTo } : {}) });
     redirect(
       `/auth/signup?${qs.toString()}&error=${encodeURIComponent(
-        "Ta description ou ta tarification mentionne un réseau social ou une appli externe. Retire cette mention : les échanges doivent rester sur la plateforme."
+        "Ta description ou ta tarification mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Retire cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }

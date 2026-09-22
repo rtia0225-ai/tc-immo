@@ -73,7 +73,7 @@ export async function sendMessage(formData) {
   if (containsExternalPlatformMention(content)) {
     redirect(
       `/messages/${conversationId}?error=${encodeURIComponent(
-        "Ton message mentionne un réseau social ou une appli externe. Les échanges doivent rester sur la plateforme."
+        "Ton message mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Les échanges doivent rester sur la plateforme."
       )}`
     );
   }

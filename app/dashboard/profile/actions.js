@@ -83,7 +83,7 @@ export async function updateArtisanProfile(formData) {
   if (containsExternalPlatformMention(bio) || containsExternalPlatformMention(pricingInfo)) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(
-        "Ta description ou ta tarification mentionne un réseau social ou une appli externe. Retire cette mention : les échanges doivent rester sur la plateforme."
+        "Ta description ou ta tarification mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Retire cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }
@@ -170,7 +170,7 @@ export async function addArtisanPhoto(formData) {
   if (containsExternalPlatformMention(caption)) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(
-        "La légende mentionne un réseau social ou une appli externe. Retire cette mention : les échanges doivent rester sur la plateforme."
+        "La légende mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Retire cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }
