@@ -28,6 +28,11 @@ function renderBody(body) {
   });
 }
 
+export const metadata = {
+  title: "Ressources — Guide des démarches foncières et de construction",
+  description: "Terrain loti, ACD, Certificat d'Urbanisme, Permis de Construire : tout comprendre sur les démarches administratives pour construire en Côte d'Ivoire.",
+};
+
 export default async function RessourcesPage() {
   const supabase = createClient();
   const { data: sections } = await supabase

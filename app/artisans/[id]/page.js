@@ -4,6 +4,25 @@ import PhotoCarousel from "@/components/PhotoCarousel";
 import Link from "next/link";
 import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
 
+export async function generateMetadata({ params }) {
+  const supabase = createClient();
+  const { data: artisan } = await supabase
+    .from("artisan_profiles")
+    .select("trade, bio, profiles ( full_name, city )")
+    .eq("id", params.id)
+    .single();
+
+  if (!artisan) return { title: "Artisan" };
+
+  const name = artisan.profiles?.full_name || "Artisan";
+  const city = artisan.profiles?.city;
+
+  return {
+    title: `${name} — ${artisan.trade}${city ? ` à ${city}` : ""}`,
+    description: artisan.bio?.slice(0, 155) || `${artisan.trade} vérifié sur TC-Immo${city ? `, disponible à ${city}` : ""}.`,
+  };
+}
+
 export default async function ArtisanProfilePage({ params }) {
   const supabase = createClient();
   const { id } = params;

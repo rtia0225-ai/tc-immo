@@ -6,10 +6,19 @@ import InstallAssistant from "@/components/InstallAssistant";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "TC-Immo",
+  metadataBase: new URL("https://tcholding-immo.com"),
+  title: {
+    default: "TC-Immo — Construire en Côte d'Ivoire, depuis n'importe où",
+    template: "%s | TC-Immo",
+  },
   description:
-    "Soyez maître de vos travaux : trouvez votre artisan, suivez vos travaux en temps réel, payez à votre rythme.",
+    "Soyez maître de vos travaux : trouvez votre artisan vérifié, suivez vos travaux en temps réel, payez à votre rythme.",
   manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "TC-Immo",
+  },
 };
 
 export const viewport = {

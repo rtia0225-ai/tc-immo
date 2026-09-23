@@ -177,6 +177,11 @@ function pickLayout(orderIndex) {
   return GenericSection;
 }
 
+export const metadata = {
+  title: "Comment ça marche",
+  description: "Le parcours client, le rôle de chaque professionnel (géomètre, architecte, technicien BTP) et les garanties de sécurité de TC-Immo, expliqués simplement.",
+};
+
 export default async function CommentCaMarchePage() {
   const supabase = createClient();
   const { data: sections } = await supabase

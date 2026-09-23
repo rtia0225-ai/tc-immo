@@ -4,6 +4,11 @@ const FAQS = [
   { q: "Puis-je suivre mon chantier à distance ?", a: "Oui, votre espace personnel affiche l'avancement en temps réel de votre chantier." },
 ];
 
+export const metadata = {
+  title: "Questions fréquentes",
+  description: "Sécurité des paiements, vérification des artisans, suivi de chantier à distance : les réponses aux questions les plus posées sur TC-Immo.",
+};
+
 export default function FaqPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-14">

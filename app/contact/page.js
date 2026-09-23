@@ -2,6 +2,11 @@ const PHONE = "+225 01 61 08 73 06";
 const PHONE_TEL = "+2250161087306";
 const EMAIL = "contact@tcholding-immo.com";
 
+export const metadata = {
+  title: "Nous contacter",
+  description: "Contactez l'équipe TC-Immo par téléphone ou par email.",
+};
+
 export default function ContactPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-16">

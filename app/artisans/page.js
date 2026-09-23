@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { CI_CITIES, CONSTRUCTION_SERVICES, RECOMMENDATION_OPTIONS } from "@/lib/constants";
 import CitySelect from "@/components/CitySelect";
 
+export const metadata = {
+  title: "Trouver un artisan vérifié en Côte d'Ivoire",
+  description: "Maçons, électriciens, plombiers, architectes, géomètres... Recherchez parmi les artisans et professionnels vérifiés de TC-Immo, par métier et par ville.",
+};
+
 export default async function ArtisansPage({ searchParams }) {
   const supabase = createClient();
   const { trade, city, recommendation, house_type } = searchParams || {};

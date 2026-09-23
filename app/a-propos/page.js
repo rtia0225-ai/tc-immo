@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "À propos",
+  description: "TC-Immo, la plateforme qui connecte la diaspora ivoirienne à des artisans vérifiés pour construire en toute confiance en Côte d'Ivoire.",
+};
+
 export default function AProposPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-14">
