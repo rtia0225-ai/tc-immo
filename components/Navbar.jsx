@@ -44,7 +44,7 @@ export default function Navbar({ user, isAdmin }) {
             type="button"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Ouvrir le menu"
-            className="flex h-9 w-9 shrink-0 items-center justify-center text-ink hover:text-brand"
+            className="flex h-9 w-9 shrink-0 items-center justify-center text-ink hover:text-brand md:hidden"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="3" y1="6" x2="21" y2="6" />
@@ -56,6 +56,33 @@ export default function Navbar({ user, isAdmin }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-navbar.png" alt="TC-Immo" className="h-9 w-auto sm:h-10" />
           </Link>
+
+          {/* Menu horizontal, visible uniquement à partir de la taille ordinateur */}
+          <div className="ml-4 hidden items-center gap-1 text-sm font-medium text-ink md:flex">
+            <Link href="/a-propos" className="rounded-md px-3 py-2 hover:bg-gray-50">
+              À propos
+            </Link>
+            <Link href="/comment-ca-marche" className="rounded-md px-3 py-2 hover:bg-gray-50">
+              Comment ça marche
+            </Link>
+            <Link href="/ressources" className="rounded-md px-3 py-2 hover:bg-gray-50">
+              Ressources
+            </Link>
+            <Link href="/faq" className="rounded-md px-3 py-2 hover:bg-gray-50">
+              FAQ
+            </Link>
+            <Link href="/contact" className="rounded-md px-3 py-2 hover:bg-gray-50">
+              Nous contacter
+            </Link>
+            {isAdmin && (
+              <>
+                <div className="mx-1 h-5 w-px bg-gray-200" />
+                <Link href="/admin/artisans" className="rounded-md px-3 py-2 font-bold hover:bg-gray-50">
+                  Admin
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
@@ -97,9 +124,9 @@ export default function Navbar({ user, isAdmin }) {
             type="button"
             aria-label="Fermer le menu"
             onClick={() => setMenuOpen(false)}
-            className="fixed inset-0 z-20 cursor-default"
+            className="fixed inset-0 z-20 cursor-default md:hidden"
           />
-          <div className="relative z-30 border-t border-gray-100 bg-white px-4 py-3">
+          <div className="relative z-30 border-t border-gray-100 bg-white px-4 py-3 md:hidden">
             <div className="mx-auto flex max-w-6xl flex-col gap-1 text-sm font-medium text-ink">
               <Link href="/a-propos" className="rounded px-2 py-2 hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                 À propos
