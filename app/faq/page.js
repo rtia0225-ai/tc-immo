@@ -1,4 +1,5 @@
 const FAQS = [
+  { q: "Puis-je construire en Côte d'Ivoire depuis l'étranger ?", a: "Oui, c'est exactement pour ça que TC-Immo existe. Vous choisissez vos prestataires, validez un échéancier de paiement et suivez l'avancement de votre chantier, où que vous soyez dans le monde." },
   { q: "Comment mon argent est-il protégé ?", a: "Les paiements restent séquestrés sur la plateforme et ne sont libérés à l'artisan qu'après validation de chaque étape du chantier." },
   { q: "Comment les artisans sont-ils vérifiés ?", a: "Chaque artisan est audité (dont vérification RCCM) avant d'être référencé sur la plateforme." },
   { q: "Puis-je suivre mon chantier à distance ?", a: "Oui, votre espace personnel affiche l'avancement en temps réel de votre chantier." },
