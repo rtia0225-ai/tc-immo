@@ -1,0 +1,14 @@
+# TC-Immo
+
+> TC-Immo (TC Holding Immo) est une marketplace qui connecte des clients à distance — notamment la diaspora ivoirienne — à des artisans et professionnels vérifiés (maçons, géomètres-topographes, architectes, techniciens BTP) pour construire une maison en Côte d'Ivoire en toute sécurité.
+
+TC-Immo sécurise les paiements par échéancier en plusieurs étapes (jamais versés en une seule fois), vérifie chaque artisan avant de le référencer, et permet un suivi à distance de l'avancement du chantier depuis l'espace client.
+
+## Pages principales
+
+- [Comment ça marche](https://tcholding-immo.com/comment-ca-marche) : le parcours client détaillé, le rôle de chaque professionnel (géomètre, architecte, technicien BTP, artisans), et les garanties de sécurité de la plateforme.
+- [Ressources](https://tcholding-immo.com/ressources) : guide des démarches administratives pour construire en Côte d'Ivoire — terrain loti, ACD, Certificat d'Urbanisme, Permis de Construire — avec pièces à fournir et tarifs officiels de l'État.
+- [Trouver un artisan](https://tcholding-immo.com/artisans) : recherche d'artisans et professionnels vérifiés par métier et par ville.
+- [FAQ](https://tcholding-immo.com/faq) : réponses aux questions fréquentes, notamment sur la construction à distance depuis l'étranger.
+- [À propos](https://tcholding-immo.com/a-propos) : présentation de TC-Immo.
+- [Contact](https://tcholding-immo.com/contact) : téléphone et email de contact.
