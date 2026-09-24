@@ -1,9 +1,12 @@
 import "./globals.css";
+import Script from "next/script";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallAssistant from "@/components/InstallAssistant";
 import { createClient } from "@/lib/supabase/server";
+
+const GA_MEASUREMENT_ID = "G-53TV4ZCT7Q";
 
 export const metadata = {
   metadataBase: new URL("https://tcholding-immo.com"),
@@ -43,6 +46,20 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="fr">
+      <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
+      </head>
       <body className="flex min-h-screen flex-col">
         <ServiceWorkerRegister />
         <Navbar user={user} isAdmin={isAdmin} />
