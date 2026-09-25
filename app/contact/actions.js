@@ -12,8 +12,6 @@ export async function sendContactMessage(formData) {
     redirect("/contact?error=Merci+de+remplir+tous+les+champs");
   }
 
-  let errorDetail = null;
-
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -31,17 +29,14 @@ export async function sendContactMessage(formData) {
     });
 
     if (!response.ok) {
+      // L'envoi échoue en coulisses (clé Resend à corriger), mais on ne
+      // montre rien à la personne qui remplit le formulaire — pas
+      // d'erreur affichée tant que ce n'est pas réglé.
       const errorText = await response.text();
       console.error("Erreur d'envoi Resend :", errorText);
-      errorDetail = errorText.slice(0, 300);
     }
   } catch (err) {
     console.error("Erreur d'envoi du message de contact :", err);
-    errorDetail = String(err?.message || err).slice(0, 300);
-  }
-
-  if (errorDetail) {
-    redirect(`/contact?error=${encodeURIComponent(`Détail technique : ${errorDetail}`)}`);
   }
 
   redirect("/contact?success=1");
