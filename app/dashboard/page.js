@@ -4,6 +4,7 @@ import Link from "next/link";
 import { logout } from "../auth/actions";
 import { translateStatus } from "@/lib/statusLabels";
 import ProjectTimeline from "@/components/ProjectTimeline";
+import { bookInterviewSlot } from "../admin/interviewActions";
 
 const CLIENT_TABS = [
   { key: "projets", label: "Mes projets" },
@@ -29,18 +30,113 @@ export default async function DashboardPage({ searchParams }) {
   const isArtisan = profile?.role === "artisan";
 
   // Tant que le compte n'est pas approuvé par l'admin, pas d'accès au
-  // tableau de bord — règle temporaire avant le lancement officiel.
+  // tableau de bord — règle temporaire avant le lancement officiel. Pour
+  // tous les métiers sauf la maçonnerie (déjà vérifiée via le technicien
+  // recruteur), un entretien réservé est requis avant validation.
   if (profile?.approval_status !== "approved") {
+    let artisanTrade = null;
+    let interviewBooking = null;
+    let availableSlots = [];
+
+    if (isArtisan) {
+      const { data: artisan } = await supabase
+        .from("artisan_profiles")
+        .select("trade")
+        .eq("id", user.id)
+        .single();
+      artisanTrade = artisan?.trade;
+    }
+
+    const requiresInterview = isArtisan && artisanTrade !== "Maçonnerie";
+
+    if (requiresInterview) {
+      const { data: booking } = await supabase
+        .from("interview_bookings")
+        .select("slot:slot_id ( date, start_time, end_time )")
+        .eq("applicant_id", user.id)
+        .maybeSingle();
+      interviewBooking = booking;
+
+      if (!interviewBooking) {
+        const today = new Date().toISOString().slice(0, 10);
+        const { data: slots } = await supabase
+          .from("interview_slots")
+          .select("*")
+          .eq("is_booked", false)
+          .gte("date", today)
+          .order("date", { ascending: true })
+          .order("start_time", { ascending: true });
+        availableSlots = slots || [];
+      }
+    }
+
+    const slotsByDate = availableSlots.reduce((acc, s) => {
+      acc[s.date] = acc[s.date] || [];
+      acc[s.date].push(s);
+      return acc;
+    }, {});
+
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <h1 className="font-heading text-xl font-bold text-ink">
           {profile?.approval_status === "rejected" ? "Inscription refusée" : "Inscription en attente de validation"}
         </h1>
-        <p className="mt-3 text-sm text-gray-600">
-          {profile?.approval_status === "rejected"
-            ? "Ton inscription n'a pas été validée. Contacte-nous directement si tu penses qu'il s'agit d'une erreur."
-            : "Merci pour ton inscription ! Le temps que la plateforme finalise son lancement, chaque nouveau compte est validé manuellement. Tu recevras l'accès dès que ce sera fait."}
-        </p>
+
+        {profile?.approval_status === "rejected" ? (
+          <p className="mt-3 text-sm text-gray-600">
+            Ton inscription n'a pas été validée. Contacte-nous directement si tu penses qu'il s'agit d'une erreur.
+          </p>
+        ) : !requiresInterview ? (
+          <p className="mt-3 text-sm text-gray-600">
+            Merci pour ton inscription ! Le temps que la plateforme finalise son lancement, chaque nouveau compte est validé manuellement. Tu recevras l'accès dès que ce sera fait.
+          </p>
+        ) : interviewBooking ? (
+          <p className="mt-3 text-sm text-gray-600">
+            Merci pour ton inscription ! Ton entretien est prévu le{" "}
+            <strong className="text-ink">
+              {new Date(interviewBooking.slot.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+              {" "}à {interviewBooking.slot.start_time.slice(0, 5)}
+            </strong>
+            . Ton profil sera activé juste après.
+          </p>
+        ) : (
+          <>
+            <p className="mt-3 text-sm text-gray-600">
+              Pour ton métier, un entretien avec l'équipe TC-Immo est requis avant validation. Choisis un créneau ci-dessous.
+            </p>
+            {searchParams?.error && (
+              <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
+            )}
+            {Object.keys(slotsByDate).length === 0 ? (
+              <p className="mt-4 rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-500">
+                Aucun créneau disponible pour le moment — reviens un peu plus tard.
+              </p>
+            ) : (
+              <div className="mt-4 flex flex-col gap-4 text-left">
+                {Object.entries(slotsByDate).map(([date, daySlots]) => (
+                  <div key={date}>
+                    <p className="mb-2 text-sm font-bold text-ink">
+                      {new Date(date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {daySlots.map((s) => (
+                        <form key={s.id} action={bookInterviewSlot}>
+                          <input type="hidden" name="slotId" value={s.id} />
+                          <button
+                            type="submit"
+                            className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-ink hover:border-brand hover:bg-brand-light"
+                          >
+                            {s.start_time.slice(0, 5)}
+                          </button>
+                        </form>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
     );
   }

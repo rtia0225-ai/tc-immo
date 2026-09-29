@@ -158,6 +158,9 @@ export default function Navbar({ user, isAdmin }) {
                   <Link href="/admin/content" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                     Admin — Contenu du site
                   </Link>
+                  <Link href="/admin/interview-availability" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
+                    Admin — Créneaux d'entretien
+                  </Link>
                 </>
               )}
             </div>

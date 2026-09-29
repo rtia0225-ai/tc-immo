@@ -1081,3 +1081,42 @@ create policy "admin gere les sections" on page_sections
 -- 42. LIENS "EN SAVOIR PLUS" SUR LES SECTIONS DE CONTENU
 -- ---------------------------------------------------------
 alter table page_sections add column if not exists links jsonb default '[]'::jsonb;
+
+-- ---------------------------------------------------------
+-- 43. ENTRETIEN OBLIGATOIRE AVANT VALIDATION (tous les métiers sauf
+-- Maçonnerie, déjà vérifiée via le technicien recruteur)
+-- ---------------------------------------------------------
+create table interview_slots (
+  id uuid primary key default uuid_generate_v4(),
+  date date not null,
+  start_time time not null,
+  end_time time not null,
+  is_booked boolean default false,
+  created_at timestamptz default now()
+);
+
+alter table interview_slots enable row level security;
+
+create policy "creneaux entretien visibles par les inscrits en attente" on interview_slots
+  for select using (auth.uid() is not null);
+
+create policy "admin gere ses creneaux d'entretien" on interview_slots
+  for all using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true));
+
+create table interview_bookings (
+  id uuid primary key default uuid_generate_v4(),
+  applicant_id uuid references profiles(id) on delete cascade,
+  slot_id uuid references interview_slots(id),
+  created_at timestamptz default now()
+);
+
+alter table interview_bookings enable row level security;
+
+create policy "on voit son propre entretien reserve" on interview_bookings
+  for select using (auth.uid() = applicant_id);
+
+create policy "on reserve son propre entretien" on interview_bookings
+  for insert with check (auth.uid() = applicant_id);
+
+create policy "admin voit tous les entretiens reserves" on interview_bookings
+  for select using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true));

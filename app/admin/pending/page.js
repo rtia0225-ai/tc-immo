@@ -22,6 +22,23 @@ export default async function PendingAccountsPage() {
     .eq("approval_status", "pending")
     .order("created_at", { ascending: true });
 
+  const { data: bookings } = await supabase
+    .from("interview_bookings")
+    .select("applicant_id, slot:slot_id ( date, start_time )");
+  const bookingByApplicant = Object.fromEntries((bookings || []).map((b) => [b.applicant_id, b.slot]));
+
+  const tradeById = {};
+  if (pending?.length) {
+    const artisanIds = pending.filter((p) => p.role === "artisan").map((p) => p.id);
+    if (artisanIds.length > 0) {
+      const { data: artisans } = await supabase
+        .from("artisan_profiles")
+        .select("id, trade")
+        .in("id", artisanIds);
+      (artisans || []).forEach((a) => (tradeById[a.id] = a.trade));
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold text-ink">
@@ -46,6 +63,15 @@ export default async function PendingAccountsPage() {
                 <p className="mt-0.5 text-xs text-gray-400">
                   Inscrit le {new Date(p.created_at).toLocaleDateString("fr-FR")}
                 </p>
+                {p.role === "artisan" && tradeById[p.id] !== "Maçonnerie" && (
+                  bookingByApplicant[p.id] ? (
+                    <p className="mt-1 text-xs font-medium text-forest">
+                      Entretien réservé le {new Date(bookingByApplicant[p.id].date).toLocaleDateString("fr-FR")} à {bookingByApplicant[p.id].start_time.slice(0, 5)}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-xs font-medium text-brand">Entretien pas encore réservé</p>
+                  )
+                )}
               </div>
               <div className="flex shrink-0 gap-2">
                 <form action={rejectAccount}>
