@@ -1120,3 +1120,8 @@ create policy "on reserve son propre entretien" on interview_bookings
 
 create policy "admin voit tous les entretiens reserves" on interview_bookings
   for select using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true));
+
+-- ---------------------------------------------------------
+-- 44. UNE SEULE RÉSERVATION D'ENTRETIEN PAR PERSONNE
+-- ---------------------------------------------------------
+alter table interview_bookings add constraint interview_bookings_applicant_unique unique (applicant_id);

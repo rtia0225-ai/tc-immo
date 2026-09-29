@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { CONSTRUCTION_SERVICES, SENIOR_TRADES, SPECIALTY_SERVICES, SPECIALTY_UNRESTRICTED_TRADES } from "@/lib/constants";
 
-export default function TradeAndServices({ initialTrade = "", initialServices = [] }) {
+export default function TradeAndServices({ initialTrade = "", initialServices = [], onTradeChange }) {
   const [trade, setTrade] = useState(initialTrade);
+
+  const handleTradeChange = (value) => {
+    setTrade(value);
+    onTradeChange?.(value);
+  };
 
   // Un ingénieur ou un architecte peut avoir une équipe de maçons, de
   // charpentiers, etc. (ça descend). L'inverse n'a pas de sens : un maçon
@@ -27,7 +32,7 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
           name="trade"
           required
           value={trade}
-          onChange={(e) => setTrade(e.target.value)}
+          onChange={(e) => handleTradeChange(e.target.value)}
           className="w-full rounded-lg border border-gray-300 p-2"
         >
           <option value="" disabled>Choisir un métier</option>

@@ -1,7 +1,7 @@
 import { signup } from "../actions";
 import Link from "next/link";
 import { CI_CITIES, CONSTRUCTION_SERVICES, MOBILE_MONEY_OPERATORS } from "@/lib/constants";
-import TradeAndServices from "@/components/TradeAndServices";
+import ArtisanRegistrationExtras from "@/components/ArtisanRegistrationExtras";
 import CitySelect from "@/components/CitySelect";
 import RecruiterSelect from "@/components/RecruiterSelect";
 import CountryAndCitySelect from "@/components/CountryAndCitySelect";
@@ -13,6 +13,7 @@ export default async function SignupPage({ searchParams }) {
   const qs = redirectTo ? `&redirect=${encodeURIComponent(redirectTo)}` : "";
 
   let technicians = [];
+  let interviewSlots = [];
   if (role === "artisan") {
     const supabase = createClient();
     const { data } = await supabase
@@ -22,6 +23,16 @@ export default async function SignupPage({ searchParams }) {
     technicians = (data || [])
       .filter((t) => t.profiles?.full_name)
       .map((t) => ({ id: t.id, name: t.profiles.full_name }));
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: slots } = await supabase
+      .from("interview_slots")
+      .select("*")
+      .eq("is_booked", false)
+      .gte("date", today)
+      .order("date", { ascending: true })
+      .order("start_time", { ascending: true });
+    interviewSlots = slots || [];
   }
 
   if (!role) {
@@ -159,7 +170,7 @@ export default async function SignupPage({ searchParams }) {
                 Profil visible par les clients
               </p>
 
-              <TradeAndServices />
+              <ArtisanRegistrationExtras interviewSlots={interviewSlots} />
 
               <div>
                 <label className="mb-2 block text-sm font-medium">Mobilité</label>

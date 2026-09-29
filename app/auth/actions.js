@@ -30,6 +30,7 @@ export async function signup(formData) {
   const mobileMoneyOperator = formData.get("mobileMoneyOperator");
   const mobileMoneyNumber = formData.get("mobileMoneyNumber");
   const recruitedByTechnicianId = formData.get("recruitedByTechnicianId") || null;
+  const interviewSlotId = formData.get("interviewSlotId") || null;
 
   // Ce que le client verra (description, tarification) ne doit jamais
   // contenir de numéro de téléphone — même règle que la messagerie.
@@ -78,6 +79,7 @@ export async function signup(formData) {
         mobile_money_operator: mobileMoneyOperator,
         mobile_money_number: mobileMoneyNumber,
         recruited_by_technician_id: recruitedByTechnicianId,
+        interview_slot_id: interviewSlotId,
       },
     },
   });
@@ -119,6 +121,19 @@ export async function signup(formData) {
         mobile_money_number: mobileMoneyNumber || null,
         recruited_by_technician_id: recruitedByTechnicianId,
       });
+    }
+
+    // Réservation immédiate du créneau d'entretien, si applicable et si
+    // une session existe déjà. Filet de sécurité dans ensureProfile()
+    // sinon (cas d'une confirmation d'email en attente).
+    if (interviewSlotId) {
+      const { error: bookingError } = await supabase.from("interview_bookings").insert({
+        applicant_id: userId,
+        slot_id: interviewSlotId,
+      });
+      if (!bookingError) {
+        await supabase.from("interview_slots").update({ is_booked: true }).eq("id", interviewSlotId);
+      }
     }
   }
 
