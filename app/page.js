@@ -135,12 +135,12 @@ export default async function HomePage() {
         {!artisans || artisans.length === 0 ? (
           <p className="mt-6 text-gray-500">Aucun artisan pour le moment.</p>
         ) : (
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
+          <div className="mt-6 flex gap-5 overflow-x-auto pb-2">
             {artisans.map((a) => (
               <Link
                 key={a.id}
                 href={`/artisans/${a.id}`}
-                className="group w-52 shrink-0 overflow-hidden rounded-lg border border-ink/15 bg-white"
+                className="group w-80 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white"
               >
                 <div className="relative">
                   {a.profiles?.avatar_url ? (
@@ -148,10 +148,10 @@ export default async function HomePage() {
                     <img
                       src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                       alt={a.profiles?.full_name}
-                      className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-36 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
+                    <div className="flex h-52 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
                       {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
                     </div>
                   )}
@@ -198,24 +198,22 @@ export default async function HomePage() {
           <h2 className="font-heading text-2xl font-bold text-ink">Comment ça marche</h2>
           <p className="mt-1 text-sm text-gray-600">Vous gérez vos travaux, nous gérons la sécurité.</p>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step) => (
-              <div key={step.n} className="overflow-hidden rounded-lg border border-ink/15 bg-white">
+              <div key={step.n}>
                 <div className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={step.image}
                     alt={step.title}
-                    className="h-40 w-full object-cover"
+                    className="h-40 w-full rounded-lg object-cover"
                   />
                   <span className="absolute left-3 top-3 rounded bg-brand px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
                     Étape {String(step.n).padStart(2, "0")}
                   </span>
                 </div>
-                <div className="p-4">
-                  <p className="font-heading text-base font-bold leading-snug text-ink">{step.title}</p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{step.text}</p>
-                </div>
+                <p className="font-heading mt-3 text-base font-bold leading-snug text-ink">{step.title}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{step.text}</p>
               </div>
             ))}
           </div>
