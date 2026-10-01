@@ -34,9 +34,20 @@ module.exports = {
         heading: ["'Lora'", "serif"],
         sans: ["'Inter'", "sans-serif"],
       },
+      // Angles resserrés partout (esprit document/plan, pas appli bulle) :
+      // rounded-lg/xl/2xl deviennent tous discrets plutôt que très ronds.
+      borderRadius: {
+        lg: "0.25rem",
+        xl: "0.375rem",
+        "2xl": "0.5rem",
+        full: "9999px",
+      },
+      // Les ombres douces uniformes sont l'un des tics les plus
+      // reconnaissables d'un design généré — on les réduit à presque
+      // rien, au profit des bordures (traits fins) comme relief principal.
       boxShadow: {
-        card: "0 2px 8px rgba(22,26,30,0.06), 0 1px 2px rgba(22,26,30,0.04)",
-        "card-hover": "0 12px 28px rgba(22,26,30,0.14), 0 4px 10px rgba(22,26,30,0.08)",
+        card: "0 1px 2px rgba(22,26,30,0.05)",
+        "card-hover": "0 1px 2px rgba(22,26,30,0.05)",
         glow: "0 8px 30px rgba(242,34,34,0.25)",
       },
       keyframes: {

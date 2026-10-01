@@ -45,11 +45,7 @@ export default function TrustBanner() {
   return (
     <div className="bg-forest px-4 py-16 text-white">
       <div className="mx-auto max-w-6xl">
-        <p className="text-center text-xs font-bold uppercase tracking-wider text-white/60">
-          Pourquoi nous faire confiance
-        </p>
-
-        <div className="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item, i) => (
             <div
               key={item.title}

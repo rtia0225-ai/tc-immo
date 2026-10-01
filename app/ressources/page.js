@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import RevealSection from "@/components/RevealSection";
 import { IconFolder } from "@/components/HowItWorksIcons";
 import Link from "next/link";
 
@@ -28,13 +27,9 @@ export default async function RessourcesPage() {
 
   return (
     <div>
-      <div className="border-b border-gray-100 bg-[#FAF8F3] px-4 py-14">
+      <div className="border-b border-ink/10 px-4 pb-10 pt-14">
         <div className="mx-auto max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-forest/30 bg-white px-3 py-1 text-xs font-medium text-forest">
-            <span className="h-1.5 w-1.5 rounded-full bg-forest" />
-            Guide des démarches
-          </div>
-          <h1 className="font-heading mt-4 text-3xl font-bold leading-tight text-ink sm:text-4xl">
+          <h1 className="font-heading text-3xl font-bold leading-tight text-ink sm:text-4xl">
             Ressources
           </h1>
           <p className="mt-3 max-w-md text-base leading-relaxed text-gray-600">
@@ -49,58 +44,48 @@ export default async function RessourcesPage() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {/* Vignette vedette, plus grande, sur 2 colonnes */}
           {featured && (
-            <RevealSection className="sm:col-span-2 lg:col-span-2 lg:row-span-2">
-              <Link href={`/ressources/${featured.id}`} className="group block h-full">
-                <article className="relative h-full min-h-[22rem] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                  {featured.image_url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={featured.image_url}
-                      alt={featured.title}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <span className="inline-block rounded-full bg-forest px-3 py-1 text-xs font-bold text-white">
-                      Article 01
-                    </span>
-                    <h2 className="font-heading mt-2 text-xl font-bold leading-snug text-white sm:text-2xl">
-                      {featured.title}
-                    </h2>
-                  </div>
-                </article>
-              </Link>
-            </RevealSection>
+            <Link href={`/ressources/${featured.id}`} className="group block h-full sm:col-span-2 lg:col-span-2 lg:row-span-2">
+              <article className="relative h-full min-h-[22rem] overflow-hidden rounded-2xl border border-ink/15">
+                {featured.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={featured.image_url}
+                    alt={featured.title}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <h2 className="font-heading text-xl font-bold leading-snug text-white sm:text-2xl">
+                    {featured.title}
+                  </h2>
+                </div>
+              </article>
+            </Link>
           )}
 
           {/* Les autres articles, en vignettes */}
           {rest.map((s) => (
-            <RevealSection key={s.id}>
-              <Link href={`/ressources/${s.id}`} className="group block h-full">
-                <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-                  {s.image_url && (
-                    <div className="relative overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={s.image_url}
-                        alt={s.title}
-                        className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <span className="absolute left-3 top-3 rounded-full bg-forest px-3 py-1 text-xs font-bold text-white">
-                        Article {String(s.order_index).padStart(2, "0")}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex-1 p-4">
-                    <h2 className="font-heading text-base font-bold leading-snug text-ink group-hover:text-forest">
-                      {s.title}
-                    </h2>
-                    <p className="mt-1.5 text-sm text-gray-500">{excerpt(s.body)}</p>
+            <Link key={s.id} href={`/ressources/${s.id}`} className="group block h-full">
+              <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-ink/15">
+                {s.image_url && (
+                  <div className="relative overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={s.image_url}
+                      alt={s.title}
+                      className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
-                </article>
-              </Link>
-            </RevealSection>
+                )}
+                <div className="flex-1 p-4">
+                  <h2 className="font-heading text-base font-bold leading-snug text-ink group-hover:text-forest">
+                    {s.title}
+                  </h2>
+                  <p className="mt-1.5 text-sm text-gray-500">{excerpt(s.body)}</p>
+                </div>
+              </article>
+            </Link>
           ))}
         </div>
 

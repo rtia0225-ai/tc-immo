@@ -192,14 +192,9 @@ export default async function CommentCaMarchePage() {
 
   return (
     <div>
-      {/* En-tête, façon cartouche de plan technique */}
-      <div className="border-b border-gray-100 bg-[#FAF8F3] px-4 py-14">
+      <div className="border-b border-ink/10 px-4 pb-10 pt-14">
         <div className="mx-auto max-w-2xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-forest/30 bg-white px-3 py-1 text-xs font-medium text-forest">
-            <span className="h-1.5 w-1.5 rounded-full bg-forest" />
-            De la recherche à la livraison
-          </div>
-          <h1 className="font-heading mt-4 text-3xl font-bold leading-tight text-ink sm:text-4xl">
+          <h1 className="font-heading text-3xl font-bold leading-tight text-ink sm:text-4xl">
             Comment ça marche
           </h1>
           <p className="mt-3 max-w-md text-base leading-relaxed text-gray-600">
