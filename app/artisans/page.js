@@ -105,55 +105,68 @@ export default async function ArtisansPage({ searchParams }) {
       {artisans.length === 0 ? (
         <p className="mt-10 text-gray-500">Aucun artisan ne correspond à votre recherche.</p>
       ) : (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid gap-6 sm:grid-cols-2">
           {artisans.map((a) => (
             <Link
               key={a.id}
               href={`/artisans/${a.id}`}
-              className="rounded-lg border border-gray-200 bg-white p-5 hover:shadow-md"
+              className="group overflow-hidden rounded-lg border border-ink/15 bg-white"
             >
-              <div className="flex items-start gap-3">
+              <div className="relative">
                 {a.profiles?.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                     alt={a.profiles?.full_name}
-                    className="h-12 w-12 shrink-0 rounded-full object-cover"
+                    className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-50 font-heading text-sm font-bold text-gray-300">
+                  <div className="flex h-52 items-center justify-center bg-gray-50 font-heading text-3xl font-bold text-gray-300">
                     {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
                   </div>
                 )}
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-heading font-bold text-ink">{a.profiles?.full_name}</p>
-                    {a.is_verified && (
-                      <span className="rounded bg-forest px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        Vérifié
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-0.5 text-xs text-gray-500">
-                    {a.trade} · {a.profiles?.city || "Côte d'Ivoire"}
-                    {a.mobility_scope === "all" && " · Toute la CI"}
-                  </p>
-                </div>
+                <span className="absolute left-3 top-3 rounded bg-brand px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                  {a.trade}
+                </span>
+                {a.is_verified && (
+                  <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-forest">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </span>
+                )}
               </div>
 
-              {a.services && a.services.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {a.services.map((s) => (
-                    <span key={s} className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <div className="p-4">
+                <p className="font-heading text-base font-bold text-ink">{a.profiles?.full_name}</p>
+                <p className="mt-0.5 text-sm text-gray-500">
+                  {a.profiles?.city || "Côte d'Ivoire"}
+                  {a.mobility_scope === "all" && " · Toute la CI"}
+                  {a.years_experience ? ` · ${a.years_experience} ans d'expérience` : ""}
+                </p>
 
-              <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
-                <span className="text-gray-500">{a.projects_completed || 0} projets réalisés</span>
-                <span className="font-bold text-brand">Voir le profil</span>
+                {a.services && a.services.length > 0 && (
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    {a.services.slice(0, 3).map((s) => (
+                      <span key={s} className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
+                  {a.pricing_info ? (
+                    <span className="truncate font-semibold text-brand">{a.pricing_info}</span>
+                  ) : (
+                    <span className="text-gray-500">{a.projects_completed || 0} projets réalisés</span>
+                  )}
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-white">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </span>
+                </div>
               </div>
             </Link>
           ))}

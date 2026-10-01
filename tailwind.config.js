@@ -7,15 +7,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Couleurs du logo — strictement inchangées
+        // Couleurs du logo — échantillonnées directement depuis le fichier
+        // (rouge bordeaux profond, pas un rouge vif générique)
         brand: {
-          DEFAULT: "#f22222",
-          dark: "#c81c1c",
-          light: "#ffe3e0",
+          DEFAULT: "#9F0F2E",
+          dark: "#7A0B23",
+          light: "#F5DEE2",
         },
         forest: {
-          DEFAULT: "#096338",
-          dark: "#074a2a",
+          DEFAULT: "#0C5A35",
+          dark: "#07401F",
           light: "#dcf5e6",
         },
         // Palette complémentaire, vibrante — pour donner du relief

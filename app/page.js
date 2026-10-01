@@ -33,7 +33,7 @@ export default async function HomePage() {
 
   const { data: artisans } = await supabase
     .from("artisan_profiles")
-    .select(`id, trade, is_verified, profiles!inner ( full_name, city, avatar_url, approval_status )`)
+    .select(`id, trade, is_verified, years_experience, pricing_info, profiles!inner ( full_name, city, avatar_url, approval_status )`)
     .eq("is_suspended", false)
     .eq("profiles.approval_status", "approved")
     .order("is_verified", { ascending: false })
@@ -131,37 +131,52 @@ export default async function HomePage() {
         {!artisans || artisans.length === 0 ? (
           <p className="mt-6 text-gray-500">Aucun artisan pour le moment.</p>
         ) : (
-          <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
+          <div className="mt-6 flex gap-5 overflow-x-auto pb-2">
             {artisans.map((a) => (
               <Link
                 key={a.id}
                 href={`/artisans/${a.id}`}
-                className="group w-60 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white hover:shadow-md"
+                className="group w-72 shrink-0 overflow-hidden rounded-lg border border-ink/15 bg-white"
               >
-                {a.profiles?.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={`${a.profiles.avatar_url}?v=${Date.now()}`}
-                    alt={a.profiles?.full_name}
-                    className="h-40 w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-40 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
-                    {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
+                <div className="relative">
+                  {a.profiles?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`${a.profiles.avatar_url}?v=${Date.now()}`}
+                      alt={a.profiles?.full_name}
+                      className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-56 items-center justify-center bg-gray-50 font-heading text-3xl font-bold text-gray-300">
+                      {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="absolute left-3 top-3 rounded bg-brand px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                    {a.trade}
+                  </span>
+                  {a.is_verified && (
+                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-forest">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    </span>
+                  )}
+                </div>
                 <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="font-heading text-sm font-bold text-ink">{a.profiles?.full_name}</p>
-                    {a.is_verified && (
-                      <span className="rounded bg-forest px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        Vérifié
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {a.trade} · {a.profiles?.city || "Côte d'Ivoire"}
+                  <p className="font-heading text-base font-bold text-ink">{a.profiles?.full_name}</p>
+                  <p className="mt-0.5 flex items-center gap-1 text-sm text-gray-500">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    {a.profiles?.city || "Côte d'Ivoire"}
+                    {a.years_experience ? ` · ${a.years_experience} ans d'expérience` : ""}
                   </p>
+                  {a.pricing_info && (
+                    <p className="mt-2 border-t border-gray-100 pt-2 text-sm font-semibold text-brand">
+                      {a.pricing_info}
+                    </p>
+                  )}
                 </div>
               </Link>
             ))}
