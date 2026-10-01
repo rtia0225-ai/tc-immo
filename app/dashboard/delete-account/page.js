@@ -33,7 +33,7 @@ export default async function DeleteAccountPage({ searchParams }) {
       {hasActiveProject ? (
         <>
           <p className="mt-4 text-sm text-gray-600">
-            Impossible de supprimer ton compte pour le moment : tu as encore {activeProjects.length > 1 ? "des projets en cours" : "un projet en cours"}.
+            Impossible de supprimer votre compte pour le moment : vous avez encore {activeProjects.length > 1 ? "des projets en cours" : "un projet en cours"}.
           </p>
           <ul className="mt-3 flex flex-col gap-2">
             {activeProjects.map((p) => (
@@ -43,13 +43,13 @@ export default async function DeleteAccountPage({ searchParams }) {
             ))}
           </ul>
           <p className="mt-4 text-sm text-gray-600">
-            Ces projets doivent être terminés ou annulés avant de pouvoir supprimer ton compte.
+            Ces projets doivent être terminés ou annulés avant de pouvoir supprimer votre compte.
           </p>
         </>
       ) : (
         <>
           <p className="mt-4 text-sm text-gray-600">
-            Cette action est définitive : ton profil, tes photos, tes messages et ton historique seront supprimés. Cette action ne peut pas être annulée.
+            Cette action est définitive : votre profil, vos photos, vos messages et votre historique seront supprimés. Cette action ne peut pas être annulée.
           </p>
           <form action={deleteAccount} className="mt-6">
             <label className="flex items-start gap-2 text-sm text-gray-600">

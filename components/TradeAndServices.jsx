@@ -48,7 +48,7 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
         </label>
         {!isSenior && (
           <p className="mb-2 text-xs text-gray-500">
-            Réservé aux architectes et ingénieurs : diriger une équipe pluridisciplinaire. Choisis ici les corps de métier que tu maîtrises toi-même.
+            Réservé aux architectes et ingénieurs : diriger une équipe pluridisciplinaire. Choisissez ici les corps de métier que vous maîtrisez vous-même.
           </p>
         )}
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -68,12 +68,12 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
 
       <div>
         <label className="mb-2 block text-sm font-medium">
-          Prestations spécifiques (en plus de ton métier)
+          Prestations spécifiques (en plus de votre métier)
         </label>
         <p className="mb-2 text-xs text-gray-500">
           {isSpecialtyUnrestricted
-            ? "En tant qu'architecte, ingénieur ou topographe, tu peux cocher toutes les prestations pertinentes."
-            : "Réservé sans restriction aux architectes, ingénieurs et topographes. Pour ton métier, seul le suivi de chantier est disponible ici."}
+            ? "En tant qu'architecte, ingénieur ou topographe, vous pouvez cocher toutes les prestations pertinentes."
+            : "Réservé sans restriction aux architectes, ingénieurs et topographes. Pour votre métier, seul le suivi de chantier est disponible ici."}
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {availableSpecialties.map((s) => (

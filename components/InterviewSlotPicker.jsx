@@ -14,10 +14,10 @@ export default function InterviewSlotPicker({ slots }) {
   return (
     <div className="rounded-lg border border-brand bg-brand-light p-4">
       <p className="font-heading text-sm font-bold text-brand-dark">
-        Réserve un rendez-vous avant que ton inscription soit validée
+        Réservez un rendez-vous avant que votre inscription soit validée
       </p>
       <p className="mt-1 text-xs text-brand-dark">
-        Pour ton métier, un entretien avec l'équipe TC-Immo est requis. Choisis un créneau ci-dessous.
+        Pour votre métier, un entretien avec l'équipe TC-Immo est requis. Choisissez un créneau ci-dessous.
       </p>
 
       <input type="hidden" name="interviewSlotId" value={selectedId} required />

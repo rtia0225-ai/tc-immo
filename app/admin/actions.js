@@ -94,7 +94,7 @@ export async function approveAccount(formData) {
   await sendPush(
     userId,
     "Compte validé",
-    "Ton compte TC-Immo a été validé — tu as maintenant accès à ton espace.",
+    "Votre compte TC-Immo a été validé — vous avez maintenant accès à votre espace.",
     "/dashboard"
   );
 

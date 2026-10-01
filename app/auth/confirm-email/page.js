@@ -13,11 +13,11 @@ export default function ConfirmEmailPage({ searchParams }) {
       <h1 className="font-heading mb-4 text-2xl font-bold">Compte créé !</h1>
       {viaEmail ? (
         <p className="text-gray-600">
-          Un lien de confirmation vient de t'être envoyé par email. Clique dessus pour activer ton compte, puis connecte-toi.
+          Un lien de confirmation vient de vous être envoyé par email. Cliquez dessus pour activer votre compte, puis connectez-vous.
         </p>
       ) : (
         <p className="text-gray-600">
-          Ton profil est déjà complet. Connecte-toi pour ajouter ta photo et ta pièce d'identité — c'est la dernière étape.
+          Votre profil est déjà complet. Connectez-vous pour ajouter votre photo et votre pièce d'identité — c'est la dernière étape.
         </p>
       )}
       <Link

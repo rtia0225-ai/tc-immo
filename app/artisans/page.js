@@ -103,7 +103,7 @@ export default async function ArtisansPage({ searchParams }) {
       )}
 
       {artisans.length === 0 ? (
-        <p className="mt-10 text-gray-500">Aucun artisan ne correspond à ta recherche.</p>
+        <p className="mt-10 text-gray-500">Aucun artisan ne correspond à votre recherche.</p>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {artisans.map((a) => (

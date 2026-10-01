@@ -38,7 +38,7 @@ export default function CountryAndCitySelect({ initialCountry = "", initialCity 
             name="city"
             defaultValue={initialCity}
             required
-            placeholder="Tape le nom de ta ville"
+            placeholder="Indiquez le nom de votre ville"
             className="w-full rounded-lg border border-gray-300 p-2 text-sm"
           />
         )}

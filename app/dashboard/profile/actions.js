@@ -76,14 +76,14 @@ export async function updateArtisanProfile(formData) {
   if (containsPhoneNumber(bio) || containsPhoneNumber(pricingInfo)) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(
-        "Ta description ou ta tarification contient un numéro de téléphone. Retire-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
+        "Votre description ou votre tarification contient un numéro de téléphone. Retirez-le : les échanges de coordonnées ne sont pas autorisés sur la plateforme."
       )}`
     );
   }
   if (containsExternalPlatformMention(bio) || containsExternalPlatformMention(pricingInfo)) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(
-        "Ta description ou ta tarification mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Retire cette mention : les échanges doivent rester sur la plateforme."
+        "Votre description ou votre tarification mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Retirez cette mention : les échanges doivent rester sur la plateforme."
       )}`
     );
   }

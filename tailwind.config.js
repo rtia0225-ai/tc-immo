@@ -34,20 +34,6 @@ module.exports = {
         heading: ["'Lora'", "serif"],
         sans: ["'Inter'", "sans-serif"],
       },
-      // Taille des textes relevée d'un cran, sans toucher aux
-      // espacements (échelle indépendante) — évite l'effet "zoomé"
-      // d'un changement de taille de base sur toute la page.
-      fontSize: {
-        xs: ["0.8125rem", { lineHeight: "1.2rem" }],
-        sm: ["0.9375rem", { lineHeight: "1.5rem" }],
-        base: ["1.0625rem", { lineHeight: "1.65rem" }],
-        lg: ["1.1875rem", { lineHeight: "1.8rem" }],
-        xl: ["1.3125rem", { lineHeight: "1.85rem" }],
-        "2xl": ["1.5625rem", { lineHeight: "2rem" }],
-        "3xl": ["1.9375rem", { lineHeight: "2.3rem" }],
-        "4xl": ["2.3125rem", { lineHeight: "2.6rem" }],
-        "5xl": ["3.0625rem", { lineHeight: "1.1" }],
-      },
       boxShadow: {
         card: "0 2px 8px rgba(22,26,30,0.06), 0 1px 2px rgba(22,26,30,0.04)",
         "card-hover": "0 12px 28px rgba(22,26,30,0.14), 0 4px 10px rgba(22,26,30,0.08)",

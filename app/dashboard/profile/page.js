@@ -156,7 +156,7 @@ export default async function ProfileEditPage({ searchParams }) {
           </form>
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          Choisis une photo depuis ton téléphone ou ton ordinateur — elle sera visible par les clients.
+          Choisissez une photo depuis votre téléphone ou votre ordinateur — elle sera visible par les clients.
         </p>
       </section>
 
@@ -210,7 +210,7 @@ export default async function ProfileEditPage({ searchParams }) {
         <section>
           <h2 className="font-heading text-lg font-bold text-brand">Informations personnelles</h2>
           <p className="mb-4 text-xs text-gray-500">
-            Le téléphone et le contact d'urgence ne sont jamais visibles par les clients — utilisés uniquement pour la vérification de ton profil.
+            Le téléphone et le contact d'urgence ne sont jamais visibles par les clients — utilisés uniquement pour la vérification de votre profil.
           </p>
 
           <div className="flex flex-col gap-4">
@@ -261,7 +261,7 @@ export default async function ProfileEditPage({ searchParams }) {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Comment recevoir tes paiements</label>
+              <label className="mb-1 block text-sm font-medium">Comment recevoir vos paiements</label>
               <div className="grid grid-cols-2 gap-2">
                 <select
                   name="mobileMoneyOperator"
@@ -281,7 +281,7 @@ export default async function ProfileEditPage({ searchParams }) {
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                C'est ici que les clients enverront tes paiements pour chaque étape terminée.
+                C'est ici que les clients enverront vos paiements pour chaque étape terminée.
               </p>
             </div>
 
@@ -337,12 +337,12 @@ export default async function ProfileEditPage({ searchParams }) {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Description (visible sur ton profil)</label>
+              <label className="mb-1 block text-sm font-medium">Description (visible sur votre profil)</label>
               <textarea
                 name="bio"
                 rows={4}
                 defaultValue={artisan?.bio || ""}
-                placeholder="Qui es-tu, ton expérience, ce qui te distingue..."
+                placeholder="Qui êtes-vous, votre expérience, ce qui vous distingue..."
                 className="w-full rounded-lg border border-gray-300 p-2"
               />
             </div>
@@ -423,7 +423,7 @@ export default async function ProfileEditPage({ searchParams }) {
               </button>
             </form>
             <p className="mt-2 text-xs text-gray-500">
-              Choisis une ou plusieurs photos depuis ton téléphone ou ton ordinateur (maintiens Ctrl/Cmd pour en sélectionner plusieurs) — {5 - (photos?.length || 0)} emplacement(s) restant(s).
+              Choisissez une ou plusieurs photos depuis votre téléphone ou votre ordinateur (maintenez Ctrl/Cmd pour en sélectionner plusieurs) — {5 - (photos?.length || 0)} emplacement(s) restant(s).
             </p>
           </>
         )}

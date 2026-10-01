@@ -60,7 +60,7 @@ export default function MilestoneBuilder({ trade }) {
       ) : (
         <>
           <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-            Pour ce métier, tu dois prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong> — un échéancier de paiement en plusieurs étapes est requis. Discute de ce découpage avec l'artisan avant de valider.
+            Pour ce métier, vous devez prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong> — un échéancier de paiement en plusieurs étapes est requis. Discutez de ce découpage avec l'artisan avant de valider.
           </p>
 
           <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">

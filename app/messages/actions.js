@@ -81,7 +81,7 @@ export async function sendMessage(formData) {
   if (containsFullName(content, senderProfile?.full_name)) {
     redirect(
       `/messages/${conversationId}?error=${encodeURIComponent(
-        "Merci de ne pas indiquer ton nom complet dans le message — les échanges doivent rester sur la plateforme."
+        "Merci de ne pas indiquer votre nom complet dans le message — les échanges doivent rester sur la plateforme."
       )}`
     );
   }

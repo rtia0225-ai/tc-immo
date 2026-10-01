@@ -84,15 +84,15 @@ export default async function DashboardPage({ searchParams }) {
 
         {profile?.approval_status === "rejected" ? (
           <p className="mt-3 text-sm text-gray-600">
-            Ton inscription n'a pas été validée. Contacte-nous directement si tu penses qu'il s'agit d'une erreur.
+            Votre inscription n'a pas été validée. Contactez-nous directement si vous pensez qu'il s'agit d'une erreur.
           </p>
         ) : !requiresInterview ? (
           <p className="mt-3 text-sm text-gray-600">
-            Merci pour ton inscription ! Le temps que la plateforme finalise son lancement, chaque nouveau compte est validé manuellement. Tu recevras l'accès dès que ce sera fait.
+            Merci pour votre inscription ! Le temps que la plateforme finalise son lancement, chaque nouveau compte est validé manuellement. Vous recevrez l'accès dès que ce sera fait.
           </p>
         ) : interviewBooking ? (
           <p className="mt-3 text-sm text-gray-600">
-            Merci pour ton inscription ! Ton entretien est prévu le{" "}
+            Merci pour votre inscription ! Votre entretien est prévu le{" "}
             <strong className="text-ink">
               {new Date(interviewBooking.slot.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
               {" "}à {interviewBooking.slot.start_time.slice(0, 5)}
@@ -102,7 +102,7 @@ export default async function DashboardPage({ searchParams }) {
         ) : (
           <>
             <p className="mt-3 text-sm text-gray-600">
-              Pour ton métier, un entretien avec l'équipe TC-Immo est requis avant validation. Choisis un créneau ci-dessous.
+              Pour votre métier, un entretien avec l'équipe TC-Immo est requis avant validation. Choisissez un créneau ci-dessous.
             </p>
             {searchParams?.error && (
               <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
@@ -464,7 +464,7 @@ export default async function DashboardPage({ searchParams }) {
 
             {activeTab === "documents" && (
               <p className="text-gray-500">
-                Devis, plans et pièces liées à tes projets.
+                Devis, plans et pièces liées à vos projets.
               </p>
             )}
           </div>

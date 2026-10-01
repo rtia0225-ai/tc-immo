@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 const WELCOME_MESSAGE = {
   role: "assistant",
-  content: "Bonjour ! Je suis là pour répondre à tes questions sur TC-Immo (recherche d'artisan, paiement sécurisé, suivi de chantier...). Comment puis-je t'aider ?",
+  content: "Bonjour ! Je suis là pour répondre à vos questions sur TC-Immo (recherche d'artisan, paiement sécurisé, suivi de chantier...). Comment puis-je vous aider ?",
 };
 
 export default function ChatWidget() {
@@ -97,7 +97,7 @@ export default function ChatWidget() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Pose ta question..."
+              placeholder="Posez votre question..."
               className="flex-1 rounded-lg border border-gray-300 p-2 text-sm"
               disabled={loading}
             />

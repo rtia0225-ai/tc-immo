@@ -79,7 +79,7 @@ export default async function SignupPage({ searchParams }) {
       </p>
       {role === "artisan" && (
         <p className="mt-2 text-sm text-gray-500">
-          Renseigne tout en une fois — ton profil sera complet dès la création du compte.
+          Renseignez tout en une fois — votre profil sera complet dès la création du compte.
         </p>
       )}
 
@@ -139,7 +139,7 @@ export default async function SignupPage({ searchParams }) {
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium">Comment recevoir tes paiements</label>
+                <label className="mb-1 block text-sm font-medium">Comment recevoir vos paiements</label>
                 <div className="grid grid-cols-2 gap-2">
                   <select name="mobileMoneyOperator" defaultValue="" className="rounded-lg border border-gray-300 p-2">
                     <option value="" disabled>Choisir</option>
@@ -158,7 +158,7 @@ export default async function SignupPage({ searchParams }) {
                   </label>
                   <RecruiterSelect technicians={technicians} />
                   <p className="mt-1 text-xs text-gray-500">
-                    C'est lui qui reçoit les demandes de contact des clients pour toi.
+                    C'est lui qui reçoit les demandes de contact des clients pour vous.
                   </p>
                 </div>
               )}
@@ -191,7 +191,7 @@ export default async function SignupPage({ searchParams }) {
 
               <div>
                 <label className="mb-1 block text-sm font-medium">Description</label>
-                <textarea name="bio" rows={3} placeholder="Qui es-tu, ton expérience, ce qui te distingue..." className="w-full rounded-lg border border-gray-300 p-2" />
+                <textarea name="bio" rows={3} placeholder="Qui êtes-vous, votre expérience, ce qui vous distingue..." className="w-full rounded-lg border border-gray-300 p-2" />
               </div>
 
               <div>
@@ -218,7 +218,7 @@ export default async function SignupPage({ searchParams }) {
 
         {role === "artisan" && (
           <p className="text-center text-xs text-gray-400">
-            Dernière étape après l'inscription : ajouter ta photo et ta pièce d'identité (impossible avant que le compte existe).
+            Dernière étape après l'inscription : ajouter votre photo et votre pièce d'identité (impossible avant que le compte existe).
           </p>
         )}
       </form>

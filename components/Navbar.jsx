@@ -30,7 +30,7 @@ export default function Navbar({ user, isAdmin }) {
       await installPromptEvent.userChoice;
       setInstallPromptEvent(null);
     } else if (isIos) {
-      alert("Pour installer l'application : appuie sur le bouton \"Partager\" de ton navigateur, puis \"Sur l'écran d'accueil\".");
+      alert('Pour installer l\'application : appuyez sur le bouton "Partager" de votre navigateur, puis "Sur l\'écran d\'accueil".');
     }
   };
 
@@ -38,7 +38,7 @@ export default function Navbar({ user, isAdmin }) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-100 bg-white">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 md:py-4">
         <div className="flex min-w-0 items-center gap-2">
           <button
             type="button"
@@ -54,7 +54,7 @@ export default function Navbar({ user, isAdmin }) {
           </button>
           <Link href="/" className="flex shrink-0 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-navbar.png" alt="TC-Immo" className="h-9 w-auto sm:h-10" />
+            <img src="/logo-navbar.png" alt="TC-Immo" className="h-9 w-auto sm:h-10 md:h-14" />
           </Link>
 
           {/* Menu horizontal, visible uniquement à partir de la taille ordinateur */}

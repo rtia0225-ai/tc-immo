@@ -76,7 +76,7 @@ function buildRoadmap(answers) {
   if (answers.construction === "simple") {
     steps.push({
       title: "Concevoir les plans et déposer le Permis de Construire",
-      text: "L'architecte mène cette démarche en votre nom — le terrain et le permis restent bien à toi. Une fois obtenu, il livre le Permis de Construire directement sur la plateforme.",
+      text: "L'architecte mène cette démarche en votre nom — le terrain et le permis restent bien à vous. Une fois obtenu, il livre le Permis de Construire directement sur la plateforme.",
       professional: {
         trade: "Architecture",
         note: "L'architecte dessine les plans réglementaires de la maison, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TC-Immo.",
@@ -101,7 +101,7 @@ function buildRoadmap(answers) {
 
   steps.push({
     title: "Trouver un technicien BTP pour la construction",
-    text: "Une fois le Permis de Construire obtenu, c'est lui qui prend en charge la construction de ta maison de bout en bout.",
+    text: "Une fois le Permis de Construire obtenu, c'est lui qui prend en charge la construction de votre maison de bout en bout.",
     professional: {
       trade: "Technicien BTP",
       note: "Le technicien BTP trouve et coordonne les maçons et autres corps de métier nécessaires, et supervise le chantier jusqu'à la livraison.",
@@ -210,10 +210,10 @@ export default function ConstructionWizard() {
               Nous ne pouvons pas encore vous accompagner pour ce terrain
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-              Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TC-Immo prend en charge pour le moment. Nous te conseillons de contacter ton propre géomètre-topographe pour entamer cette étape.
+              Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TC-Immo prend en charge pour le moment. Nous vous conseillons de contacter votre propre géomètre-topographe pour entamer cette étape.
             </p>
             <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              Une fois ton terrain loti, reviens avec plaisir pour la suite de ton projet — on sera là pour t'accompagner.
+              Une fois votre terrain loti, revenez avec plaisir pour la suite de votre projet — on sera là pour vous accompagner.
             </p>
             <div className="mt-5 flex gap-4">
               <button

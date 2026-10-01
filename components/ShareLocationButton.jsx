@@ -31,8 +31,8 @@ export default function ShareLocationButton({ capturedAt, latitude, longitude })
         setStatus("error");
         setErrorMsg(
           err.code === err.PERMISSION_DENIED
-            ? "Autorisation refusée. Active la localisation pour ton navigateur dans les réglages de ton téléphone."
-            : "Impossible de récupérer ta position. Réessaie."
+            ? "Autorisation refusée. Activez la localisation pour votre navigateur dans les réglages de votre téléphone."
+            : "Impossible de récupérer votre position. Réessayez."
         );
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -42,7 +42,7 @@ export default function ShareLocationButton({ capturedAt, latitude, longitude })
   return (
     <div>
       <p className="mb-3 text-sm text-ink">
-        Attends d'être chez toi à la maison avant d'appuyer sur ce bouton.
+        Attendez d'être chez vous à la maison avant d'appuyer sur ce bouton.
       </p>
 
       {latitude && longitude && (

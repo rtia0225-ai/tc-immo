@@ -74,7 +74,7 @@ export default async function ConversationPage({ params, searchParams }) {
           <input
             name="content"
             required
-            placeholder="Écris ton message..."
+            placeholder="Écrivez votre message..."
             className="flex-1 rounded-lg border border-gray-300 p-2"
           />
           <button

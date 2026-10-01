@@ -47,7 +47,7 @@ export default async function NewProjectPage({ searchParams }) {
       <div className="mx-auto max-w-md px-4 py-12">
         <h1 className="font-heading text-2xl font-bold">Vérification d'identité requise</h1>
         <p className="mt-3 text-sm text-gray-600">
-          Avant de démarrer un projet et d'engager un paiement séquestré, nous avons besoin d'une pièce d'identité de ta part. C'est une étape ponctuelle, à faire une seule fois.
+          Avant de démarrer un projet et d'engager un paiement séquestré, nous avons besoin d'une pièce d'identité de votre part. C'est une étape ponctuelle, à faire une seule fois.
         </p>
 
         {searchParams?.error && (
@@ -149,7 +149,7 @@ export default async function NewProjectPage({ searchParams }) {
             Informations sur le terrain
           </p>
           <p className="mb-3 text-xs text-gray-500">
-            Utile notamment pour le géomètre — à remplir avec ce que tu sais, tu pourras compléter plus tard.
+            Utile notamment pour le géomètre — à remplir avec ce que vous savez, vous pourrez compléter plus tard.
           </p>
 
           <div className="flex flex-col gap-3">

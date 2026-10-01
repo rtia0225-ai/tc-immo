@@ -145,7 +145,7 @@ export default async function ArtisanProfilePage({ params }) {
         ) : (
           <div>
             <p>
-              <strong>À savoir avant de négocier :</strong> un échéancier de paiement en au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes est requis pour ce métier — prévois ce découpage dans ta discussion avec l'artisan.
+              <strong>À savoir avant de négocier :</strong> un échéancier de paiement en au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes est requis pour ce métier — prévoyez ce découpage dans votre discussion avec l'artisan.
             </p>
             <p className="mt-2">
               {artisan.trade === "Maçonnerie" ? (
@@ -199,7 +199,7 @@ export default async function ArtisanProfilePage({ params }) {
           eux, restent toujours directement liés à cet artisan. */}
       {isOwnProfile ? (
         <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center text-sm text-gray-500">
-          Ceci est ton propre profil public.{" "}
+          Ceci est votre propre profil public.{" "}
           <Link href="/dashboard/profile" className="font-medium text-brand hover:underline">
             Le modifier
           </Link>

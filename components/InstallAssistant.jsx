@@ -81,7 +81,7 @@ export default function InstallAssistant({ loggedIn }) {
       </div>
       {notifStatus === "denied" && (
         <p className="mx-auto mt-2 max-w-2xl text-xs text-brand">
-          Autorisation refusée — tu peux l'activer plus tard dans les réglages de ton navigateur.
+          Autorisation refusée — vous pouvez l'activer plus tard dans les réglages de votre navigateur.
         </p>
       )}
     </div>
