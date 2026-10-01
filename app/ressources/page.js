@@ -1,56 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import RevealSection from "@/components/RevealSection";
 import { IconFolder } from "@/components/HowItWorksIcons";
+import Link from "next/link";
 
 export const metadata = {
   title: "Ressources — Guide des démarches foncières et de construction",
   description: "Terrain loti, ACD, Certificat d'Urbanisme, Permis de Construire : tout comprendre sur les démarches administratives pour construire en Côte d'Ivoire.",
 };
 
-function IconExternalLink(props) {
-  return (
-    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M7 17L17 7M9 7h8v8" />
-    </svg>
-  );
-}
-
-function renderBody(body) {
-  const paragraphs = body.split(/\n\s*\n/);
-  return paragraphs.map((para, i) => {
-    const parts = para.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
-    return (
-      <p key={i} className="mt-4 text-[15px] leading-relaxed text-gray-700 first:mt-0">
-        {parts.map((part, j) =>
-          part.startsWith("**") && part.endsWith("**") ? (
-            <strong key={j} className="font-semibold text-ink">{part.slice(2, -2)}</strong>
-          ) : (
-            <span key={j}>{part}</span>
-          )
-        )}
-      </p>
-    );
-  });
-}
-
-function LinksRow({ links }) {
-  if (!links || links.length === 0) return null;
-  return (
-    <div className="mt-6 flex flex-wrap gap-2">
-      {links.map((link) => (
-        <a
-          key={link.url}
-          href={link.url}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-ink hover:border-forest hover:text-forest"
-        >
-          <IconExternalLink />
-          {link.label}
-        </a>
-      ))}
-    </div>
-  );
+// Court aperçu du premier paragraphe, pour la vignette.
+function excerpt(body, length = 110) {
+  const firstParagraph = body.split(/\n\s*\n/)[0] || "";
+  const clean = firstParagraph.replace(/\*\*/g, "");
+  return clean.length > length ? clean.slice(0, length).trim() + "…" : clean;
 }
 
 export default async function RessourcesPage() {
@@ -84,55 +46,63 @@ export default async function RessourcesPage() {
       <div className="mx-auto max-w-5xl px-4 py-14">
         {sections.length === 0 && <p className="text-sm text-gray-500">Contenu à venir.</p>}
 
-        {/* Article vedette — mise en avant façon magazine */}
-        {featured && (
-          <RevealSection>
-            <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm sm:grid sm:grid-cols-2">
-              {featured.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={featured.image_url} alt={featured.title} className="h-56 w-full object-cover sm:h-full" />
-              )}
-              <div className="p-6 sm:p-8">
-                <span className="inline-block rounded-full bg-forest px-3 py-1 text-xs font-bold text-white">
-                  Article 01
-                </span>
-                <h2 className="font-heading mt-3 text-2xl font-bold leading-snug text-ink">
-                  {featured.title}
-                </h2>
-                <div className="mt-3 max-w-md">{renderBody(featured.body)}</div>
-                <LinksRow links={featured.links} />
-              </div>
-            </article>
-          </RevealSection>
-        )}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Vignette vedette, plus grande, sur 2 colonnes */}
+          {featured && (
+            <RevealSection className="sm:col-span-2 lg:col-span-2 lg:row-span-2">
+              <Link href={`/ressources/${featured.id}`} className="group block h-full">
+                <article className="relative h-full min-h-[22rem] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                  {featured.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={featured.image_url}
+                      alt={featured.title}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <span className="inline-block rounded-full bg-forest px-3 py-1 text-xs font-bold text-white">
+                      Article 01
+                    </span>
+                    <h2 className="font-heading mt-2 text-xl font-bold leading-snug text-white sm:text-2xl">
+                      {featured.title}
+                    </h2>
+                  </div>
+                </article>
+              </Link>
+            </RevealSection>
+          )}
 
-        {/* Les autres articles, en cartes */}
-        {rest.length > 0 && (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2">
-            {rest.map((s) => (
-              <RevealSection key={s.id}>
+          {/* Les autres articles, en vignettes */}
+          {rest.map((s) => (
+            <RevealSection key={s.id}>
+              <Link href={`/ressources/${s.id}`} className="group block h-full">
                 <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                   {s.image_url && (
-                    <div className="relative">
+                    <div className="relative overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={s.image_url} alt={s.title} className="h-44 w-full object-cover" />
+                      <img
+                        src={s.image_url}
+                        alt={s.title}
+                        className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
                       <span className="absolute left-3 top-3 rounded-full bg-forest px-3 py-1 text-xs font-bold text-white">
                         Article {String(s.order_index).padStart(2, "0")}
                       </span>
                     </div>
                   )}
-                  <div className="flex-1 p-5">
-                    <h2 className="font-heading text-lg font-bold leading-snug text-ink">
+                  <div className="flex-1 p-4">
+                    <h2 className="font-heading text-base font-bold leading-snug text-ink group-hover:text-forest">
                       {s.title}
                     </h2>
-                    <div className="mt-2">{renderBody(s.body)}</div>
-                    <LinksRow links={s.links} />
+                    <p className="mt-1.5 text-sm text-gray-500">{excerpt(s.body)}</p>
                   </div>
                 </article>
-              </RevealSection>
-            ))}
-          </div>
-        )}
+              </Link>
+            </RevealSection>
+          ))}
+        </div>
 
         <a
           href="/"

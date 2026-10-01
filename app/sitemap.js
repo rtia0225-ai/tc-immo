@@ -10,6 +10,11 @@ export default async function sitemap() {
     .select("id")
     .eq("is_suspended", false);
 
+  const { data: ressources } = await supabase
+    .from("page_sections")
+    .select("id")
+    .eq("page", "ressources");
+
   const staticPages = [
     { url: `${BASE_URL}/`, priority: 1 },
     { url: `${BASE_URL}/artisans`, priority: 0.9 },
@@ -26,5 +31,11 @@ export default async function sitemap() {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...artisanPages];
+  const ressourcePages = (ressources || []).map((r) => ({
+    url: `${BASE_URL}/ressources/${r.id}`,
+    lastModified: new Date(),
+    priority: 0.6,
+  }));
+
+  return [...staticPages, ...artisanPages, ...ressourcePages];
 }
