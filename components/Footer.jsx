@@ -1,3 +1,16 @@
+const SOCIAL_LINKS = [
+  {
+    name: "Facebook",
+    url: "https://www.facebook.com/share/1E42mHuWeb/",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z" />
+      </svg>
+    ),
+  },
+  // LinkedIn à ajouter dès que le lien est fourni.
+];
+
 export default function Footer() {
   return (
     <footer className="relative bg-ink px-4 pb-10 pt-16 text-gray-300">
@@ -10,6 +23,20 @@ export default function Footer() {
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-400">
             La marketplace de confiance pour construire en Côte d'Ivoire, où que vous soyez.
           </p>
+          <div className="mt-5 flex gap-3">
+            {SOCIAL_LINKS.map((s) => (
+              <a
+                key={s.name}
+                href={s.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={s.name}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors hover:border-brand hover:text-brand"
+              >
+                {s.icon}
+              </a>
+            ))}
+          </div>
         </div>
 
         <div>
