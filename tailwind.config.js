@@ -31,7 +31,7 @@ module.exports = {
         ink: "#161a1e",
       },
       fontFamily: {
-        heading: ["'Plus Jakarta Sans'", "sans-serif"],
+        heading: ["'Lora'", "serif"],
         sans: ["'Inter'", "sans-serif"],
       },
       boxShadow: {
