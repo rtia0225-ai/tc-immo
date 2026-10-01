@@ -141,6 +141,7 @@ export async function addPageSection(formData) {
   const body = formData.get("body");
   const orderIndex = formData.get("orderIndex");
   const links = parseLinks(formData.get("links"));
+  const imageUrl = formData.get("imageUrl") || null;
 
   await supabase.from("page_sections").insert({
     page,
@@ -148,6 +149,7 @@ export async function addPageSection(formData) {
     body,
     order_index: Number(orderIndex) || 0,
     links,
+    image_url: imageUrl,
   });
 
   redirect(`/admin/content?page=${page}`);
@@ -163,10 +165,11 @@ export async function updatePageSection(formData) {
   const body = formData.get("body");
   const orderIndex = formData.get("orderIndex");
   const links = parseLinks(formData.get("links"));
+  const imageUrl = formData.get("imageUrl") || null;
 
   await supabase
     .from("page_sections")
-    .update({ title, body, order_index: Number(orderIndex) || 0, links, updated_at: new Date().toISOString() })
+    .update({ title, body, order_index: Number(orderIndex) || 0, links, image_url: imageUrl, updated_at: new Date().toISOString() })
     .eq("id", id);
 
   redirect(`/admin/content?page=${page}`);

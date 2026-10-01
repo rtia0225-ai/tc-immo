@@ -1125,3 +1125,8 @@ create policy "admin voit tous les entretiens reserves" on interview_bookings
 -- 44. UNE SEULE RÉSERVATION D'ENTRETIEN PAR PERSONNE
 -- ---------------------------------------------------------
 alter table interview_bookings add constraint interview_bookings_applicant_unique unique (applicant_id);
+
+-- ---------------------------------------------------------
+-- 45. IMAGE PAR SECTION (pour la page Ressources façon blog)
+-- ---------------------------------------------------------
+alter table page_sections add column if not exists image_url text;

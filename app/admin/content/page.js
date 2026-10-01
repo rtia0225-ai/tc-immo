@@ -62,8 +62,16 @@ export default async function ContentManagementPage({ searchParams }) {
                 <input type="number" name="orderIndex" defaultValue={s.order_index} className="w-24 rounded-lg border border-gray-300 p-2 text-sm" />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-500">Titre</label>
+                <label className="mb-1 block text-xs font-medium text-gray-500">
+                  Titre
+                </label>
                 <input name="title" defaultValue={s.title} required className="w-full rounded-lg border border-gray-300 p-2 text-sm" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">
+                  Image (chemin ou URL, optionnel)
+                </label>
+                <input name="imageUrl" defaultValue={s.image_url || ""} placeholder="/ressources/mon-image.jpg" className="w-full rounded-lg border border-gray-300 p-2 text-sm" />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -111,6 +119,12 @@ export default async function ContentManagementPage({ searchParams }) {
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-500">Titre</label>
             <input name="title" required className="w-full rounded-lg border border-gray-300 p-2 text-sm" />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Image (chemin ou URL, optionnel)
+            </label>
+            <input name="imageUrl" placeholder="/ressources/mon-image.jpg" className="w-full rounded-lg border border-gray-300 p-2 text-sm" />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-500">
