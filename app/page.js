@@ -163,21 +163,21 @@ export default async function HomePage() {
                   )}
                 </div>
                 <div className="p-3.5">
-                  <p className="font-heading text-sm font-bold text-ink">{a.profiles?.full_name}</p>
-                  <p className="mt-0.5 text-xs text-gray-500">
+                  <p className="font-heading line-clamp-1 text-sm font-bold text-ink">{a.profiles?.full_name}</p>
+                  <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">
                     {a.profiles?.city || "Côte d'Ivoire"}
                     {a.years_experience ? ` · ${a.years_experience} ans` : ""}
                   </p>
                   <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
                     {a.pricing_info ? (
-                      <div className="min-w-0 max-w-[55%]">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Tarif</p>
+                      <div className="min-w-0 max-w-[60%]">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Tarif</p>
                         <p className="truncate text-xs font-semibold text-brand">{a.pricing_info}</p>
                       </div>
                     ) : (
                       <span />
                     )}
-                    <span className="shrink-0 rounded-full bg-brand px-3 py-1.5 text-[11px] font-bold text-white">
+                    <span className="shrink-0 rounded-full bg-brand px-2.5 py-1 text-[10px] font-bold text-white">
                       Voir le profil
                     </span>
                   </div>

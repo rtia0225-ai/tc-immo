@@ -138,8 +138,8 @@ export default async function ArtisansPage({ searchParams }) {
               </div>
 
               <div className="p-3.5">
-                <p className="font-heading text-sm font-bold text-ink">{a.profiles?.full_name}</p>
-                <p className="mt-0.5 text-xs text-gray-500">
+                <p className="font-heading line-clamp-1 text-sm font-bold text-ink">{a.profiles?.full_name}</p>
+                <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">
                   {a.profiles?.city || "Côte d'Ivoire"}
                   {a.mobility_scope === "all" && " · Toute la CI"}
                   {a.years_experience ? ` · ${a.years_experience} ans d'expérience` : ""}

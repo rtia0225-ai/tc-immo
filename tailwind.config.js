@@ -30,6 +30,21 @@ module.exports = {
           light: "#fef0d9",
         },
         ink: "#161a1e",
+        // Gris retravaillés pour rester lisibles (le gris-400 de Tailwind
+        // est trop pâle sur fond blanc pour du texte) — n'affecte que le
+        // texte, pas les bordures/fonds clairs (gray-100/200 inchangés).
+        gray: {
+          50: "#f9fafb",
+          100: "#f3f4f6",
+          200: "#e5e7eb",
+          300: "#d1d5db",
+          400: "#6b7280",
+          500: "#52525b",
+          600: "#3f3f46",
+          700: "#27272a",
+          800: "#18181b",
+          900: "#09090b",
+        },
       },
       fontFamily: {
         heading: ["'Lora'", "serif"],

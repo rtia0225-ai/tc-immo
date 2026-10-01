@@ -2,19 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import RevealSection from "@/components/RevealSection";
 import {
   IconSearch, IconChat, IconContract, IconLayers, IconGauge,
-  IconCompass, IconBlueprint, IconHelmet, IconTrowel,
   IconShieldCheck, IconFolder, IconMilestones, IconSignal, IconHandshake,
 } from "@/components/HowItWorksIcons";
 
 const STEP_ICONS = [IconSearch, IconLayers, IconChat, IconContract, IconLayers, IconGauge];
-
-function matchProfessionalIcon(title) {
-  const t = title.toLowerCase();
-  if (t.includes("géomètre") || t.includes("topographe")) return { Icon: IconCompass, accent: "forest" };
-  if (t.includes("architecte")) return { Icon: IconBlueprint, accent: "brand" };
-  if (t.includes("technicien")) return { Icon: IconHelmet, accent: "gold" };
-  return { Icon: IconTrowel, accent: "ink" };
-}
 
 function matchSecurityIcon(title) {
   const t = title.toLowerCase();
@@ -40,13 +31,6 @@ function parseTitledItem(paragraph) {
   if (!match) return null;
   return { title: match[1], text: match[2] };
 }
-
-const ACCENT_CLASSES = {
-  forest: "bg-forest-light text-forest border-forest/30",
-  brand: "bg-brand-light text-brand-dark border-brand/30",
-  gold: "bg-amber-50 text-amber-700 border-amber-300",
-  ink: "bg-gray-100 text-ink border-gray-300",
-};
 
 function TimelineSection({ title, body }) {
   const paragraphs = body.split(/\n\s*\n/);
@@ -86,6 +70,14 @@ function TimelineSection({ title, body }) {
   );
 }
 
+function matchProfessionalImage(title) {
+  const t = title.toLowerCase();
+  if (t.includes("géomètre") || t.includes("topographe")) return "/professions/geometre.png";
+  if (t.includes("architecte")) return "/professions/architecte.avif";
+  if (t.includes("technicien")) return "/professions/technicien.jpg";
+  return "/professions/macon.webp";
+}
+
 function ProfessionalsSection({ title, body }) {
   const paragraphs = body.split(/\n\s*\n/);
   const items = paragraphs.map(parseTitledItem).filter(Boolean);
@@ -99,23 +91,23 @@ function ProfessionalsSection({ title, body }) {
       ))}
 
       <div className="mt-8 flex flex-col">
-        {items.map((item, i) => {
-          const { Icon, accent } = matchProfessionalIcon(item.title);
-          return (
-            <div
-              key={item.title}
-              className={`flex gap-4 border-t border-gray-100 py-5 ${i === items.length - 1 ? "border-b" : ""}`}
-            >
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border ${ACCENT_CLASSES[accent]}`}>
-                <Icon />
-              </div>
-              <div>
-                <p className="font-heading font-bold text-ink">{item.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-gray-600">{item.text}</p>
-              </div>
+        {items.map((item, i) => (
+          <div
+            key={item.title}
+            className={`flex gap-4 border-t border-gray-100 py-5 sm:gap-5 ${i === items.length - 1 ? "border-b" : ""}`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={matchProfessionalImage(item.title)}
+              alt={item.title}
+              className="h-24 w-24 shrink-0 rounded-lg object-cover sm:h-28 sm:w-28"
+            />
+            <div>
+              <p className="font-heading font-bold text-ink">{item.title}</p>
+              <p className="mt-1 text-sm leading-relaxed text-gray-600">{item.text}</p>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </RevealSection>
   );
