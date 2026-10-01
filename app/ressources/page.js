@@ -56,7 +56,10 @@ export default async function RessourcesPage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
-                  <h2 className="font-heading text-xl font-bold leading-snug text-white sm:text-2xl">
+                  <span className="rounded bg-brand px-2 py-0.5 text-[11px] font-bold text-white">
+                    Article {String(featured.order_index).padStart(2, "0")}
+                  </span>
+                  <h2 className="font-heading mt-2 text-xl font-bold leading-snug text-white sm:text-2xl">
                     {featured.title}
                   </h2>
                 </div>
@@ -76,6 +79,9 @@ export default async function RessourcesPage() {
                       alt={s.title}
                       className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    <span className="absolute left-3 top-3 rounded bg-brand px-2 py-0.5 text-[10px] font-bold text-white">
+                      Article {String(s.order_index).padStart(2, "0")}
+                    </span>
                   </div>
                 )}
                 <div className="flex-1 p-4">

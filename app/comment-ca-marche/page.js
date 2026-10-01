@@ -90,24 +90,27 @@ function ProfessionalsSection({ title, body }) {
         <p key={i} className="mt-3 max-w-md text-sm leading-relaxed text-gray-600">{p}</p>
       ))}
 
-      <div className="mt-8 flex flex-col">
-        {items.map((item, i) => (
-          <div
-            key={item.title}
-            className={`flex gap-4 border-t border-gray-100 py-5 sm:gap-5 ${i === items.length - 1 ? "border-b" : ""}`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={matchProfessionalImage(item.title)}
-              alt={item.title}
-              className="h-24 w-24 shrink-0 rounded-lg object-cover sm:h-28 sm:w-28"
-            />
-            <div>
-              <p className="font-heading font-bold text-ink">{item.title}</p>
-              <p className="mt-1 text-sm leading-relaxed text-gray-600">{item.text}</p>
+      <div className="mt-8 flex flex-col gap-12">
+        {items.map((item, i) => {
+          const reversed = i % 2 === 1;
+          return (
+            <div
+              key={item.title}
+              className={`flex flex-col gap-6 sm:items-center sm:gap-8 ${reversed ? "sm:flex-row-reverse" : "sm:flex-row"}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={matchProfessionalImage(item.title)}
+                alt={item.title}
+                className="h-56 w-full rounded-lg object-cover sm:h-72 sm:w-[45%]"
+              />
+              <div className="sm:flex-1">
+                <p className="font-heading text-xl font-bold text-ink">{item.title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.text}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </RevealSection>
   );

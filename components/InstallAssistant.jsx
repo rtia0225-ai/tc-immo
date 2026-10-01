@@ -61,7 +61,7 @@ export default function InstallAssistant({ loggedIn }) {
           <div>
             <p className="text-sm font-bold text-ink">Ne rien manquer</p>
             <p className="mt-0.5 text-xs text-gray-500">
-              Reçois une alerte dès qu'un client t'écrit ou qu'un rendez-vous est proposé — comme WhatsApp.
+              Recevez une alerte dès qu'un client vous écrit ou qu'un rendez-vous est proposé — comme WhatsApp.
             </p>
           </div>
         </div>

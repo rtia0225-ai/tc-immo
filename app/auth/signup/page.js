@@ -154,7 +154,7 @@ export default async function SignupPage({ searchParams }) {
               {technicians.length > 0 && (
                 <div>
                   <label className="mb-1 block text-sm font-medium">
-                    Technicien qui t'a recommandé (si applicable)
+                    Technicien qui vous a recommandé (si applicable)
                   </label>
                   <RecruiterSelect technicians={technicians} />
                   <p className="mt-1 text-xs text-gray-500">

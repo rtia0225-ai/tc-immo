@@ -82,7 +82,7 @@ export default async function AppointmentsPage() {
                   <p className="mt-1 text-xs text-gray-400">
                     {a.proposed_by === user.id
                       ? "En attente de la réponse de l'autre partie"
-                      : "Ce créneau t'a été proposé"}
+                      : "Ce créneau vous a été proposé"}
                   </p>
                 )}
 

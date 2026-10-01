@@ -2,7 +2,7 @@ import { sendContactMessage } from "./actions";
 
 export const metadata = {
   title: "Nous contacter",
-  description: "Une question ? Écris-nous directement via le formulaire ci-dessous.",
+  description: "Une question ? Écrivez-nous directement via le formulaire ci-dessous.",
 };
 
 const EMAIL = "contact@tcholding-immo.com";
@@ -12,7 +12,7 @@ export default function ContactPage({ searchParams }) {
     <div className="mx-auto max-w-md px-4 py-16">
       <h1 className="font-heading text-3xl font-bold text-ink">Nous contacter</h1>
       <p className="mt-3 text-sm leading-relaxed text-gray-600">
-        Une question, un blocage, ou besoin d'aide ? Écris-nous, on te répond directement.
+        Une question, un blocage, ou besoin d'aide ? Écrivez-nous, nous vous répondons directement.
       </p>
 
       <a
@@ -32,11 +32,11 @@ export default function ContactPage({ searchParams }) {
       </a>
 
       <div className="mt-8 border-t border-gray-100 pt-8">
-        <p className="mb-4 text-sm font-bold text-ink">Ou écris-nous directement ici</p>
+        <p className="mb-4 text-sm font-bold text-ink">Ou écrivez-nous directement ici</p>
 
         {searchParams?.success && (
           <p className="mb-4 rounded-lg bg-forest-light p-3 text-sm text-forest">
-            Message envoyé, merci ! On te répond au plus vite.
+            Message envoyé, merci ! Nous vous répondons au plus vite.
           </p>
         )}
         {searchParams?.error && (
