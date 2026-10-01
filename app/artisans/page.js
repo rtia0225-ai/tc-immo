@@ -112,13 +112,13 @@ export default async function ArtisansPage({ searchParams }) {
               href={`/artisans/${a.id}`}
               className="group overflow-hidden rounded-lg border border-ink/15 bg-white"
             >
-              <div className="relative bg-gray-100">
+              <div className="relative">
                 {a.profiles?.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                     alt={a.profiles?.full_name}
-                    className="h-36 w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-36 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
@@ -164,11 +164,7 @@ export default async function ArtisansPage({ searchParams }) {
                   ) : (
                     <span className="text-xs text-gray-500">{a.projects_completed || 0} projets réalisés</span>
                   )}
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink text-white">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
-                  </span>
+                  <span className="shrink-0 text-xs font-bold text-brand">Voir le profil</span>
                 </div>
               </div>
             </Link>
