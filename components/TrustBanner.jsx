@@ -37,21 +37,32 @@ const ITEMS = [
       </svg>
     ),
     title: "Traçabilité totale",
-    text: "Contrats, permis, rapports de suivi et paiements restent tous enregistrés sur la plateforme, ce qui limite fortement les risques de fraude autour d'un paiement.",
+    text: "Contrats, permis, rapports de suivi et paiements restent tous enregistrés sur la plateforme.",
   },
 ];
 
 export default function TrustBanner() {
   return (
-    <div className="bg-forest px-4 py-14 text-white">
-      <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {ITEMS.map((item) => (
-          <div key={item.title}>
-            <div className="text-white/80">{item.icon}</div>
-            <p className="font-heading mt-3 text-base font-bold">{item.title}</p>
-            <p className="mt-2 text-sm leading-relaxed text-white/80">{item.text}</p>
-          </div>
-        ))}
+    <div className="bg-forest px-4 py-16 text-white">
+      <div className="mx-auto max-w-6xl">
+        <p className="text-center text-xs font-bold uppercase tracking-wider text-white/60">
+          Pourquoi nous faire confiance
+        </p>
+
+        <div className="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {ITEMS.map((item, i) => (
+            <div
+              key={item.title}
+              className={`relative pl-0 ${i > 0 ? "lg:border-l lg:border-white/10 lg:pl-8" : ""}`}
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white">
+                {item.icon}
+              </div>
+              <p className="font-heading mt-4 text-base font-bold">{item.title}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/75">{item.text}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
