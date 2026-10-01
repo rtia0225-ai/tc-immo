@@ -112,13 +112,13 @@ export default async function ArtisansPage({ searchParams }) {
               href={`/artisans/${a.id}`}
               className="group overflow-hidden rounded-lg border border-ink/15 bg-white"
             >
-              <div className="relative">
+              <div className="relative bg-gray-100">
                 {a.profiles?.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                     alt={a.profiles?.full_name}
-                    className="h-36 w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    className="h-36 w-full object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-36 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
