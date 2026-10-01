@@ -168,12 +168,19 @@ export default async function HomePage() {
                     {a.profiles?.city || "Côte d'Ivoire"}
                     {a.years_experience ? ` · ${a.years_experience} ans` : ""}
                   </p>
-                  {a.pricing_info && (
-                    <div className="mt-2 border-t border-gray-100 pt-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Tarif</p>
-                      <p className="truncate text-xs font-semibold text-brand">{a.pricing_info}</p>
-                    </div>
-                  )}
+                  <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
+                    {a.pricing_info ? (
+                      <div className="min-w-0 max-w-[55%]">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Tarif</p>
+                        <p className="truncate text-xs font-semibold text-brand">{a.pricing_info}</p>
+                      </div>
+                    ) : (
+                      <span />
+                    )}
+                    <span className="shrink-0 rounded-full bg-brand px-3 py-1.5 text-[11px] font-bold text-white">
+                      Voir le profil
+                    </span>
+                  </div>
                 </div>
               </Link>
             ))}

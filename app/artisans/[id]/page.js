@@ -122,7 +122,7 @@ export default async function ArtisanProfilePage({ params }) {
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-4 text-center">
           <p className="font-heading text-2xl font-bold text-ink">{artisan.projects_completed || 0}</p>
-          <p className="text-xs text-gray-500">projets réalisés</p>
+          <p className="text-xs text-gray-500">projets réalisés sur la plateforme</p>
         </div>
         <div className="col-span-2 rounded-lg border border-gray-200 bg-white p-4 text-center sm:col-span-1">
           <p className="font-heading text-sm font-bold text-ink">
