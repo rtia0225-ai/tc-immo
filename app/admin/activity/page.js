@@ -9,6 +9,9 @@ const EVENT_LABELS = {
   message_interest: "A cliqué sur \"Envoyer un message\" (non activé)",
   appointment_interest: "A cliqué sur \"Rendez-vous visio\" (non activé)",
   project_interest: "A cliqué sur \"Démarrer un projet\" (non activé)",
+  message_notify_me: "Veut être notifié — \"Envoyer un message\"",
+  appointment_notify_me: "Veut être notifié — \"Rendez-vous visio\"",
+  project_notify_me: "Veut être notifié — \"Démarrer un projet\"",
 };
 
 export default async function ClientActivityPage({ searchParams }) {
