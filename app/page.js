@@ -10,21 +10,25 @@ const STEPS = [
     n: 1,
     title: "Choisissez vos prestataires",
     text: "Consultez les profils vérifiés — artisans, géomètre, architecte, technicien de suivi — et échangez avec eux avant de démarrer.",
+    image: "/etapes/etape1.jpg",
   },
   {
     n: 2,
     title: "Démarrez votre projet",
     text: "Validez avec chaque prestataire un échéancier de paiement en plusieurs étapes. Un abonnement mensuel s'active dès le lancement du projet.",
+    image: "/etapes/etape2.avif",
   },
   {
     n: 3,
     title: "Payez en toute confiance",
     text: "Chaque paiement correspond à une étape réellement validée — rien n'est versé d'un coup, tout reste tracé sur la plateforme.",
+    image: "/etapes/etape3.avif",
   },
   {
     n: 4,
     title: "Suivez vos travaux à distance",
     text: "Consultez l'avancement depuis votre espace, où que vous soyez, et ajoutez d'autres professionnels au projet à tout moment si besoin.",
+    image: "/etapes/etape4.avif",
   },
 ];
 
@@ -192,17 +196,25 @@ export default async function HomePage() {
       <section className="border-t border-gray-100 bg-gray-50 px-4 py-16">
         <div className="mx-auto max-w-6xl">
           <h2 className="font-heading text-2xl font-bold text-ink">Comment ça marche</h2>
-          <p className="mt-1 text-sm text-gray-500">Vous gérez vos travaux, nous gérons la sécurité.</p>
+          <p className="mt-1 text-sm text-gray-600">Vous gérez vos travaux, nous gérons la sécurité.</p>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step) => (
-              <div key={step.n} className="flex gap-4 rounded-lg border border-gray-200 bg-white p-5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand font-heading text-sm font-bold text-white">
-                  {step.n}
+              <div key={step.n} className="overflow-hidden rounded-lg border border-ink/15 bg-white">
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={step.image}
+                    alt={step.title}
+                    className="h-40 w-full object-cover"
+                  />
+                  <span className="absolute left-3 top-3 rounded bg-brand px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                    Étape {String(step.n).padStart(2, "0")}
+                  </span>
                 </div>
-                <div>
-                  <p className="font-heading text-sm font-bold text-ink">{step.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-gray-500">{step.text}</p>
+                <div className="p-4">
+                  <p className="font-heading text-base font-bold leading-snug text-ink">{step.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{step.text}</p>
                 </div>
               </div>
             ))}
