@@ -131,12 +131,12 @@ export default async function HomePage() {
         {!artisans || artisans.length === 0 ? (
           <p className="mt-6 text-gray-500">Aucun artisan pour le moment.</p>
         ) : (
-          <div className="mt-6 flex gap-5 overflow-x-auto pb-2">
+          <div className="mt-6 flex gap-4 overflow-x-auto pb-2">
             {artisans.map((a) => (
               <Link
                 key={a.id}
                 href={`/artisans/${a.id}`}
-                className="group w-72 shrink-0 overflow-hidden rounded-lg border border-ink/15 bg-white"
+                className="group w-52 shrink-0 overflow-hidden rounded-lg border border-ink/15 bg-white"
               >
                 <div className="relative">
                   {a.profiles?.avatar_url ? (
@@ -144,38 +144,35 @@ export default async function HomePage() {
                     <img
                       src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                       alt={a.profiles?.full_name}
-                      className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-56 items-center justify-center bg-gray-50 font-heading text-3xl font-bold text-gray-300">
+                    <div className="flex h-36 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
                       {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <span className="absolute left-3 top-3 rounded bg-brand px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                  <span className="absolute left-2.5 top-2.5 rounded bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                     {a.trade}
                   </span>
                   {a.is_verified && (
-                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-forest">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <span className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-forest">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
                     </span>
                   )}
                 </div>
-                <div className="p-4">
-                  <p className="font-heading text-base font-bold text-ink">{a.profiles?.full_name}</p>
-                  <p className="mt-0.5 flex items-center gap-1 text-sm text-gray-500">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
+                <div className="p-3.5">
+                  <p className="font-heading text-sm font-bold text-ink">{a.profiles?.full_name}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
                     {a.profiles?.city || "Côte d'Ivoire"}
-                    {a.years_experience ? ` · ${a.years_experience} ans d'expérience` : ""}
+                    {a.years_experience ? ` · ${a.years_experience} ans` : ""}
                   </p>
                   {a.pricing_info && (
-                    <p className="mt-2 border-t border-gray-100 pt-2 text-sm font-semibold text-brand">
-                      {a.pricing_info}
-                    </p>
+                    <div className="mt-2 border-t border-gray-100 pt-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Tarif</p>
+                      <p className="truncate text-xs font-semibold text-brand">{a.pricing_info}</p>
+                    </div>
                   )}
                 </div>
               </Link>

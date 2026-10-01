@@ -105,7 +105,7 @@ export default async function ArtisansPage({ searchParams }) {
       {artisans.length === 0 ? (
         <p className="mt-10 text-gray-500">Aucun artisan ne correspond à votre recherche.</p>
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {artisans.map((a) => (
             <Link
               key={a.id}
@@ -118,51 +118,54 @@ export default async function ArtisansPage({ searchParams }) {
                   <img
                     src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                     alt={a.profiles?.full_name}
-                    className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="flex h-52 items-center justify-center bg-gray-50 font-heading text-3xl font-bold text-gray-300">
+                  <div className="flex h-36 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
                     {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
                   </div>
                 )}
-                <span className="absolute left-3 top-3 rounded bg-brand px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                <span className="absolute left-2.5 top-2.5 rounded bg-brand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                   {a.trade}
                 </span>
                 {a.is_verified && (
-                  <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-forest">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <span className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-forest">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                       <path d="M20 6 9 17l-5-5" />
                     </svg>
                   </span>
                 )}
               </div>
 
-              <div className="p-4">
-                <p className="font-heading text-base font-bold text-ink">{a.profiles?.full_name}</p>
-                <p className="mt-0.5 text-sm text-gray-500">
+              <div className="p-3.5">
+                <p className="font-heading text-sm font-bold text-ink">{a.profiles?.full_name}</p>
+                <p className="mt-0.5 text-xs text-gray-500">
                   {a.profiles?.city || "Côte d'Ivoire"}
                   {a.mobility_scope === "all" && " · Toute la CI"}
                   {a.years_experience ? ` · ${a.years_experience} ans d'expérience` : ""}
                 </p>
 
                 {a.services && a.services.length > 0 && (
-                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     {a.services.slice(0, 3).map((s) => (
-                      <span key={s} className="rounded bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                      <span key={s} className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">
                         {s}
                       </span>
                     ))}
                   </div>
                 )}
 
-                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3 text-sm">
+                <div className="mt-2.5 flex items-end justify-between border-t border-gray-100 pt-2.5">
                   {a.pricing_info ? (
-                    <span className="truncate font-semibold text-brand">{a.pricing_info}</span>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Tarif</p>
+                      <p className="truncate text-xs font-semibold text-brand">{a.pricing_info}</p>
+                    </div>
                   ) : (
-                    <span className="text-gray-500">{a.projects_completed || 0} projets réalisés</span>
+                    <span className="text-xs text-gray-500">{a.projects_completed || 0} projets réalisés</span>
                   )}
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink text-white">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink text-white">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
                   </span>
