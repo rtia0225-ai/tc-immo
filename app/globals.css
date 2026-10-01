@@ -4,15 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Échelle de base relevée (16px → 18px) : agrandit proportionnellement
+   tout le texte du site (text-sm, text-base, etc. sont tous en rem),
+   pour un rendu plus affirmé et moins dense, façon presse plutôt que
+   tableau de bord logiciel. */
+html {
+  font-size: 18px;
+}
+
 body {
   background-color: #ffffff;
   color: #161a1e;
   font-family: 'Inter', sans-serif;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, .font-heading {
   font-family: 'Lora', serif;
+  font-weight: 700;
+  line-height: 1.25;
   letter-spacing: -0.01em;
 }
 
