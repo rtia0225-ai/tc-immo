@@ -144,7 +144,7 @@ export default async function HomePage() {
                     <img
                       src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                       alt={a.profiles?.full_name}
-                      className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-36 w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
                     <div className="flex h-36 items-center justify-center bg-gray-50 font-heading text-2xl font-bold text-gray-300">
