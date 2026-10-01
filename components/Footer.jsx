@@ -22,7 +22,6 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   return (
     <footer className="relative bg-ink px-4 pb-10 pt-16 text-gray-300">
-      <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-brand via-gold to-forest" />
 
       <div className="mx-auto grid max-w-6xl gap-12 sm:grid-cols-3">
         <div>

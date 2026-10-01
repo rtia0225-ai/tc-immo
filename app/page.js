@@ -135,7 +135,7 @@ export default async function HomePage() {
         {!artisans || artisans.length === 0 ? (
           <p className="mt-6 text-gray-500">Aucun artisan pour le moment.</p>
         ) : (
-          <div className="mt-6 flex gap-5 overflow-x-auto pb-2">
+          <div className="mt-6 flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
             {artisans.map((a) => (
               <Link
                 key={a.id}
@@ -199,8 +199,8 @@ export default async function HomePage() {
           <p className="mt-1 text-sm text-gray-600">Vous gérez vos travaux, nous gérons la sécurité.</p>
 
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((step) => (
-              <div key={step.n}>
+            {STEPS.map((step, i) => (
+              <div key={step.n} className="relative">
                 <div className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -214,6 +214,15 @@ export default async function HomePage() {
                 </div>
                 <p className="font-heading mt-3 text-base font-bold leading-snug text-ink">{step.title}</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{step.text}</p>
+
+                {i < STEPS.length - 1 && (
+                  <svg
+                    width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    className="absolute -right-7 top-16 hidden text-gray-300 lg:block"
+                  >
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                )}
               </div>
             ))}
           </div>

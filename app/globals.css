@@ -22,3 +22,13 @@ h1, h2, h3, h4, .font-heading {
 a, button {
   transition: all 150ms ease;
 }
+
+/* Masque la barre de défilement visuellement, sans empêcher de
+   glisser/faire défiler — utile pour les carrousels horizontaux. */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
