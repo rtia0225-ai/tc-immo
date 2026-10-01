@@ -177,7 +177,7 @@ export default async function HomePage() {
                     ) : (
                       <span />
                     )}
-                    <span className="shrink-0 text-xs font-semibold text-brand">
+                    <span className="shrink-0 rounded-full bg-brand px-2 py-1 text-[9px] font-bold text-white">
                       Voir le profil
                     </span>
                   </div>
