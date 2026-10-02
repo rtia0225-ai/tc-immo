@@ -45,19 +45,20 @@ export default async function HomePage() {
 
   return (
     <div>
-      <ConstructionWizard />
+      {/* Hero plein écran : photo en fond, titre, simulateur et recherche
+          réunis dans le même bloc — la première impression ne doit pas
+          être coupée. */}
+      <section className="relative flex min-h-screen flex-col overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-elephants.jpg"
+          alt="Savane en Côte d'Ivoire"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/70" />
 
-      {/* Hero : vraie photo, texte compact, bandeau de recherche qui chevauche */}
-      <section className="relative">
-        <div className="relative h-[420px] w-full overflow-hidden sm:h-[460px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-elephants.jpg"
-            alt="Savane en Côte d'Ivoire"
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 px-4 py-24 text-center text-white">
+          <div>
             <h1 className="font-heading max-w-xl text-3xl font-extrabold leading-tight sm:text-4xl">
               Construisez chez vous, en toute sécurité, depuis n'importe où
             </h1>
@@ -65,10 +66,12 @@ export default async function HomePage() {
               TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.
             </p>
           </div>
+
+          <ConstructionWizard />
         </div>
 
-        {/* Bandeau de recherche dense, pratique, qui chevauche le bas du hero */}
-        <div className="relative z-10 mx-auto -mt-8 max-w-6xl px-4">
+        {/* Bandeau de recherche dense, pratique, ancré en bas du hero */}
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10">
           <form
             action="/artisans"
             className="grid gap-px overflow-hidden rounded-xl border border-gray-200 bg-gray-200 shadow-lg sm:grid-cols-5"

@@ -140,23 +140,21 @@ export default function ConstructionWizard() {
 
   if (!started) {
     return (
-      <section className="border-b border-gray-100 bg-forest-light px-4 py-10">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-xl font-bold text-forest-dark">
-            Vous ne savez pas par où commencer ?
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Répondez à quelques questions sur votre terrain et votre projet — on vous montre toute la feuille de route jusqu'au permis de construire, avec le bon professionnel à contacter à chaque étape.
-          </p>
-          <button
-            type="button"
-            onClick={() => setStarted(true)}
-            className="mt-5 rounded-lg bg-forest px-6 py-3 font-heading text-sm font-bold text-white hover:bg-forest-dark"
-          >
-            Trouver ma démarche
-          </button>
-        </div>
-      </section>
+      <div className="mx-auto max-w-xl rounded-xl bg-white/95 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
+        <h2 className="font-heading text-xl font-bold text-forest-dark">
+          Vous ne savez pas par où commencer ?
+        </h2>
+        <p className="mt-2 text-sm text-gray-600">
+          Répondez à quelques questions sur votre terrain et votre projet — on vous montre toute la feuille de route jusqu'au permis de construire, avec le bon professionnel à contacter à chaque étape.
+        </p>
+        <button
+          type="button"
+          onClick={() => setStarted(true)}
+          className="mt-5 rounded-lg bg-forest px-6 py-3 font-heading text-sm font-bold text-white hover:bg-forest-dark"
+        >
+          Trouver ma démarche
+        </button>
+      </div>
     );
   }
 
@@ -167,9 +165,8 @@ export default function ConstructionWizard() {
   const roadmap = isResult ? buildRoadmap(answers) : [];
 
   return (
-    <section className="border-b border-gray-100 bg-forest-light px-4 py-10">
-      <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-6">
-        {isQuestion && (
+    <div className="mx-auto max-w-xl rounded-xl bg-white p-6 text-left shadow-xl sm:p-8">
+      {isQuestion && (
           <>
             <p className="text-xs font-semibold uppercase tracking-wide text-forest">
               Étape {history.length + 1}
@@ -292,7 +289,6 @@ export default function ConstructionWizard() {
             </div>
           </>
         )}
-      </div>
-    </section>
+    </div>
   );
 }
