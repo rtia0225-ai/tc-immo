@@ -32,7 +32,7 @@ export default async function RessourcesPage() {
         <img
           src="/headers/ressources.jpg"
           alt="Ferraillage sur un chantier"
-          className="h-64 w-full object-cover sm:h-80"
+          className="h-72 w-full object-cover sm:h-96"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         <p className="absolute bottom-1.5 right-2 text-[9px] text-white/70">
@@ -43,15 +43,10 @@ export default async function RessourcesPage() {
             <h1 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
               Ressources
             </h1>
+            <p className="mt-3 text-justify text-sm leading-relaxed text-white/90 sm:text-base">
+              Le foncier et la construction en Côte d'Ivoire, expliqués simplement, avec des liens vers les administrations officielles pour aller plus loin.
+            </p>
           </div>
-        </div>
-      </div>
-
-      <div className="px-4 pb-8 pt-5">
-        <div className="mx-auto max-w-5xl">
-          <p className="text-justify text-base leading-relaxed text-gray-600">
-            Le foncier et la construction en Côte d'Ivoire, expliqués simplement, avec des liens vers les administrations officielles pour aller plus loin.
-          </p>
         </div>
       </div>
 

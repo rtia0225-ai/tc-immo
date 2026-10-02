@@ -11,7 +11,7 @@ export default function AProposPage() {
         <img
           src="/headers/a-propos.jpg"
           alt="Ingénieur sur un chantier"
-          className="h-64 w-full object-cover sm:h-80"
+          className="h-72 w-full object-cover sm:h-96"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         <p className="absolute bottom-1.5 right-2 text-[9px] text-white/70">
@@ -22,17 +22,17 @@ export default function AProposPage() {
             <h1 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
               À propos de TC-Immo
             </h1>
+            <p className="mt-3 text-justify text-sm leading-relaxed text-white/90 sm:text-base">
+              TC-Immo est la marketplace de confiance qui connecte la diaspora ivoirienne
+              à des artisans vérifiés en Côte d'Ivoire, pour construire ou rénover en
+              toute sécurité, où que l'on vive.
+            </p>
           </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-5xl px-4 pb-10 pt-6">
         <p className="text-justify text-gray-600 leading-relaxed">
-          TC-Immo est la marketplace de confiance qui connecte la diaspora ivoirienne
-          à des artisans vérifiés en Côte d'Ivoire, pour construire ou rénover en
-          toute sécurité, où que l'on vive.
-        </p>
-        <p className="mt-4 text-justify text-gray-600 leading-relaxed">
           Notre mission : donner à chacun la possibilité de superviser ses travaux
           à distance, avec un paiement séquestré et un suivi de chantier en temps réel.
         </p>
