@@ -35,12 +35,12 @@ const ITEMS = [
   {
     icon: (
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-        <circle cx="11" cy="11" r="7" />
-        <path d="m21 21-4.3-4.3" />
+        <path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
+        <path d="M9 12h6M9 16h6M9 8h2" />
       </svg>
     ),
-    title: "Trouvez facilement",
-    text: "Filtrez par métier et par ville parmi des professionnels vérifiés partout en Côte d'Ivoire.",
+    title: "Traçabilité totale",
+    text: "Contrats, permis, rapports de suivi et paiements restent tous enregistrés sur la plateforme.",
     color: "forest",
   },
 ];
