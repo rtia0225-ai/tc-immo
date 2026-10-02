@@ -57,14 +57,17 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/70" />
 
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 px-4 py-14 text-center text-white">
-          <div>
-            <h1 className="font-heading max-w-xl text-3xl font-extrabold leading-tight sm:text-4xl">
-              Construisez chez vous, en toute sécurité, depuis n'importe où
-            </h1>
-            <p className="mt-3 max-w-md text-sm text-white/90 sm:text-base">
-              TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.
-            </p>
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-10 px-4 py-14 text-white">
+          <div className="flex max-w-2xl gap-5">
+            <div className="mt-2 w-1 shrink-0 self-stretch rounded-full bg-brand" aria-hidden="true" />
+            <div>
+              <h1 className="font-heading text-4xl font-extrabold leading-[1.1] sm:text-5xl">
+                Construisez chez vous, en toute sécurité, depuis n'importe où
+              </h1>
+              <p className="mt-4 max-w-md text-base text-white/90 sm:text-lg">
+                TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.
+              </p>
+            </div>
           </div>
 
           <ConstructionWizard />

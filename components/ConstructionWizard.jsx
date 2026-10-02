@@ -141,7 +141,12 @@ export default function ConstructionWizard() {
   if (!started) {
     return (
       <div className="mx-auto max-w-xl rounded-xl border border-white/30 bg-black/30 p-6 text-center shadow-2xl backdrop-blur-md sm:p-8">
-        <h2 className="font-heading text-xl font-bold text-white">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white">
+            <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3Z" />
+          </svg>
+        </div>
+        <h2 className="font-heading mt-3 text-xl font-bold text-white">
           Vous ne savez pas par où commencer ?
         </h2>
         <p className="mt-2 text-sm text-white/85">
