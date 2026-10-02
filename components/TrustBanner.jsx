@@ -52,7 +52,7 @@ const BUBBLE_CLASSES = {
 
 export default function TrustBanner() {
   return (
-    <div className="bg-[#FAF8F3] px-4 py-16">
+    <div className="bg-white px-4 py-16">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 text-center sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item) => (
