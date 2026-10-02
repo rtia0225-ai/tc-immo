@@ -140,11 +140,11 @@ export default function ConstructionWizard() {
 
   if (!started) {
     return (
-      <div className="mx-auto max-w-xl rounded-xl bg-white/95 p-6 text-center shadow-xl backdrop-blur-sm sm:p-8">
-        <h2 className="font-heading text-xl font-bold text-forest-dark">
+      <div className="mx-auto max-w-xl rounded-xl border border-white/30 bg-black/30 p-6 text-center shadow-2xl backdrop-blur-md sm:p-8">
+        <h2 className="font-heading text-xl font-bold text-white">
           Vous ne savez pas par où commencer ?
         </h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-white/85">
           Répondez à quelques questions sur votre terrain et votre projet — on vous montre toute la feuille de route jusqu'au permis de construire, avec le bon professionnel à contacter à chaque étape.
         </p>
         <button
@@ -165,13 +165,13 @@ export default function ConstructionWizard() {
   const roadmap = isResult ? buildRoadmap(answers) : [];
 
   return (
-    <div className="mx-auto max-w-xl rounded-xl bg-white p-6 text-left shadow-xl sm:p-8">
+    <div className="mx-auto max-w-xl rounded-xl border border-white/30 bg-black/30 p-6 text-left shadow-2xl backdrop-blur-md sm:p-8">
       {isQuestion && (
           <>
-            <p className="text-xs font-semibold uppercase tracking-wide text-forest">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
               Étape {history.length + 1}
             </p>
-            <h3 className="font-heading mt-2 text-lg font-bold text-ink">
+            <h3 className="font-heading mt-2 text-lg font-bold text-white">
               {step.question}
             </h3>
             <div className="mt-4 flex flex-col gap-2">
@@ -180,7 +180,7 @@ export default function ConstructionWizard() {
                   key={opt.value}
                   type="button"
                   onClick={() => choose(opt.value)}
-                  className="rounded-lg border border-gray-300 p-3 text-left text-sm hover:border-forest hover:bg-forest-light"
+                  className="rounded-lg border border-white/30 bg-white/10 p-3 text-left text-sm text-white hover:border-white hover:bg-white/20"
                 >
                   {opt.label}
                 </button>
@@ -190,7 +190,7 @@ export default function ConstructionWizard() {
               <button
                 type="button"
                 onClick={goBack}
-                className="mt-4 text-xs text-gray-500 hover:text-forest"
+                className="mt-4 text-xs text-white/70 hover:text-white"
               >
                 ← Question précédente
               </button>
@@ -200,30 +200,30 @@ export default function ConstructionWizard() {
 
         {isDecline && (
           <>
-            <p className="text-xs font-semibold uppercase tracking-wide text-forest">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
               Merci pour votre réponse
             </p>
-            <h3 className="font-heading mt-2 text-lg font-bold text-ink">
+            <h3 className="font-heading mt-2 text-lg font-bold text-white">
               Nous ne pouvons pas encore vous accompagner pour ce terrain
             </h3>
-            <p className="mt-3 text-sm leading-relaxed text-gray-600">
+            <p className="mt-3 text-sm leading-relaxed text-white/85">
               Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TC-Immo prend en charge pour le moment. Nous vous conseillons de contacter votre propre géomètre-topographe pour entamer cette étape.
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+            <p className="mt-2 text-sm leading-relaxed text-white/85">
               Une fois votre terrain loti, revenez avec plaisir pour la suite de votre projet — on sera là pour vous accompagner.
             </p>
             <div className="mt-5 flex gap-4">
               <button
                 type="button"
                 onClick={goBack}
-                className="text-xs text-gray-500 hover:text-forest"
+                className="text-xs text-white/70 hover:text-white"
               >
                 ← Question précédente
               </button>
               <button
                 type="button"
                 onClick={restart}
-                className="text-xs text-gray-500 hover:text-forest"
+                className="text-xs text-white/70 hover:text-white"
               >
                 Recommencer
               </button>
@@ -233,10 +233,10 @@ export default function ConstructionWizard() {
 
         {isResult && (
           <>
-            <p className="text-xs font-semibold uppercase tracking-wide text-forest">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
               Votre feuille de route
             </p>
-            <h3 className="font-heading mt-2 text-lg font-bold text-ink">
+            <h3 className="font-heading mt-2 text-lg font-bold text-white">
               {roadmap.length === 0
                 ? "Vous êtes déjà prêt·e à déposer votre Permis de Construire."
                 : `Voici les ${roadmap.length} étape${roadmap.length > 1 ? "s" : ""} qu'il vous reste avant le Permis de Construire`}
@@ -246,13 +246,13 @@ export default function ConstructionWizard() {
               {roadmap.map((s, i) => {
                 const pros = Array.isArray(s.professional) ? s.professional : [s.professional];
                 return (
-                  <div key={s.title} className="border-l-2 border-forest pl-4">
-                    <p className="text-xs font-semibold text-forest">Étape {i + 1}</p>
-                    <p className="font-heading font-bold text-ink">{s.title}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-gray-600">{s.text}</p>
+                  <div key={s.title} className="border-l-2 border-white/40 pl-4">
+                    <p className="text-xs font-semibold text-white/70">Étape {i + 1}</p>
+                    <p className="font-heading font-bold text-white">{s.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-white/85">{s.text}</p>
                     {pros.map((p) => (
-                      <p key={p.trade} className="mt-2 text-xs text-gray-500">
-                        <strong className="text-ink">{p.trade}</strong> — {p.note}
+                      <p key={p.trade} className="mt-2 text-xs text-white/70">
+                        <strong className="text-white">{p.trade}</strong> — {p.note}
                       </p>
                     ))}
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -275,14 +275,14 @@ export default function ConstructionWizard() {
               <button
                 type="button"
                 onClick={goBack}
-                className="text-xs text-gray-500 hover:text-forest"
+                className="text-xs text-white/70 hover:text-white"
               >
                 ← Question précédente
               </button>
               <button
                 type="button"
                 onClick={restart}
-                className="text-xs text-gray-500 hover:text-forest"
+                className="text-xs text-white/70 hover:text-white"
               >
                 Recommencer
               </button>
