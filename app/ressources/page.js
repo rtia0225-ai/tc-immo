@@ -27,15 +27,17 @@ export default async function RessourcesPage() {
 
   return (
     <div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/headers/ressources.jpg"
-        alt="Ferraillage sur un chantier"
-        className="h-56 w-full object-cover sm:h-72"
-      />
-      <p className="px-4 pt-1.5 text-right text-[11px] text-gray-400">
-        Photo : jcomp sur Freepik
-      </p>
+      <div className="relative">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/headers/ressources.jpg"
+          alt="Ferraillage sur un chantier"
+          className="h-56 w-full object-cover sm:h-72"
+        />
+        <p className="absolute bottom-1.5 right-2 text-[9px] text-white/70">
+          jcomp / Freepik
+        </p>
+      </div>
 
       <div className="px-4 pb-10 pt-6">
         <div className="mx-auto max-w-2xl">

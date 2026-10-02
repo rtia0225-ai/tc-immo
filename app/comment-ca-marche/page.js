@@ -187,15 +187,17 @@ export default async function CommentCaMarchePage() {
 
   return (
     <div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/headers/comment-ca-marche.jpg"
-        alt="Chantier de construction"
-        className="h-56 w-full object-cover sm:h-72"
-      />
-      <p className="px-4 pt-1.5 text-right text-[11px] text-gray-400">
-        Photo : bearfotos sur Freepik
-      </p>
+      <div className="relative">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/headers/comment-ca-marche.jpg"
+          alt="Chantier de construction"
+          className="h-56 w-full object-cover sm:h-72"
+        />
+        <p className="absolute bottom-1.5 right-2 text-[9px] text-white/70">
+          bearfotos / Freepik
+        </p>
+      </div>
 
       <div className="px-4 pb-10 pt-6">
         <div className="mx-auto max-w-2xl">
