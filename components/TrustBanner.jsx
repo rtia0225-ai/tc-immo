@@ -25,19 +25,19 @@ export default function TrustBanner() {
   return (
     <div className="bg-forest px-4 py-16">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-10 text-center sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-x-8 gap-y-14 text-center sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item) => (
             <div key={item.title} className="flex flex-col items-center">
               <div className="relative">
                 <div
-                  className="flex h-28 w-28 items-center justify-center rounded-full"
+                  className="flex h-20 w-20 items-center justify-center rounded-full"
                   style={{
                     background: "radial-gradient(circle at 35% 28%, #ffffff, #e2e2e2 55%, #c9c9c9 100%)",
                     boxShadow: "inset 0 -6px 10px rgba(0,0,0,0.12), inset 0 3px 6px rgba(255,255,255,0.9), 0 6px 14px rgba(0,0,0,0.12)",
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.image} alt="" className="h-16 w-16 object-contain" />
+                  <img src={item.image} alt="" className="h-11 w-11 object-contain" />
                 </div>
                 <div
                   className="absolute -bottom-2 left-1/2 h-3 w-14 -translate-x-1/2 rounded-full bg-black/20 blur-[5px]"
