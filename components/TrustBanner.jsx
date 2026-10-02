@@ -23,7 +23,7 @@ const ITEMS = [
 
 export default function TrustBanner() {
   return (
-    <div className="bg-white px-4 py-16">
+    <div className="bg-forest px-4 py-16">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 text-center sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item) => (
@@ -44,10 +44,10 @@ export default function TrustBanner() {
                   aria-hidden="true"
                 />
               </div>
-              <p className="font-heading mt-5 text-base font-bold text-ink">
+              <p className="font-heading mt-5 text-base font-bold text-white">
                 {item.title}
               </p>
-              <p className="mt-2 max-w-[15rem] text-sm leading-relaxed text-gray-700">{item.text}</p>
+              <p className="mt-2 max-w-[15rem] text-sm leading-relaxed text-white/85">{item.text}</p>
             </div>
           ))}
         </div>
