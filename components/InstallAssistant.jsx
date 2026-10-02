@@ -61,7 +61,7 @@ export default function InstallAssistant({ loggedIn }) {
           <div>
             <p className="text-sm font-bold text-ink">Ne rien manquer</p>
             <p className="mt-0.5 text-xs text-gray-500">
-              Recevez une alerte dès qu'un client vous écrit ou qu'un rendez-vous est proposé — comme WhatsApp.
+              Recevez une alerte dès qu'un client vous écrit ou qu'un rendez-vous est proposé, comme WhatsApp.
             </p>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function InstallAssistant({ loggedIn }) {
       </div>
       {notifStatus === "denied" && (
         <p className="mx-auto mt-2 max-w-2xl text-xs text-brand">
-          Autorisation refusée — vous pouvez l'activer plus tard dans les réglages de votre navigateur.
+          Autorisation refusée, vous pouvez l'activer plus tard dans les réglages de votre navigateur.
         </p>
       )}
     </div>

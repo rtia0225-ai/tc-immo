@@ -156,7 +156,7 @@ export default async function ProfileEditPage({ searchParams }) {
           </form>
         </div>
         <p className="mt-2 text-xs text-gray-500">
-          Choisissez une photo depuis votre téléphone ou votre ordinateur — elle sera visible par les clients.
+          Choisissez une photo depuis votre téléphone ou votre ordinateur, elle sera visible par les clients.
         </p>
       </section>
 
@@ -165,7 +165,7 @@ export default async function ProfileEditPage({ searchParams }) {
         <h2 className="font-heading text-lg font-bold text-brand">Pièce d'identité</h2>
         {idDocumentSignedUrl && (
           <p className="mt-2 text-sm text-forest">
-            ✓ Document déjà envoyé{profile?.id_document_type ? ` (${profile.id_document_type}${profile.id_document_number ? ` n° ${profile.id_document_number}` : ""})` : ""} —{" "}
+            ✓ Document déjà envoyé{profile?.id_document_type ? ` (${profile.id_document_type}${profile.id_document_number ? ` n° ${profile.id_document_number}` : ""})` : ""} ,{" "}
             <a href={idDocumentSignedUrl} target="_blank" rel="noreferrer" className="underline">
               voir le fichier
             </a>
@@ -210,7 +210,7 @@ export default async function ProfileEditPage({ searchParams }) {
         <section>
           <h2 className="font-heading text-lg font-bold text-brand">Informations personnelles</h2>
           <p className="mb-4 text-xs text-gray-500">
-            Le téléphone et le contact d'urgence ne sont jamais visibles par les clients — utilisés uniquement pour la vérification de votre profil.
+            Le téléphone et le contact d'urgence ne sont jamais visibles par les clients, utilisés uniquement pour la vérification de votre profil.
           </p>
 
           <div className="flex flex-col gap-4">
@@ -423,7 +423,7 @@ export default async function ProfileEditPage({ searchParams }) {
               </button>
             </form>
             <p className="mt-2 text-xs text-gray-500">
-              Choisissez une ou plusieurs photos depuis votre téléphone ou votre ordinateur (maintenez Ctrl/Cmd pour en sélectionner plusieurs) — {5 - (photos?.length || 0)} emplacement(s) restant(s).
+              Choisissez une ou plusieurs photos depuis votre téléphone ou votre ordinateur (maintenez Ctrl/Cmd pour en sélectionner plusieurs), {5 - (photos?.length || 0)} emplacement(s) restant(s).
             </p>
           </>
         )}

@@ -36,7 +36,7 @@ export default async function AddParticipantPage({ params, searchParams }) {
     return (
       <div className="mx-auto max-w-md px-4 py-12">
         <h1 className="font-heading text-2xl font-bold">Prestation de {artisan?.profiles?.full_name}</h1>
-        <p className="mt-1 text-sm text-gray-500">{artisan?.trade} — projet "{project.title}"</p>
+        <p className="mt-1 text-sm text-gray-500">{artisan?.trade}, projet "{project.title}"</p>
         <p className="mt-3 text-sm text-gray-500">
           Chaque artisan est indépendant : renseigne ici uniquement les termes convenus avec {artisan?.profiles?.full_name}, séparément du reste du projet.
         </p>

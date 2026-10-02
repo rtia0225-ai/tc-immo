@@ -89,7 +89,7 @@ export default function ProjectTimeline({
                   Terminé par l'artisan le {new Date(m.completed_at).toLocaleDateString("fr-FR")}
                   {m.deliverableSignedUrl && (
                     <>
-                      {" "}—{" "}
+                      {", "}
                       <a href={m.deliverableSignedUrl} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                         voir le document
                       </a>
@@ -127,7 +127,7 @@ export default function ProjectTimeline({
       )}
 
       <p className="mt-4 border-t border-gray-100 pt-3 text-xs text-gray-500">
-        L'échéancier a été défini par le client à la création du projet, selon le contrat convenu avec l'artisan — il ne peut plus être modifié.
+        L'échéancier a été défini par le client à la création du projet, selon le contrat convenu avec l'artisan, il ne peut plus être modifié.
       </p>
     </div>
   );

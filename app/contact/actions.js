@@ -30,7 +30,7 @@ export async function sendContactMessage(formData) {
 
     if (!response.ok) {
       // L'envoi échoue en coulisses (clé Resend à corriger), mais on ne
-      // montre rien à la personne qui remplit le formulaire — pas
+      // montre rien à la personne qui remplit le formulaire, pas
       // d'erreur affichée tant que ce n'est pas réglé.
       const errorText = await response.text();
       console.error("Erreur d'envoi Resend :", errorText);

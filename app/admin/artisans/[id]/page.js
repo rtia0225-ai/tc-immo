@@ -100,7 +100,7 @@ export default async function AdminArtisanDetailPage({ params }) {
 
       {artisan.is_suspended && (
         <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-          Ce profil est suspendu — il n'apparaît plus dans la recherche publique.
+          Ce profil est suspendu, il n'apparaît plus dans la recherche publique.
         </p>
       )}
 
@@ -120,7 +120,7 @@ export default async function AdminArtisanDetailPage({ params }) {
           <dt className="text-xs text-gray-400">Position GPS (adresse fixe)</dt>
           {p?.home_latitude && p?.home_longitude ? (
             <dd className="mt-1 text-sm">
-              Capturée le {p.home_location_captured_at ? new Date(p.home_location_captured_at).toLocaleDateString("fr-FR") : "—"} —{" "}
+              Capturée le {p.home_location_captured_at ? new Date(p.home_location_captured_at).toLocaleDateString("fr-FR") : "—"} ,{" "}
               <a
                 href={`https://www.google.com/maps?q=${p.home_latitude},${p.home_longitude}`}
                 target="_blank"
@@ -142,7 +142,7 @@ export default async function AdminArtisanDetailPage({ params }) {
         {idDocumentSignedUrl ? (
           <div className="mt-3">
             <p className="text-sm">
-              {p.id_document_type} — n° {p.id_document_number}
+              {p.id_document_type}, n° {p.id_document_number}
             </p>
             <a
               href={idDocumentSignedUrl}
@@ -202,7 +202,7 @@ export default async function AdminArtisanDetailPage({ params }) {
             <div key={n.id} className="rounded-lg bg-gray-50 p-3 text-sm">
               <p>{n.note}</p>
               <p className="mt-1 text-xs text-gray-400">
-                Admin — {new Date(n.created_at).toLocaleString("fr-FR")}
+                Admin, {new Date(n.created_at).toLocaleString("fr-FR")}
               </p>
             </div>
           ))}

@@ -17,7 +17,7 @@ export default function ConfirmEmailPage({ searchParams }) {
         </p>
       ) : (
         <p className="text-gray-600">
-          Votre profil est déjà complet. Connectez-vous pour ajouter votre photo et votre pièce d'identité — c'est la dernière étape.
+          Votre profil est déjà complet. Connectez-vous pour ajouter votre photo et votre pièce d'identité, c'est la dernière étape.
         </p>
       )}
       <Link

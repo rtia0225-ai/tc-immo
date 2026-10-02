@@ -47,7 +47,7 @@ export async function toggleMilestone(formData) {
 
 // Le client confirme avoir effectué le virement pour une étape validée par
 // l'artisan. Manuel pour l'instant (pas de prestataire de paiement branché
-// encore) — enregistre juste la date à laquelle le paiement a été fait.
+// encore), enregistre juste la date à laquelle le paiement a été fait.
 export async function releasePayment(formData) {
   const supabase = createClient();
   const milestoneId = formData.get("milestoneId");
@@ -79,7 +79,7 @@ export async function releasePayment(formData) {
 
 
 // Pour Architecte/Topographe : l'artisan envoie le document livré
-// (Permis de Construire / ACD) — ça marque l'étape comme terminée
+// (Permis de Construire / ACD), ça marque l'étape comme terminée
 // automatiquement et débloque le paiement en un seul virement.
 export async function uploadDeliverable(formData) {
   const supabase = createClient();

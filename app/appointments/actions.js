@@ -37,7 +37,7 @@ export async function requestAppointment(formData) {
     );
   }
 
-  // Notifie l'artisan (SMS + rappel) — voir lib/notifications.js
+  // Notifie l'artisan (SMS + rappel), voir lib/notifications.js
   await notifyNewAppointment(appointment.id);
 
   redirect("/appointments");
@@ -45,7 +45,7 @@ export async function requestAppointment(formData) {
 
 // Accepte le créneau tel que proposé par l'autre partie, et peut y joindre
 // un lien de réunion (Meet, Zoom...). Accessible à qui N'A PAS proposé
-// ce créneau — client ou artisan, selon le sens de la dernière proposition.
+// ce créneau, client ou artisan, selon le sens de la dernière proposition.
 export async function confirmAppointment(formData) {
   const supabase = createClient();
   const appointmentId = formData.get("appointmentId");

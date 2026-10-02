@@ -5,7 +5,7 @@ import { logClientActivity } from "@/lib/activityLog";
 import { requestNotification } from "./actions";
 
 // Le temps que les démarches administratives soient prêtes, ces actions
-// ne sont pas encore actives — on enregistre l'intérêt du client (utile
+// ne sont pas encore actives, on enregistre l'intérêt du client (utile
 // pour l'étude de marché) sans réaliser l'action elle-même.
 export default async function InterestRegisteredPage({ searchParams }) {
   const type = searchParams?.type;
@@ -47,7 +47,7 @@ export default async function InterestRegisteredPage({ searchParams }) {
 
       {notified ? (
         <p className="mt-6 rounded-lg bg-forest-light p-3 text-sm font-medium text-forest">
-          C'est noté — nous vous préviendrons dès l'ouverture.
+          C'est noté, nous vous préviendrons dès l'ouverture.
         </p>
       ) : (
         <form action={requestNotification} className="mt-6">

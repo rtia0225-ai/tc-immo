@@ -55,12 +55,12 @@ export default function MilestoneBuilder({ trade }) {
 
       {isSingleInstallment ? (
         <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-          Pour ce métier, le paiement se fait en <strong>une seule fois</strong>, uniquement à la livraison du {singleInstallmentDoc} sur la plateforme — l'artisan doit envoyer le document pour débloquer le virement.
+          Pour ce métier, le paiement se fait en <strong>une seule fois</strong>, uniquement à la livraison du {singleInstallmentDoc} sur la plateforme, l'artisan doit envoyer le document pour débloquer le virement.
         </p>
       ) : (
         <>
           <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-            Pour ce métier, vous devez prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong> — un échéancier de paiement en plusieurs étapes est requis. Discutez de ce découpage avec l'artisan avant de valider.
+            Pour ce métier, vous devez prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong>, un échéancier de paiement en plusieurs étapes est requis. Discutez de ce découpage avec l'artisan avant de valider.
           </p>
 
           <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
@@ -77,10 +77,10 @@ export default function MilestoneBuilder({ trade }) {
                 </button>
               </>
             ) : (
-              <p>Découpe l'échéancier selon les vraies étapes de <strong>ce métier précis</strong> — ne mélange pas avec le travail d'un autre artisan du projet.</p>
+              <p>Découpe l'échéancier selon les vraies étapes de <strong>ce métier précis</strong>, ne mélange pas avec le travail d'un autre artisan du projet.</p>
             )}
             <p className="mt-2 font-semibold text-ink">Autre façon de faire :</p>
-            <p className="mt-1">Un paiement régulier (chaque semaine ou chaque mois) selon les jours réellement travaillés par l'artisan — à adapter avec lui selon la durée prévue du chantier.</p>
+            <p className="mt-1">Un paiement régulier (chaque semaine ou chaque mois) selon les jours réellement travaillés par l'artisan, à adapter avec lui selon la durée prévue du chantier.</p>
           </div>
         </>
       )}
@@ -135,9 +135,9 @@ export default function MilestoneBuilder({ trade }) {
       )}
 
       <p className={`mt-2 text-xs ${total === 100 ? "text-forest" : "text-brand"}`}>
-        Total : {total}% {total !== 100 && "— doit être égal à 100% pour valider"}
+        Total : {total}% {total !== 100 && ", doit être égal à 100% pour valider"}
         {!isSingleInstallment && rows.length < MIN_INSTALLMENTS_OTHER_TRADES && (
-          <span className="ml-2">— minimum {MIN_INSTALLMENTS_OTHER_TRADES} étapes requises</span>
+          <span className="ml-2">, minimum {MIN_INSTALLMENTS_OTHER_TRADES} étapes requises</span>
         )}
       </p>
     </div>

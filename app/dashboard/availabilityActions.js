@@ -78,7 +78,7 @@ export async function bookAvailabilitySlot(formData) {
   if (!slot) {
     redirect(
       `/appointments/new?artisan=${artisanId}&error=${encodeURIComponent(
-        "Ce créneau n'est plus disponible — quelqu'un vient de le réserver. Choisis-en un autre."
+        "Ce créneau n'est plus disponible, quelqu'un vient de le réserver. Choisis-en un autre."
       )}`
     );
   }

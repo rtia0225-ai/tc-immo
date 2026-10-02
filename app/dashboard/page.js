@@ -30,7 +30,7 @@ export default async function DashboardPage({ searchParams }) {
   const isArtisan = profile?.role === "artisan";
 
   // Tant que le compte n'est pas approuvé par l'admin, pas d'accès au
-  // tableau de bord — règle temporaire avant le lancement officiel. Pour
+  // tableau de bord, règle temporaire avant le lancement officiel. Pour
   // tous les métiers sauf la maçonnerie (déjà vérifiée via le technicien
   // recruteur), un entretien réservé est requis avant validation.
   if (profile?.approval_status !== "approved") {
@@ -109,7 +109,7 @@ export default async function DashboardPage({ searchParams }) {
             )}
             {Object.keys(slotsByDate).length === 0 ? (
               <p className="mt-4 rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-500">
-                Aucun créneau disponible pour le moment — reviens un peu plus tard.
+                Aucun créneau disponible pour le moment, reviens un peu plus tard.
               </p>
             ) : (
               <div className="mt-4 flex flex-col gap-4 text-left">
@@ -441,7 +441,7 @@ export default async function DashboardPage({ searchParams }) {
                   projects.map((p) => (
                     <div key={p.id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3 text-sm">
                       <span>{p.title}</span>
-                      <span className="font-medium">{p.amount} {p.currency} — {translateStatus(p.status)}</span>
+                      <span className="font-medium">{p.amount} {p.currency}, {translateStatus(p.status)}</span>
                     </div>
                   ))
                 )}

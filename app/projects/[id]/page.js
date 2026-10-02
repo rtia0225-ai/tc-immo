@@ -168,7 +168,7 @@ export default async function ProjectPage({ params }) {
               href={`/projects/${project.id}/contract/${a.artisanId}`}
               className="block rounded-lg border border-brand bg-brand-light p-4 text-sm font-medium text-brand-dark hover:opacity-90"
             >
-              Contrat avec {a.fullName} en attente de signature — clique pour le consulter et signer
+              Contrat avec {a.fullName} en attente de signature, clique pour le consulter et signer
             </Link>
           ))}
         </div>
@@ -260,7 +260,7 @@ export default async function ProjectPage({ params }) {
             <div key={a.artisanId} className="rounded-lg border border-gray-200 bg-white p-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-heading font-bold">{a.fullName} — {a.trade}</p>
+                  <p className="font-heading font-bold">{a.fullName}, {a.trade}</p>
                   {a.description && <p className="mt-0.5 text-sm text-gray-500">{a.description}</p>}
                   <p className="mt-0.5 text-sm font-medium text-gray-700">
                     {a.amount} {a.currency}

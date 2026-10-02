@@ -18,14 +18,14 @@ function matchSecurityIcon(title) {
   return IconShieldCheck;
 }
 
-// Sépare "1. texte" en (numéro, texte) — sinon renvoie null.
+// Sépare "1. texte" en (numéro, texte), sinon renvoie null.
 function parseNumberedItem(paragraph) {
   const match = paragraph.match(/^(\d+)\.\s*(.+)$/s);
   if (!match) return null;
   return { number: match[1], text: match[2] };
 }
 
-// Sépare "**Titre**\ntexte" en (titre, texte) — sinon renvoie null.
+// Sépare "**Titre**\ntexte" en (titre, texte), sinon renvoie null.
 function parseTitledItem(paragraph) {
   const match = paragraph.match(/^\*\*([^*]+)\*\*\s*\n?\s*(.*)$/s);
   if (!match) return null;

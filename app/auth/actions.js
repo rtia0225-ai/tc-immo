@@ -33,7 +33,7 @@ export async function signup(formData) {
   const interviewSlotId = formData.get("interviewSlotId") || null;
 
   // Ce que le client verra (description, tarification) ne doit jamais
-  // contenir de numéro de téléphone — même règle que la messagerie.
+  // contenir de numéro de téléphone, même règle que la messagerie.
   if (role === "artisan" && (containsPhoneNumber(bio) || containsPhoneNumber(pricingInfo))) {
     const qs = new URLSearchParams({ role, ...(redirectTo ? { redirect: redirectTo } : {}) });
     redirect(

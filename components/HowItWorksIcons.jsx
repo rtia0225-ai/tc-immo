@@ -51,7 +51,7 @@ export function IconGauge(props) {
   );
 }
 
-// Boussole / théodolite — géomètre-topographe
+// Boussole / théodolite, géomètre-topographe
 export function IconCompass(props) {
   return (
     <svg viewBox="0 0 32 32" width="26" height="26" {...base} {...props}>
@@ -62,7 +62,7 @@ export function IconCompass(props) {
   );
 }
 
-// Équerre + plan — architecte
+// Équerre + plan, architecte
 export function IconBlueprint(props) {
   return (
     <svg viewBox="0 0 32 32" width="26" height="26" {...base} {...props}>
@@ -74,7 +74,7 @@ export function IconBlueprint(props) {
   );
 }
 
-// Casque de chantier — technicien BTP
+// Casque de chantier, technicien BTP
 export function IconHelmet(props) {
   return (
     <svg viewBox="0 0 32 32" width="26" height="26" {...base} {...props}>
@@ -85,7 +85,7 @@ export function IconHelmet(props) {
   );
 }
 
-// Truelle — maçon / autres corps de métier
+// Truelle, maçon / autres corps de métier
 export function IconTrowel(props) {
   return (
     <svg viewBox="0 0 32 32" width="26" height="26" {...base} {...props}>

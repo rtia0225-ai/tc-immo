@@ -5,7 +5,7 @@ import CitySelect from "@/components/CitySelect";
 import { COUNTRIES, CI_CITIES } from "@/lib/constants";
 
 // Pays d'abord, puis la ville : liste précise et recherchable pour la
-// Côte d'Ivoire (197 communes), saisie libre pour les autres pays — une
+// Côte d'Ivoire (197 communes), saisie libre pour les autres pays, une
 // vraie base mondiale de villes par pays n'existe pas gratuitement.
 export default function CountryAndCitySelect({ initialCountry = "", initialCity = "" }) {
   const [country, setCountry] = useState(initialCountry);

@@ -86,7 +86,7 @@ export default async function NewAppointmentPage({ searchParams }) {
 
       {Object.keys(slotsByDate).length === 0 ? (
         <p className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-500">
-          Aucun créneau disponible pour le moment — réessaie un peu plus tard.
+          Aucun créneau disponible pour le moment, réessaie un peu plus tard.
         </p>
       ) : (
         <div className="flex flex-col gap-4">

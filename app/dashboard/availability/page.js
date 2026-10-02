@@ -30,7 +30,7 @@ export default async function AvailabilityPage({ searchParams }) {
     <div className="mx-auto max-w-xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold text-ink">Mes disponibilités</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Ajoutez les créneaux où vous êtes disponible pour un rendez-vous visio. Les clients ne voient que ce qui est encore libre, et réservent directement — modifiez cette liste aussi souvent que besoin.
+        Ajoutez les créneaux où vous êtes disponible pour un rendez-vous visio. Les clients ne voient que ce qui est encore libre, et réservent directement, modifiez cette liste aussi souvent que besoin.
       </p>
 
       {searchParams?.error && (

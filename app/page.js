@@ -46,9 +46,9 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero plein écran : photo en fond, titre, simulateur et recherche
-          réunis dans le même bloc — la première impression ne doit pas
+          réunis dans le même bloc, la première impression ne doit pas
           être coupée. */}
-      <section className="relative flex min-h-[640px] flex-col overflow-hidden sm:min-h-[720px]">
+      <section className="relative flex min-h-[480px] flex-col overflow-hidden sm:min-h-[640px] lg:min-h-[720px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero-elephants.jpg"
@@ -57,7 +57,7 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/70" />
 
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-10 px-4 py-14 text-white">
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8 text-white sm:gap-10 sm:py-14">
           <div className="flex max-w-2xl gap-5">
             <div className="mt-2 w-1 shrink-0 self-stretch rounded-full bg-brand" aria-hidden="true" />
             <div>

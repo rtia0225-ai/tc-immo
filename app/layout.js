@@ -8,11 +8,11 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata = {
   metadataBase: new URL("https://tcholding-immo.com"),
   title: {
-    default: "TC-Immo — Construire en Côte d'Ivoire, depuis n'importe où",
+    default: "TC-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
     template: "%s | TC-Immo",
   },
   description:
-    "TC-Immo (TC Holding Immo) connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres, architectes et techniques BTP vérifiés, pour construire en Côte d'Ivoire en toute confiance — paiement sécurisé, suivi à distance, échéancier en plusieurs étapes.",
+    "TC-Immo (TC Holding Immo) connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres, architectes et techniques BTP vérifiés, pour construire en Côte d'Ivoire en toute confiance, paiement sécurisé, suivi à distance, échéancier en plusieurs étapes.",
   keywords: [
     "construire en Côte d'Ivoire",
     "construire en Côte d'Ivoire depuis l'étranger",
@@ -28,7 +28,7 @@ export const metadata = {
     type: "website",
     locale: "fr_FR",
     siteName: "TC-Immo",
-    title: "TC-Immo — Construire en Côte d'Ivoire, depuis n'importe où",
+    title: "TC-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
     description:
       "Trouvez un artisan, un géomètre ou un architecte vérifié pour construire en Côte d'Ivoire, où que vous soyez. Paiement sécurisé, suivi à distance.",
     images: ["/hero-elephants.jpg"],

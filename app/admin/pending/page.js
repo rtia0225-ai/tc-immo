@@ -45,7 +45,7 @@ export default async function PendingAccountsPage() {
         Inscriptions en attente ({pending?.length || 0})
       </h1>
       <p className="mt-1 text-sm text-gray-500">
-        Client comme artisan — tant que le compte n'est validé, la personne n'a pas accès à son espace.
+        Client comme artisan, tant que le compte n'est validé, la personne n'a pas accès à son espace.
       </p>
 
       <div className="mt-6 flex flex-col gap-3">

@@ -56,7 +56,7 @@ export default async function ArtisanProfilePage({ params }) {
     .single();
 
   // Un profil suspendu ou pas encore approuvé reste consultable
-  // uniquement par l'artisan lui-même — pas par le public.
+  // uniquement par l'artisan lui-même, pas par le public.
   if ((artisan?.is_suspended || artisan?.profiles?.approval_status !== "approved") && !isOwnProfile) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
@@ -192,10 +192,10 @@ export default async function ArtisanProfilePage({ params }) {
         )}
       </div>
 
-      {/* Actions — un artisan ne peut ni se contacter ni démarrer un
+      {/* Actions, un artisan ne peut ni se contacter ni démarrer un
           projet avec lui-même ; seul un client peut démarrer un projet.
           Si l'artisan est lié à un technicien recruteur, le contact
-          (message/RDV) est redirigé vers lui — le paiement et le projet,
+          (message/RDV) est redirigé vers lui, le paiement et le projet,
           eux, restent toujours directement liés à cet artisan. */}
       {isOwnProfile ? (
         <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center text-sm text-gray-500">

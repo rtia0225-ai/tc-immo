@@ -23,7 +23,7 @@ export default function InterviewSlotPicker({ slots }) {
       <input type="hidden" name="interviewSlotId" value={selectedId} required />
 
       {Object.keys(slotsByDate).length === 0 ? (
-        <p className="mt-3 text-xs text-gray-600">Aucun créneau disponible pour le moment — réessaie un peu plus tard.</p>
+        <p className="mt-3 text-xs text-gray-600">Aucun créneau disponible pour le moment, réessaie un peu plus tard.</p>
       ) : (
         <div className="mt-3 flex flex-col gap-3">
           {Object.entries(slotsByDate).map(([date, daySlots]) => (

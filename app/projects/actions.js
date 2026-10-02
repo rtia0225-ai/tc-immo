@@ -16,7 +16,7 @@ function validateInstallmentRule(trade, milestoneTitles) {
       return `Pour ce métier, l'échéancier doit contenir une seule étape, payée à la livraison du ${requiredDoc}.`;
     }
   } else if (milestoneTitles.length < MIN_INSTALLMENTS_OTHER_TRADES) {
-    return `Pour ce métier, l'échéancier doit contenir au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes — le paiement ne peut pas se faire en une seule fois.`;
+    return `Pour ce métier, l'échéancier doit contenir au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, le paiement ne peut pas se faire en une seule fois.`;
   }
   return null;
 }
@@ -28,7 +28,7 @@ function buildContractContent({ clientName, artisanName, trade, title, descripti
     .map((m) => `  - ${m.title} : ${m.payment_percentage}% (${m.amount} ${currency})`)
     .join("\n");
 
-  return `CONTRAT DE PRESTATION — TC-IMMO
+  return `CONTRAT DE PRESTATION, TC-IMMO
 
 Entre le client ${clientName || ""} et le prestataire ${artisanName || ""} (${trade || ""}).
 
@@ -187,7 +187,7 @@ export async function createProject(formData) {
   redirect(`/projects/${project.id}/contract/${artisanId}`);
 }
 
-// Signature de consentement (horodatée) — pas une signature électronique
+// Signature de consentement (horodatée), pas une signature électronique
 // légale certifiée, juste une trace de l'accord de chaque partie.
 export async function signContract(formData) {
   const supabase = createClient();
@@ -244,7 +244,7 @@ export async function advanceProjectStatus(formData) {
 
 // Le client ajoute un autre artisan (n'importe quel métier) à un projet
 // déjà démarré, avec sa PROPRE prestation, son PROPRE montant et son
-// PROPRE échéancier — indépendant du reste du projet (pas de prix groupé).
+// PROPRE échéancier, indépendant du reste du projet (pas de prix groupé).
 export async function addParticipant(formData) {
   const supabase = createClient();
   const projectId = formData.get("projectId");
@@ -330,7 +330,7 @@ export async function addParticipant(formData) {
     clientName: clientProfile?.full_name,
     artisanName: artisanData?.profiles?.full_name,
     trade: artisanData?.trade,
-    title: `${project.title} — ${artisanData?.trade || "prestation complémentaire"}`,
+    title: `${project.title}, ${artisanData?.trade || "prestation complémentaire"}`,
     description,
     amount,
     currency,

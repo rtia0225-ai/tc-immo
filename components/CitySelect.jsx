@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 
 // Remplace un simple <select> par un champ où on tape les premières
-// lettres pour filtrer la liste — indispensable avec ~200 villes.
+// lettres pour filtrer la liste, indispensable avec ~200 villes.
 // mode "single" : une seule ville, envoyée via un input caché `name`.
 // mode "multiple" : plusieurs villes cochables, chacune via un input
 // caché répété avec le même `name` (comme des checkboxes classiques).

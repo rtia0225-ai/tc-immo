@@ -9,9 +9,9 @@ const EVENT_LABELS = {
   message_interest: "A cliqué sur \"Envoyer un message\" (non activé)",
   appointment_interest: "A cliqué sur \"Rendez-vous visio\" (non activé)",
   project_interest: "A cliqué sur \"Démarrer un projet\" (non activé)",
-  message_notify_me: "Veut être notifié — \"Envoyer un message\"",
-  appointment_notify_me: "Veut être notifié — \"Rendez-vous visio\"",
-  project_notify_me: "Veut être notifié — \"Démarrer un projet\"",
+  message_notify_me: "Veut être notifié, \"Envoyer un message\"",
+  appointment_notify_me: "Veut être notifié, \"Rendez-vous visio\"",
+  project_notify_me: "Veut être notifié, \"Démarrer un projet\"",
 };
 
 export default async function ClientActivityPage({ searchParams }) {
@@ -64,7 +64,7 @@ export default async function ClientActivityPage({ searchParams }) {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold text-ink">Parcours des clients</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Suivi des actions clés (messages, rendez-vous, projets démarrés) — utile pour l'étude de marché.
+        Suivi des actions clés (messages, rendez-vous, projets démarrés), utile pour l'étude de marché.
       </p>
 
       {topClients.length > 0 && (
@@ -94,7 +94,7 @@ export default async function ClientActivityPage({ searchParams }) {
         {events?.map((e) => (
           <div key={e.id} className="rounded-lg border border-gray-200 bg-white p-3 text-sm">
             <p className="font-medium text-ink">
-              {e.client?.full_name || "Client"} — {EVENT_LABELS[e.event_type] || e.event_type}
+              {e.client?.full_name || "Client"}, {EVENT_LABELS[e.event_type] || e.event_type}
             </p>
             {e.target?.profiles?.full_name && (
               <p className="text-xs text-gray-500">Avec {e.target.profiles.full_name}</p>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 // Capture la position GPS et la place dans deux champs cachés du
-// formulaire parent (ne sauvegarde rien elle-même — c'est le formulaire
+// formulaire parent (ne sauvegarde rien elle-même, c'est le formulaire
 // englobant qui envoie tout ensemble à la soumission).
 export default function GpsCaptureButton({ latName = "latitude", lngName = "longitude" }) {
   const [status, setStatus] = useState("idle"); // idle | loading | done | error

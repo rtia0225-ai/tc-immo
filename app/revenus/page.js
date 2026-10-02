@@ -69,7 +69,7 @@ export default async function RevenusPage() {
             >
               <span>{p.title}</span>
               <span className="text-sm text-gray-500">
-                {p.amount} {p.currency} — {translateStatus(p.status)}
+                {p.amount} {p.currency}, {translateStatus(p.status)}
               </span>
             </div>
           ))}

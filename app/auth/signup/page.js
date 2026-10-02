@@ -70,7 +70,7 @@ export default async function SignupPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-md px-4 py-16">
       <h1 className="font-heading text-2xl font-bold">
-        {role === "artisan" ? "Inscription — Artisan" : "Inscription — Client"}
+        {role === "artisan" ? "Inscription, Artisan" : "Inscription, Client"}
       </h1>
       <p className="mt-1 text-sm text-gray-500">
         <Link href={`/auth/signup${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`} className="underline">
@@ -79,7 +79,7 @@ export default async function SignupPage({ searchParams }) {
       </p>
       {role === "artisan" && (
         <p className="mt-2 text-sm text-gray-500">
-          Renseignez tout en une fois — votre profil sera complet dès la création du compte.
+          Renseignez tout en une fois, votre profil sera complet dès la création du compte.
         </p>
       )}
 

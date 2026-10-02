@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 // Chaque étape connaît sa question et calcule elle-même la prochaine
-// étape à afficher, selon la réponse donnée — permet de vraiment sauter
+// étape à afficher, selon la réponse donnée, permet de vraiment sauter
 // des questions (pas juste les ignorer après coup).
 const STEPS = {
   loti: {
@@ -22,7 +22,7 @@ const STEPS = {
       { value: "permanent", label: "Un titre permanent (ACD ou Titre Foncier)" },
     ],
     // Avec un titre provisoire, impossible d'avoir un Certificat
-    // d'Urbanisme — inutile de poser la question, on saute directement
+    // d'Urbanisme, inutile de poser la question, on saute directement
     // à la suite.
     next: (value) => (value === "provisoire" ? "construction" : "cu"),
   },

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { containsPhoneNumber, containsExternalPlatformMention } from "@/lib/phoneFilter";
 
 // Enregistre la position GPS capturée une seule fois (comme un partage de
-// position WhatsApp) — devient l'adresse fixe de l'artisan. Appelée
+// position WhatsApp), devient l'adresse fixe de l'artisan. Appelée
 // directement depuis le bouton "Partager ma position", pas via un
 // formulaire classique.
 export async function saveHomeLocation(latitude, longitude) {
@@ -72,7 +72,7 @@ export async function updateArtisanProfile(formData) {
   const mobileMoneyNumber = formData.get("mobileMoneyNumber");
 
   // Tout ce que le client peut lire (description, tarification) ne doit
-  // jamais contenir de numéro de téléphone — même règle que la messagerie.
+  // jamais contenir de numéro de téléphone, même règle que la messagerie.
   if (containsPhoneNumber(bio) || containsPhoneNumber(pricingInfo)) {
     redirect(
       `/dashboard/profile?error=${encodeURIComponent(

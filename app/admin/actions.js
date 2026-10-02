@@ -60,7 +60,7 @@ export async function toggleVerified(formData) {
   redirect(`/admin/artisans/${artisanId}`);
 }
 
-// Suspendre un artisan le retire de la recherche publique — il reste
+// Suspendre un artisan le retire de la recherche publique, il reste
 // inscrit, ses données restent visibles côté admin, mais les clients ne
 // peuvent plus le trouver ni le contacter tant qu'il est suspendu.
 export async function toggleSuspended(formData) {
@@ -78,7 +78,7 @@ export async function toggleSuspended(formData) {
   redirect(`/admin/artisans/${artisanId}`);
 }
 
-// Approuve un compte en attente (client ou artisan) — jusqu'au lancement
+// Approuve un compte en attente (client ou artisan), jusqu'au lancement
 // officiel, chaque nouvelle inscription reste bloquée sans cette action.
 export async function approveAccount(formData) {
   const supabase = createClient();
@@ -94,7 +94,7 @@ export async function approveAccount(formData) {
   await sendPush(
     userId,
     "Compte validé",
-    "Votre compte TC-Immo a été validé — vous avez maintenant accès à votre espace.",
+    "Votre compte TC-Immo a été validé, vous avez maintenant accès à votre espace.",
     "/dashboard"
   );
 

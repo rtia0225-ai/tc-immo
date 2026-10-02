@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-// Redirige vers le contrat de l'artisan principal — conservé pour les
+// Redirige vers le contrat de l'artisan principal, conservé pour les
 // anciens liens qui ne précisaient pas encore quel artisan.
 export default async function ContractRedirectPage({ params }) {
   const supabase = createClient();

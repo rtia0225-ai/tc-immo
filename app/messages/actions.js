@@ -65,7 +65,7 @@ export async function sendMessage(formData) {
   if (containsPhoneNumber(content)) {
     redirect(
       `/messages/${conversationId}?error=${encodeURIComponent(
-        "Ton message contient un numéro de téléphone. Les échanges de coordonnées ne sont pas autorisés ici — utilise la messagerie ou les rendez-vous de la plateforme."
+        "Ton message contient un numéro de téléphone. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
       )}`
     );
   }
@@ -81,7 +81,7 @@ export async function sendMessage(formData) {
   if (containsFullName(content, senderProfile?.full_name)) {
     redirect(
       `/messages/${conversationId}?error=${encodeURIComponent(
-        "Merci de ne pas indiquer votre nom complet dans le message — les échanges doivent rester sur la plateforme."
+        "Merci de ne pas indiquer votre nom complet dans le message, les échanges doivent rester sur la plateforme."
       )}`
     );
   }
@@ -114,7 +114,7 @@ export async function sendMessage(formData) {
 // téléphone (voir components/VoiceRecorder.jsx), le stocke dans le bucket
 // "voice-notes", puis crée le message correspondant.
 // NOTE IMPORTANTE : le filtre anti-numéro de téléphone ne s'applique
-// qu'aux messages texte — il ne peut pas "écouter" l'audio pour vérifier
+// qu'aux messages texte, il ne peut pas "écouter" l'audio pour vérifier
 // si un numéro y est dit à l'oral.
 export async function sendVoiceMessage(formData) {
   const supabase = createClient();

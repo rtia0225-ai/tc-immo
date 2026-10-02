@@ -25,7 +25,7 @@ export default async function NewProjectPage({ searchParams }) {
     .eq("id", user.id)
     .single();
 
-  // Seul un client peut démarrer un projet — pas l'artisan.
+  // Seul un client peut démarrer un projet, pas l'artisan.
   if (profile?.role === "artisan") {
     redirect("/dashboard");
   }
@@ -40,7 +40,7 @@ export default async function NewProjectPage({ searchParams }) {
     .eq("id", artisanId)
     .single();
 
-  // Pièce d'identité obligatoire avant de démarrer un projet — pas avant,
+  // Pièce d'identité obligatoire avant de démarrer un projet, pas avant,
   // le client reste libre de naviguer/discuter sans la fournir.
   if (!profile?.id_document_url) {
     return (
@@ -115,7 +115,7 @@ export default async function NewProjectPage({ searchParams }) {
           <input
             name="title"
             required
-            placeholder="ex: Villa R+1 — Cocody, Abidjan"
+            placeholder="ex: Villa R+1, Cocody, Abidjan"
             className="w-full rounded-lg border border-gray-300 p-2"
           />
         </div>
@@ -149,7 +149,7 @@ export default async function NewProjectPage({ searchParams }) {
             Informations sur le terrain
           </p>
           <p className="mb-3 text-xs text-gray-500">
-            Utile notamment pour le géomètre — à remplir avec ce que vous savez, vous pourrez compléter plus tard.
+            Utile notamment pour le géomètre, à remplir avec ce que vous savez, vous pourrez compléter plus tard.
           </p>
 
           <div className="flex flex-col gap-3">

@@ -81,7 +81,7 @@ export default async function ContentManagementPage({ searchParams }) {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Liens "en savoir plus" (un par ligne, format Titre | URL — optionnel)
+                  Liens "en savoir plus" (un par ligne, format Titre | URL, optionnel)
                 </label>
                 <textarea
                   name="links"
@@ -134,7 +134,7 @@ export default async function ContentManagementPage({ searchParams }) {
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Liens "en savoir plus" (un par ligne, format Titre | URL — optionnel)
+              Liens "en savoir plus" (un par ligne, format Titre | URL, optionnel)
             </label>
             <textarea
               name="links"

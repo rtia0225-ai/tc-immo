@@ -48,7 +48,7 @@ export default function ShareLocationButton({ capturedAt, latitude, longitude })
       {latitude && longitude && (
         <p className="mb-2 text-sm text-ink">
           Position enregistrée
-          {capturedAt && ` le ${new Date(capturedAt).toLocaleDateString("fr-FR")}`} —{" "}
+          {capturedAt && ` le ${new Date(capturedAt).toLocaleDateString("fr-FR")}`} ,{" "}
           <a
             href={`https://www.google.com/maps?q=${latitude},${longitude}`}
             target="_blank"

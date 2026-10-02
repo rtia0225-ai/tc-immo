@@ -24,7 +24,7 @@ a, button {
 }
 
 /* Masque la barre de défilement visuellement, sans empêcher de
-   glisser/faire défiler — utile pour les carrousels horizontaux. */
+   glisser/faire défiler, utile pour les carrousels horizontaux. */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
