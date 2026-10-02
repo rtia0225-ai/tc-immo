@@ -198,7 +198,7 @@ export default async function HomePage() {
           <h2 className="font-heading text-2xl font-bold text-ink">Comment ça marche</h2>
           <p className="mt-1 text-sm text-gray-600">Vous gérez vos travaux, nous gérons la sécurité.</p>
 
-          <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2">
             {STEPS.map((step, i) => (
               <div key={step.n} className="relative">
                 <div className="relative">
@@ -215,10 +215,10 @@ export default async function HomePage() {
                 <p className="font-heading mt-3 text-base font-bold leading-snug text-ink">{step.title}</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-600">{step.text}</p>
 
-                {i < STEPS.length - 1 && (
+                {(i === 0 || i === 2) && (
                   <svg
                     width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                    className="absolute -right-7 top-16 hidden text-gray-300 lg:block"
+                    className="absolute -right-7 top-16 hidden text-gray-300 sm:block"
                   >
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
