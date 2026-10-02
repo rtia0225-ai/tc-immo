@@ -45,26 +45,31 @@ const ITEMS = [
   },
 ];
 
+const BUBBLE_CLASSES = {
+  brand: "bg-brand-light text-brand",
+  forest: "bg-forest-light text-forest",
+};
+
 export default function TrustBanner() {
   return (
-    <div className="bg-brand px-4 py-16">
+    <div className="bg-[#FAF8F3] px-4 py-16">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 text-center sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item) => (
             <div key={item.title} className="flex flex-col items-center">
               <div className="relative">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/15 text-white">
+                <div className={`flex h-20 w-20 items-center justify-center rounded-full ${BUBBLE_CLASSES[item.color]}`}>
                   {item.icon}
                 </div>
                 <div
-                  className="absolute -bottom-1.5 left-1/2 h-3 w-12 -translate-x-1/2 rounded-full bg-black/20 blur-[4px]"
+                  className="absolute -bottom-1.5 left-1/2 h-3 w-12 -translate-x-1/2 rounded-full bg-black/15 blur-[4px]"
                   aria-hidden="true"
                 />
               </div>
-              <p className="font-heading mt-5 text-base font-bold text-white">
+              <p className={`font-heading mt-5 text-base font-bold ${item.color === "forest" ? "text-forest" : "text-brand"}`}>
                 {item.title}
               </p>
-              <p className="mt-2 max-w-[15rem] text-sm leading-relaxed text-white/80">{item.text}</p>
+              <p className="mt-2 max-w-[15rem] text-sm leading-relaxed text-gray-700">{item.text}</p>
             </div>
           ))}
         </div>
