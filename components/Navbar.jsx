@@ -147,19 +147,19 @@ export default function Navbar({ user, isAdmin }) {
                 <>
                   <div className="my-1 border-t border-gray-100" />
                   <Link href="/admin/artisans" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                    Admin — Artisans
+                    Admin : Artisans
                   </Link>
                   <Link href="/admin/pending" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                    Admin — Inscriptions en attente
+                    Admin : Inscriptions en attente
                   </Link>
                   <Link href="/admin/activity" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                    Admin — Parcours des clients
+                    Admin : Parcours des clients
                   </Link>
                   <Link href="/admin/content" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                    Admin — Contenu du site
+                    Admin : Contenu du site
                   </Link>
                   <Link href="/admin/interview-availability" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                    Admin — Créneaux d'entretien
+                    Admin : Créneaux d'entretien
                   </Link>
                 </>
               )}

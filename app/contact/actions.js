@@ -23,7 +23,7 @@ export async function sendContactMessage(formData) {
         from: "TC-Immo <contact@tcholding-immo.com>",
         to: "contact@tcholding-immo.com",
         reply_to: email,
-        subject: `Nouveau message de ${firstName} ${lastName} — TC-Immo`,
+        subject: `Nouveau message de ${firstName} ${lastName} (TC-Immo)`,
         text: `Nom : ${firstName} ${lastName}\nEmail : ${email}\n\nMessage :\n${message}`,
       }),
     });

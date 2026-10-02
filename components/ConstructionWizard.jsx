@@ -54,7 +54,7 @@ function buildRoadmap(answers) {
   if (answers.titre === "provisoire") {
     steps.push({
       title: "Obtenir un titre permanent (ACD)",
-      text: "Un titre provisoire ne suffit pas pour la suite des démarches — il faut d'abord le faire transformer en titre permanent.",
+      text: "Un titre provisoire ne suffit pas pour la suite des démarches, il faut d'abord le faire transformer en titre permanent.",
       professional: {
         trade: "Topographe",
         note: "Le géomètre-topographe prend en charge toute la procédure ACD : bornage du terrain, montage du dossier technique et dépôt auprès de l'État. Ses honoraires se discutent directement avec lui.",
@@ -76,7 +76,7 @@ function buildRoadmap(answers) {
   if (answers.construction === "simple") {
     steps.push({
       title: "Concevoir les plans et déposer le Permis de Construire",
-      text: "L'architecte mène cette démarche en votre nom — le terrain et le permis restent bien à vous. Une fois obtenu, il livre le Permis de Construire directement sur la plateforme.",
+      text: "L'architecte mène cette démarche en votre nom. Le terrain et le permis restent bien à vous, et une fois obtenu, il livre le Permis de Construire directement sur la plateforme.",
       professional: {
         trade: "Architecture",
         note: "L'architecte dessine les plans réglementaires de la maison, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TC-Immo.",
@@ -150,7 +150,7 @@ export default function ConstructionWizard() {
           Vous ne savez pas par où commencer ?
         </h2>
         <p className="mt-2 text-sm text-white/85">
-          Répondez à quelques questions sur votre terrain et votre projet — on vous montre toute la feuille de route jusqu'au permis de construire, avec le bon professionnel à contacter à chaque étape.
+          Répondez à quelques questions sur votre terrain et votre projet. On vous montre toute la feuille de route jusqu'au permis de construire, avec le bon professionnel à contacter à chaque étape.
         </p>
         <button
           type="button"
@@ -215,7 +215,7 @@ export default function ConstructionWizard() {
               Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TC-Immo prend en charge pour le moment. Nous vous conseillons de contacter votre propre géomètre-topographe pour entamer cette étape.
             </p>
             <p className="mt-2 text-sm leading-relaxed text-white/85">
-              Une fois votre terrain loti, revenez avec plaisir pour la suite de votre projet — on sera là pour vous accompagner.
+              Une fois votre terrain loti, revenez avec plaisir pour la suite de votre projet, on sera là pour vous accompagner.
             </p>
             <div className="mt-5 flex gap-4">
               <button
@@ -257,7 +257,7 @@ export default function ConstructionWizard() {
                     <p className="mt-1 text-sm leading-relaxed text-white/85">{s.text}</p>
                     {pros.map((p) => (
                       <p key={p.trade} className="mt-2 text-xs text-white/70">
-                        <strong className="text-white">{p.trade}</strong> — {p.note}
+                        <strong className="text-white">{p.trade}</strong> : {p.note}
                       </p>
                     ))}
                     <div className="mt-2 flex flex-wrap gap-2">

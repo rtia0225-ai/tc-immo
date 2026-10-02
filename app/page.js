@@ -9,7 +9,7 @@ const STEPS = [
   {
     n: 1,
     title: "Choisissez vos prestataires",
-    text: "Consultez les profils vérifiés — artisans, géomètre, architecte, technicien de suivi — et échangez avec eux avant de démarrer.",
+    text: "Consultez les profils vérifiés (artisans, géomètre, architecte, technicien de suivi) et échangez avec eux avant de démarrer.",
     image: "/etapes/etape1.jpg",
   },
   {
@@ -21,7 +21,7 @@ const STEPS = [
   {
     n: 3,
     title: "Payez en toute confiance",
-    text: "Chaque paiement correspond à une étape réellement validée — rien n'est versé d'un coup, tout reste tracé sur la plateforme.",
+    text: "Chaque paiement correspond à une étape réellement validée. Rien n'est versé d'un coup, tout reste tracé sur la plateforme.",
     image: "/etapes/etape3.avif",
   },
   {

@@ -192,25 +192,30 @@ export default async function CommentCaMarchePage() {
         <img
           src="/headers/comment-ca-marche.jpg"
           alt="Chantier de construction"
-          className="h-56 w-full object-cover sm:h-72"
+          className="h-64 w-full object-cover sm:h-80"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         <p className="absolute bottom-1.5 right-2 text-[9px] text-white/70">
           bearfotos / Freepik
         </p>
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-6">
+          <div className="mx-auto max-w-5xl">
+            <h1 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
+              Comment ça marche
+            </h1>
+          </div>
+        </div>
       </div>
 
-      <div className="px-4 pb-10 pt-6">
-        <div className="mx-auto max-w-2xl">
-          <h1 className="font-heading text-3xl font-bold leading-tight text-ink sm:text-4xl">
-            Comment ça marche
-          </h1>
-          <p className="mt-3 max-w-md text-base leading-relaxed text-gray-600">
-            Construire depuis loin n'a rien d'évident. Voici, étape par étape, comment TC-Immo rend ça possible — et pourquoi vous pouvez avoir confiance à chaque instant.
+      <div className="px-4 pb-8 pt-5">
+        <div className="mx-auto max-w-5xl">
+          <p className="text-justify text-base leading-relaxed text-gray-600">
+            Construire depuis loin n'a rien d'évident. Voici, étape par étape, comment TC-Immo rend ça possible, et pourquoi vous pouvez avoir confiance à chaque instant.
           </p>
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 py-14">
+      <div className="mx-auto max-w-2xl px-4 py-8">
         <div className="flex flex-col gap-16">
           {(sections || []).map((s) => {
             const Layout = pickLayout(s.order_index);

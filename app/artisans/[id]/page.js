@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
   const city = artisan.profiles?.city;
 
   return {
-    title: `${name} — ${artisan.trade}${city ? ` à ${city}` : ""}`,
+    title: `${name}, ${artisan.trade}${city ? ` à ${city}` : ""}`,
     description: artisan.bio?.slice(0, 155) || `${artisan.trade} vérifié sur TC-Immo${city ? `, disponible à ${city}` : ""}.`,
   };
 }
@@ -145,7 +145,7 @@ export default async function ArtisanProfilePage({ params }) {
         ) : (
           <div>
             <p>
-              <strong>À savoir avant de négocier :</strong> un échéancier de paiement en au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes est requis pour ce métier — prévoyez ce découpage dans votre discussion avec l'artisan.
+              <strong>À savoir avant de négocier :</strong> un échéancier de paiement en au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes est requis pour ce métier. Prévoyez ce découpage dans votre discussion avec l'artisan.
             </p>
             <p className="mt-2">
               {artisan.trade === "Maçonnerie" ? (
@@ -154,7 +154,7 @@ export default async function ArtisanProfilePage({ params }) {
                 </>
               ) : (
                 <>
-                  <strong>Découpe selon ce métier précis</strong> — ne mélange pas avec le travail d'un autre artisan du même projet.
+                  <strong>Découpe selon ce métier précis</strong>, à ne pas mélanger avec le travail d'un autre artisan du même projet.
                 </>
               )}{" "}
               Autre possibilité : un paiement régulier (chaque semaine ou chaque mois) selon les jours réellement travaillés.
@@ -208,7 +208,7 @@ export default async function ArtisanProfilePage({ params }) {
         <>
           {artisan.technician && (
             <p className="mt-4 text-sm text-gray-500">
-              Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong> — c'est lui qui répond aux messages et rendez-vous pour cet artisan.
+              Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong>, il répond aux messages et rendez-vous pour cet artisan.
             </p>
           )}
           <div className={`mt-2 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
