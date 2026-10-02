@@ -48,7 +48,7 @@ export default async function HomePage() {
       {/* Hero plein écran : photo en fond, titre, simulateur et recherche
           réunis dans le même bloc — la première impression ne doit pas
           être coupée. */}
-      <section className="relative flex min-h-screen flex-col overflow-hidden">
+      <section className="relative flex min-h-[640px] flex-col overflow-hidden sm:min-h-[720px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero-elephants.jpg"
@@ -57,7 +57,7 @@ export default async function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/70" />
 
-        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 px-4 py-24 text-center text-white">
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8 px-4 py-14 text-center text-white">
           <div>
             <h1 className="font-heading max-w-xl text-3xl font-extrabold leading-tight sm:text-4xl">
               Construisez chez vous, en toute sécurité, depuis n'importe où
