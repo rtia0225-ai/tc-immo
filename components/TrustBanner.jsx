@@ -25,7 +25,16 @@ export default function TrustBanner() {
   return (
     <div className="bg-forest px-4 py-16">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-x-8 gap-y-14 text-center sm:grid-cols-2 lg:grid-cols-4">
+        <div className="text-center">
+          <h2 className="font-heading text-2xl font-bold text-white sm:text-3xl">
+            Pourquoi construire avec TC-Immo
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-white/80 sm:text-base">
+            Chaque étape de votre projet est pensée pour vous rassurer, même à distance.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-x-8 gap-y-14 text-center sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item) => (
             <div key={item.title} className="flex flex-col items-center">
               <div className="relative">
