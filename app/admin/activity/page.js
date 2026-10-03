@@ -99,6 +99,11 @@ export default async function ClientActivityPage({ searchParams }) {
             {e.target?.profiles?.full_name && (
               <p className="text-xs text-gray-500">Avec {e.target.profiles.full_name}</p>
             )}
+            {e.metadata?.urgency && (
+              <p className="mt-0.5 text-xs font-semibold text-brand">
+                {e.metadata.urgency === "urgent" ? "🔴 Urgent" : "🟡 En réflexion"}
+              </p>
+            )}
             <p className="mt-1 text-xs text-gray-400">
               {new Date(e.created_at).toLocaleString("fr-FR")}
             </p>

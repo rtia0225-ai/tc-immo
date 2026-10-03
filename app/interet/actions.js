@@ -17,9 +17,11 @@ export async function requestNotification(formData) {
   const type = formData.get("type");
   const artisanId = formData.get("artisanId");
   const regardingArtisanId = formData.get("regardingArtisanId") || null;
+  const urgency = formData.get("urgency") || null;
 
   await logClientActivity(user.id, `${type}_notify_me`, artisanId, {
     regarding_artisan_id: regardingArtisanId,
+    urgency,
   });
 
   const params = new URLSearchParams({ type, artisan: artisanId, notified: "1" });

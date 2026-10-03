@@ -50,13 +50,29 @@ export default async function InterestRegisteredPage({ searchParams }) {
           C'est noté, nous vous préviendrons dès l'ouverture.
         </p>
       ) : (
-        <form action={requestNotification} className="mt-6">
+        <form action={requestNotification} className="mt-6 text-left">
           <input type="hidden" name="type" value={type} />
           <input type="hidden" name="artisanId" value={artisanId} />
           {regardingArtisanId && <input type="hidden" name="regardingArtisanId" value={regardingArtisanId} />}
+
+          <p className="text-sm font-medium text-ink">
+            Pour mieux vous accompagner, une dernière précision :
+          </p>
+          <p className="mt-1 text-sm font-semibold text-ink">Votre besoin est-il...</p>
+          <div className="mt-2 flex flex-col gap-2">
+            <label className="flex items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-light">
+              <input type="radio" name="urgency" value="urgent" defaultChecked />
+              🔴 Urgent, je veux démarrer rapidement
+            </label>
+            <label className="flex items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm has-[:checked]:border-brand has-[:checked]:bg-brand-light">
+              <input type="radio" name="urgency" value="reflexion" />
+              🟡 En réflexion, je me renseigne pour plus tard
+            </label>
+          </div>
+
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand px-6 py-3 font-heading font-bold text-white hover:bg-brand-dark"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-heading font-bold text-white hover:bg-brand-dark"
           >
             🔔 Me notifier dès l'ouverture
           </button>
