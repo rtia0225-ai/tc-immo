@@ -23,7 +23,7 @@ const ITEMS = [
 
 export default function TrustBanner() {
   return (
-    <div className="bg-forest px-4 py-16">
+    <div className="bg-forest px-4 pb-20 pt-12">
       <div className="mx-auto max-w-6xl">
         <div>
           <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">
@@ -34,7 +34,7 @@ export default function TrustBanner() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-x-8 gap-y-14 text-center sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-x-8 gap-y-14 text-center sm:grid-cols-2 lg:grid-cols-4">
           {ITEMS.map((item) => (
             <div key={item.title} className="flex flex-col items-center">
               <div className="relative">
