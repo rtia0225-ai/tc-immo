@@ -31,10 +31,30 @@ export default function AProposPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 pb-10 pt-6">
-        <p className="text-justify text-gray-600 leading-relaxed">
-          Notre mission : donner à chacun la possibilité de superviser ses travaux
-          à distance, avec un paiement séquestré et un suivi de chantier en temps réel.
+      <div className="mx-auto max-w-5xl px-4 pb-14 pt-8">
+        <h2 className="font-heading text-xl font-bold text-ink">Le constat de départ</h2>
+        <p className="mt-3 text-justify text-gray-600 leading-relaxed">
+          Construire une maison en Côte d'Ivoire quand on vit à l'étranger est un pari risqué. On ne peut pas vérifier le sérieux d'un artisan avant de lui confier un chantier, on ne peut pas se déplacer chaque semaine pour constater l'avancement des travaux, et on entend trop souvent la même histoire : un proche chargé de surveiller le chantier, un artisan payé d'avance qui disparaît, un projet qui prend deux fois plus de temps et deux fois plus cher que prévu. Ce n'est pas un problème de volonté, c'est un problème d'outils.
+        </p>
+
+        <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre mission</h2>
+        <p className="mt-3 text-justify text-gray-600 leading-relaxed">
+          Donner à chacun la possibilité de superviser ses travaux à distance, avec la même tranquillité d'esprit que s'il était sur place. Concrètement, cela veut dire remplacer la confiance aveugle par des garanties concrètes : des professionnels vérifiés avant d'être référencés, un paiement qui ne quitte la plateforme qu'une fois une étape du chantier réellement validée, et un suivi d'avancement consultable depuis son téléphone, où que l'on se trouve dans le monde.
+        </p>
+
+        <h2 className="font-heading mt-10 text-xl font-bold text-ink">Pour qui</h2>
+        <p className="mt-3 text-justify text-gray-600 leading-relaxed">
+          TC-Immo s'adresse en priorité à la diaspora ivoirienne, celles et ceux qui construisent, rénovent ou investissent dans l'immobilier en Côte d'Ivoire depuis la France, l'Europe, l'Amérique du Nord ou ailleurs. La plateforme reste cependant ouverte à toute personne vivant en Côte d'Ivoire qui préfère, elle aussi, confier son projet à des professionnels vérifiés plutôt qu'à des relations de bouche-à-oreille sans garantie.
+        </p>
+
+        <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre façon de faire</h2>
+        <p className="mt-3 text-justify text-gray-600 leading-relaxed">
+          Nous ne vendons pas une prestation unique : nous organisons la collaboration entre plusieurs professionnels indépendants autour d'un même projet, du géomètre qui sécurise le terrain jusqu'au technicien qui supervise le chantier, en passant par l'architecte et les artisans. Chacun reste responsable de son propre travail, mais tout transite par la même plateforme : les échanges, les documents, l'échéancier de paiement. C'est cette centralisation qui rend le suivi à distance réellement possible.
+        </p>
+
+        <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre ambition</h2>
+        <p className="mt-3 text-justify text-gray-600 leading-relaxed">
+          Au-delà d'un simple outil de mise en relation, nous voulons bâtir un véritable repère de confiance pour l'immobilier en Côte d'Ivoire, celui vers lequel on se tourne naturellement avant de poser la première pierre. Un projet de construction représente souvent l'investissement d'une vie, parfois celui de toute une famille, transmis d'une génération à l'autre. Nous voulons que cet investissement soit protégé du premier coup de pioche jusqu'à la remise des clés.
         </p>
       </div>
     </div>
