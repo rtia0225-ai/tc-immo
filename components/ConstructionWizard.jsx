@@ -150,7 +150,7 @@ export default function ConstructionWizard() {
           Vous ne savez pas par où commencer ?
         </h2>
         <p className="mt-2 text-sm text-white/85">
-          Répondez à quelques questions sur votre terrain et votre projet. On vous montre toute la feuille de route jusqu'au permis de construire, avec le bon professionnel à contacter à chaque étape.
+          Répondez à quelques questions sur votre terrain et votre projet. On vous montre toute la feuille de route, du terrain jusqu'à la construction et au suivi de chantier à distance, avec le bon professionnel à contacter à chaque étape.
         </p>
         <button
           type="button"
@@ -244,7 +244,7 @@ export default function ConstructionWizard() {
             <h3 className="font-heading mt-2 text-lg font-bold text-white">
               {roadmap.length === 0
                 ? "Vous êtes déjà prêt·e à déposer votre Permis de Construire."
-                : `Voici les ${roadmap.length} étape${roadmap.length > 1 ? "s" : ""} qu'il vous reste avant le Permis de Construire`}
+                : `Voici les ${roadmap.length} étape${roadmap.length > 1 ? "s" : ""} qu'il vous reste, jusqu'à la construction et au suivi de chantier à distance`}
             </h3>
 
             <div className="mt-4 flex flex-col gap-4">
