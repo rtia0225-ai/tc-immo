@@ -29,11 +29,10 @@ export default async function DashboardPage({ searchParams }) {
     .single();
   const isArtisan = profile?.role === "artisan";
 
-  // Tant que le compte n'est pas approuvé par l'admin, pas d'accès au
-  // tableau de bord, règle temporaire avant le lancement officiel. Pour
-  // tous les métiers sauf la maçonnerie (déjà vérifiée via le technicien
-  // recruteur), un entretien réservé est requis avant validation.
-  if (profile?.approval_status !== "approved") {
+  // La validation manuelle ne concerne que les professionnels (artisans).
+  // Le client accède directement à son espace ; il devra simplement
+  // fournir une pièce d'identité au moment de démarrer un projet.
+  if (isArtisan && profile?.approval_status !== "approved") {
     let artisanTrade = null;
     let interviewBooking = null;
     let availableSlots = [];

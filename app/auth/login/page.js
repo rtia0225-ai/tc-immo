@@ -1,5 +1,6 @@
 import { login } from "../actions";
 import Link from "next/link";
+import PasswordField from "@/components/PasswordField";
 
 export default function LoginPage({ searchParams }) {
   const redirectTo = searchParams?.redirect || "";
@@ -25,8 +26,13 @@ export default function LoginPage({ searchParams }) {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Mot de passe</label>
-          <input type="password" name="password" required className="w-full rounded-lg border border-gray-300 p-2" />
+          <div className="mb-1 flex items-center justify-between">
+            <label className="block text-sm font-medium">Mot de passe</label>
+            <Link href="/auth/forgot-password" className="text-xs text-brand hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </div>
+          <PasswordField />
         </div>
         <button type="submit" className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark">
           Se connecter

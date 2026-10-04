@@ -26,12 +26,9 @@ export default async function NewConversationPage({ searchParams }) {
 
   const { data: senderProfile } = await supabase
     .from("profiles")
-    .select("approval_status, role")
+    .select("role")
     .eq("id", user.id)
     .single();
-  if (senderProfile?.approval_status !== "approved") {
-    redirect("/dashboard");
-  }
 
   let existingQuery = supabase
     .from("conversations")

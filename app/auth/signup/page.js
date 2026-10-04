@@ -5,6 +5,7 @@ import ArtisanRegistrationExtras from "@/components/ArtisanRegistrationExtras";
 import CitySelect from "@/components/CitySelect";
 import RecruiterSelect from "@/components/RecruiterSelect";
 import CountryAndCitySelect from "@/components/CountryAndCitySelect";
+import PasswordField from "@/components/PasswordField";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function SignupPage({ searchParams }) {
@@ -84,7 +85,15 @@ export default async function SignupPage({ searchParams }) {
       )}
 
       {searchParams?.error && (
-        <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          <p>{searchParams.error}</p>
+          {searchParams?.existing === "1" && (
+            <p className="mt-1">
+              <Link href="/auth/login" className="underline">Se connecter</Link> ou{" "}
+              <Link href="/auth/forgot-password" className="underline">mot de passe oublié</Link> ?
+            </p>
+          )}
+        </div>
       )}
 
       <form action={signup} className="mt-6 flex flex-col gap-8">
@@ -109,7 +118,7 @@ export default async function SignupPage({ searchParams }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Mot de passe</label>
-            <input type="password" name="password" required minLength={6} className="w-full rounded-lg border border-gray-300 p-2" />
+            <PasswordField minLength={6} />
           </div>
           {role === "artisan" ? (
             <div>

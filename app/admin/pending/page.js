@@ -20,6 +20,7 @@ export default async function PendingAccountsPage() {
     .from("profiles")
     .select("id, full_name, role, phone, city, created_at")
     .eq("approval_status", "pending")
+    .eq("role", "artisan")
     .order("created_at", { ascending: true });
 
   const { data: bookings } = await supabase
@@ -42,10 +43,10 @@ export default async function PendingAccountsPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold text-ink">
-        Inscriptions en attente ({pending?.length || 0})
+        Professionnels en attente ({pending?.length || 0})
       </h1>
       <p className="mt-1 text-sm text-gray-500">
-        Client comme artisan, tant que le compte n'est validé, la personne n'a pas accès à son espace.
+        Seuls les comptes professionnels (artisans) nécessitent une validation. Les clients accèdent directement à leur espace.
       </p>
 
       <div className="mt-6 flex flex-col gap-3">

@@ -91,6 +91,18 @@ export async function signup(formData) {
     return redirect(url);
   }
 
+  // Par sécurité (contre l'énumération d'emails), Supabase ne renvoie
+  // jamais d'erreur explicite quand l'email/numéro existe déjà : il
+  // répond "succès" avec un tableau d'identités vide. C'est le seul
+  // signal disponible pour détecter un compte déjà existant.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    const message = "Un compte existe déjà avec ce numéro ou cet email.";
+    const url = redirectTo
+      ? `/auth/signup?redirect=${encodeURIComponent(redirectTo)}&error=${encodeURIComponent(message)}&existing=1`
+      : `/auth/signup?error=${encodeURIComponent(message)}&existing=1`;
+    return redirect(url);
+  }
+
   const userId = data.user?.id;
   if (userId) {
     // Tentative immédiate (fonctionne si aucune confirmation d'email
@@ -105,6 +117,8 @@ export async function signup(formData) {
       country,
       emergency_contact_name: emergencyContactName,
       emergency_contact_phone: emergencyContactPhone,
+      // Seuls les professionnels passent par une validation manuelle.
+      approval_status: role === "artisan" ? "pending" : "approved",
     });
 
     if (role === "artisan") {
@@ -179,4 +193,30 @@ export async function logout() {
   const supabase = createClient();
   await supabase.auth.signOut();
   redirect("/");
+}
+
+// Demande de réinitialisation de mot de passe. Fonctionne uniquement
+// pour les comptes créés avec un vrai email (Supabase a besoin d'une
+// vraie boîte mail pour envoyer le lien) — pas pour les comptes créés
+// par numéro de téléphone, tant que les SMS ne sont pas en place.
+export async function requestPasswordReset(formData) {
+  const supabase = createClient();
+  const identifier = formData.get("identifier");
+  const { email, phone } = toAuthIdentity(identifier);
+
+  if (phone) {
+    redirect("/auth/forgot-password?phone=1");
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://tcholding-immo.com"}/auth/reset-password`,
+  });
+
+  // Toujours répondre "envoyé", même en cas d'erreur, pour ne pas
+  // révéler si un email existe ou non dans la base (sécurité).
+  if (error) {
+    console.error("Erreur reset password:", error);
+  }
+
+  redirect("/auth/forgot-password?sent=1");
 }
