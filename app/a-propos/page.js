@@ -54,7 +54,10 @@ export default function AProposPage() {
 
         <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre ambition</h2>
         <p className="mt-3 text-justify text-gray-600 leading-relaxed">
-          Au-delà d'un simple outil de mise en relation, nous voulons bâtir un véritable repère de confiance pour l'immobilier en Côte d'Ivoire, celui vers lequel on se tourne naturellement avant de poser la première pierre. Un projet de construction représente souvent l'investissement d'une vie, parfois celui de toute une famille, transmis d'une génération à l'autre. Nous voulons que cet investissement soit protégé du premier coup de pioche jusqu'à la remise des clés.
+          Au-delà d'un simple outil de mise en relation, nous voulons bâtir un véritable repère de confiance pour l'immobilier en Afrique, celui vers lequel on se tourne naturellement avant de poser la première pierre. Un projet de construction représente souvent l'investissement d'une vie, parfois celui de toute une famille, transmis d'une génération à l'autre. Nous voulons que cet investissement soit protégé du premier coup de pioche jusqu'à la remise des clés.
+        </p>
+        <p className="mt-3 text-justify text-gray-600 leading-relaxed">
+          TC-Immo opère aujourd'hui en Côte d'Ivoire, et s'apprête à s'implanter au Cameroun, au Congo et au Togo. Notre ambition est de poursuivre cette expansion vers d'autres pays du continent, pour que chaque membre de la diaspora africaine, où qu'il vive, puisse construire chez lui en toute confiance.
         </p>
       </div>
     </div>
