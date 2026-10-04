@@ -79,16 +79,16 @@ export default async function DashboardPage({ searchParams }) {
     return (
       <div className="mx-auto max-w-md px-4 py-16 text-center">
         <h1 className="font-heading text-xl font-bold text-ink">
-          {profile?.approval_status === "rejected" ? "Inscription refusée" : "Inscription en attente de validation"}
+          {profile?.approval_status === "rejected" ? "Inscription refusée" : "Dernière étape avant votre accès"}
         </h1>
 
         {profile?.approval_status === "rejected" ? (
           <p className="mt-3 text-sm text-gray-600">
-            Votre inscription n'a pas été validée. Contactez-nous directement si vous pensez qu'il s'agit d'une erreur.
+            Nous ne pouvons pas donner suite à votre inscription pour le moment. Contactez-nous directement si vous pensez qu'il s'agit d'une erreur.
           </p>
         ) : !requiresInterview ? (
           <p className="mt-3 text-sm text-gray-600">
-            Merci pour votre inscription ! Le temps que la plateforme finalise son lancement, chaque nouveau compte est validé manuellement. Vous recevrez l'accès dès que ce sera fait.
+            Merci pour votre inscription ! Votre compte sera activé très prochainement. Vous recevrez une notification dès que ce sera fait.
           </p>
         ) : interviewBooking ? (
           <p className="mt-3 text-sm text-gray-600">
@@ -97,12 +97,12 @@ export default async function DashboardPage({ searchParams }) {
               {new Date(interviewBooking.slot.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
               {" "}à {interviewBooking.slot.start_time.slice(0, 5)}
             </strong>
-            . Ton profil sera activé juste après.
+            . Votre profil sera activé juste après.
           </p>
         ) : (
           <>
             <p className="mt-3 text-sm text-gray-600">
-              Pour votre métier, un entretien avec l'équipe TC-Immo est requis avant validation. Choisissez un créneau ci-dessous.
+              Pour continuer, un échange avec notre équipe est nécessaire. Choisissez un créneau ci-dessous.
             </p>
             {searchParams?.error && (
               <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
