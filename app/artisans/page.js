@@ -2,15 +2,46 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { CI_CITIES, CONSTRUCTION_SERVICES, RECOMMENDATION_OPTIONS } from "@/lib/constants";
 import CitySelect from "@/components/CitySelect";
+import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
 export const metadata = {
   title: "Trouver un artisan vérifié en Côte d'Ivoire",
   description: "Maçons, électriciens, plombiers, architectes, géomètres... Recherchez parmi les artisans et professionnels vérifiés de TC-Immo, par métier et par ville.",
 };
 
+// searchParams renvoie une chaîne s'il n'y a qu'une valeur, un tableau
+// s'il y en a plusieurs, rien si absent : on uniformise toujours en tableau.
+function toArray(value) {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+// Mélange les artisans en alternant les métiers (1 maçon, 1 architecte, 1
+// géomètre...), pour qu'une recherche sans filtre montre un vrai mélange
+// de corps de métier plutôt que d'être dominée par le plus nombreux.
+function interleaveByTrade(list) {
+  const byTrade = new Map();
+  for (const a of list) {
+    if (!byTrade.has(a.trade)) byTrade.set(a.trade, []);
+    byTrade.get(a.trade).push(a);
+  }
+  const buckets = Array.from(byTrade.values());
+  const result = [];
+  let index = 0;
+  while (result.length < list.length) {
+    for (const bucket of buckets) {
+      if (index < bucket.length) result.push(bucket[index]);
+    }
+    index += 1;
+  }
+  return result;
+}
+
 export default async function ArtisansPage({ searchParams }) {
   const supabase = createClient();
-  const { trade, city, recommendation, house_type } = searchParams || {};
+  const trades = toArray(searchParams?.trade);
+  const cities = toArray(searchParams?.city);
+  const { recommendation, house_type } = searchParams || {};
 
   const {
     data: { user },
@@ -19,8 +50,8 @@ export default async function ArtisansPage({ searchParams }) {
   if (house_type) {
     await supabase.from("search_analytics").insert({
       house_type,
-      trade: trade || null,
-      city: city || null,
+      trade: trades[0] || null,
+      city: cities[0] || null,
       recommendation: recommendation || null,
       searched_by: user?.id || null,
     });
@@ -40,14 +71,20 @@ export default async function ArtisansPage({ searchParams }) {
 
   artisans = artisans.filter((a) => {
     const matchesTrade =
-      !trade || a.trade === trade || (a.services || []).includes(trade);
+      trades.length === 0 || trades.includes(a.trade) || (a.services || []).some((s) => trades.includes(s));
     const matchesCity =
-      !city ||
-      a.profiles?.city === city ||
+      cities.length === 0 ||
+      cities.includes(a.profiles?.city) ||
       a.mobility_scope === "all" ||
-      (a.mobility_cities || []).includes(city);
+      (a.mobility_cities || []).some((c) => cities.includes(c));
     return matchesTrade && matchesCity;
   });
+
+  // Pas de métier précis demandé : on mélange plutôt que de laisser le
+  // métier le plus représenté (souvent la maçonnerie) truster le début.
+  if (trades.length === 0) {
+    artisans = interleaveByTrade(artisans);
+  }
 
   if (recommendation === "top3") {
     artisans = [...artisans]
@@ -73,19 +110,19 @@ export default async function ArtisansPage({ searchParams }) {
         </div>
       )}
 
-      <form action="/artisans" className="mt-6 grid gap-px overflow-hidden rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
-        <select name="trade" defaultValue={trade || ""} className="bg-white p-3 text-sm text-ink focus:outline-none">
-          <option value="">Tous les métiers</option>
-          {CONSTRUCTION_SERVICES.map((s) => (
-            <option key={s} value={s}>{s}</option>
-          ))}
-        </select>
-        <CitySelect
-          cities={CI_CITIES}
+      <form action="/artisans" className="mt-6 grid gap-px overflow-visible rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
+        <MultiSelectDropdown
+          name="trade"
+          options={CONSTRUCTION_SERVICES}
+          defaultValues={trades}
+          placeholder="Tous les métiers"
+        />
+        <MultiSelectDropdown
           name="city"
-          defaultValue={city || ""}
+          options={CI_CITIES}
+          defaultValues={cities}
           placeholder="Toutes les villes"
-          inputClassName="bg-white p-3 text-sm text-ink focus:outline-none w-full"
+          searchable
         />
         <select name="recommendation" defaultValue={recommendation || ""} className="bg-white p-3 text-sm text-ink focus:outline-none">
           <option value="">Toute la liste</option>
