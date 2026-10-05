@@ -140,7 +140,7 @@ export default async function ArtisanProfilePage({ params }) {
       <div className="mt-4 rounded-lg bg-brand-light p-4 text-sm text-brand-dark">
         {SINGLE_INSTALLMENT_TRADES[artisan.trade] ? (
           <p>
-            <strong>À savoir avant de négocier :</strong> pour ce métier, le paiement se fait en une seule fois, uniquement à la livraison du {SINGLE_INSTALLMENT_TRADES[artisan.trade]} sur la plateforme.
+            <strong>À savoir avant de négocier :</strong> la main d'œuvre de ce professionnel (ses honoraires) se paie en une seule fois, uniquement à la livraison du {SINGLE_INSTALLMENT_TRADES[artisan.trade]} sur la plateforme. Les frais administratifs liés au dossier (dépôts, taxes, timbres...) sont distincts : ils se règlent au fur et à mesure de l'avancement réel des démarches, pas en une fois.
           </p>
         ) : (
           <div>

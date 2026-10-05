@@ -55,7 +55,7 @@ export default function MilestoneBuilder({ trade }) {
 
       {isSingleInstallment ? (
         <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-          Pour ce métier, le paiement se fait en <strong>une seule fois</strong>, uniquement à la livraison du {singleInstallmentDoc} sur la plateforme, l'artisan doit envoyer le document pour débloquer le virement.
+          La main d'œuvre de ce professionnel se paie en <strong>une seule fois</strong>, uniquement à la livraison du {singleInstallmentDoc} sur la plateforme, l'artisan doit envoyer le document pour débloquer le virement. Les frais administratifs du dossier, eux, se règlent séparément au fur et à mesure de l'avancement réel des démarches.
         </p>
       ) : (
         <>
