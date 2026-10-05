@@ -49,7 +49,7 @@ export async function updateArtisanProfile(formData) {
   const emergencyContactPhone = formData.get("emergencyContactPhone");
   const city = formData.get("city");
 
-  await supabase
+  const { data: updatedPersonal, error: personalError } = await supabase
     .from("profiles")
     .update({
       full_name: fullName,
@@ -58,7 +58,12 @@ export async function updateArtisanProfile(formData) {
       emergency_contact_phone: emergencyContactPhone,
       city,
     })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("id");
+
+  if (personalError || !updatedPersonal || updatedPersonal.length === 0) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent("Vos informations personnelles n'ont pas pu être enregistrées (" + (personalError?.message || "mise à jour refusée") + ")")}`);
+  }
 
   // --- Profil professionnel public ---
   const trade = formData.get("trade");
@@ -88,7 +93,7 @@ export async function updateArtisanProfile(formData) {
     );
   }
 
-  await supabase
+  const { data: updatedTrade, error: tradeError } = await supabase
     .from("artisan_profiles")
     .update({
       trade,
@@ -101,7 +106,12 @@ export async function updateArtisanProfile(formData) {
       mobile_money_operator: mobileMoneyOperator || null,
       mobile_money_number: mobileMoneyNumber || null,
     })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("id");
+
+  if (tradeError || !updatedTrade || updatedTrade.length === 0) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent("Votre profil professionnel n'a pas pu être enregistré (" + (tradeError?.message || "mise à jour refusée") + ")")}`);
+  }
 
   redirect("/dashboard/profile?success=1");
 }
@@ -136,10 +146,18 @@ export async function uploadAvatar(formData) {
 
   const { data: publicUrlData } = supabase.storage.from("avatars").getPublicUrl(path);
 
-  await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("profiles")
     .update({ avatar_url: publicUrlData.publicUrl })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("id");
+
+  // Un .update() bloqué par une règle de sécurité ne renvoie pas toujours
+  // une erreur explicite côté Supabase, juste 0 ligne modifiée : sans ce
+  // contrôle, on afficherait "succès" alors que rien n'a changé.
+  if (updateError || !updated || updated.length === 0) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent("La photo n'a pas pu être enregistrée sur votre profil (" + (updateError?.message || "mise à jour refusée") + ")")}`);
+  }
 
   redirect("/dashboard/profile?success=1");
 }
@@ -265,10 +283,15 @@ export async function updateClientProfile(formData) {
   const country = formData.get("country");
   const city = formData.get("city");
 
-  await supabase
+  const { data: updatedClient, error: clientError } = await supabase
     .from("profiles")
     .update({ full_name: fullName, phone, country, city })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("id");
+
+  if (clientError || !updatedClient || updatedClient.length === 0) {
+    redirect(`/dashboard/profile?error=${encodeURIComponent("Vos informations n'ont pas pu être enregistrées (" + (clientError?.message || "mise à jour refusée") + ")")}`);
+  }
 
   redirect("/dashboard/profile?success=1");
 }
