@@ -4,6 +4,7 @@ const FAQS = [
   { q: "Est-ce que je m'engage à quelque chose en créant un compte ?", a: "Non. Créer un compte et consulter les profils des professionnels est entièrement libre et sans engagement. Vous n'êtes engagé(e) qu'à partir du moment où vous démarrez un projet avec un professionnel précis sur la plateforme." },
   { q: "Comment mon argent est-il protégé ?", a: "Chaque paiement est échelonné selon l'avancement réel du chantier, et n'est versé à l'artisan qu'une fois une étape validée, jamais en une seule fois." },
   { q: "Comment les artisans sont-ils vérifiés ?", a: "Chaque artisan est audité (dont vérification RCCM) avant d'être référencé sur la plateforme." },
+  { q: "Qui achète les matériaux de construction ?", a: "La personne qui établit le devis n'est jamais la même que celle qui achète les matériaux. Cette séparation limite les risques de majoration ou de détournement sur le coût des matériaux." },
   { q: "Puis-je suivre mon chantier à distance ?", a: "Oui, votre espace personnel affiche l'avancement en temps réel de votre chantier." },
 ];
 
