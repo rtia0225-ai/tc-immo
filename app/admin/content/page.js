@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { addPageSection, updatePageSection, deletePageSection } from "../actions";
+import AdminNav from "@/components/AdminNav";
 
 const PAGES = [
   { value: "accueil", label: "Accueil" },
@@ -32,7 +33,9 @@ export default async function ContentManagementPage({ searchParams }) {
     .order("order_index", { ascending: true });
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div>
+      <AdminNav current="/admin/content" />
+      <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold text-ink">Gestion du contenu</h1>
       <p className="mt-1 text-sm text-gray-500">
         Modifie ce qui s'affiche sur les pages publiques du site, sans avoir besoin de coder.
@@ -149,6 +152,7 @@ export default async function ContentManagementPage({ searchParams }) {
             Ajouter la section
           </button>
         </form>
+      </div>
       </div>
     </div>
   );
