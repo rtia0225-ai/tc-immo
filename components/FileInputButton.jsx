@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { compressImage } from "@/lib/compressImage";
 
 // Remplace le texte natif du navigateur ("Choose File" / "No file chosen",
 // affiché dans la langue du navigateur, pas celle du site) par un bouton
@@ -13,10 +14,12 @@ export default function FileInputButton({
   label = "Choisir un fichier",
   className = "",
   autoSubmit = false,
+  compress = false,
 }) {
   const inputRef = useRef(null);
   const [fileNames, setFileNames] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   // Vérifie nous-mêmes le type de fichier : l'attribut "accept" n'est
   // qu'une suggestion pour la boîte de dialogue du navigateur, certains
@@ -32,7 +35,7 @@ export default function FileInputButton({
     });
   };
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) {
       setFileNames("");
@@ -51,10 +54,27 @@ export default function FileInputButton({
     }
     setError("");
 
-    if (files.length === 1) {
-      setFileNames(files[0].name);
+    let finalFiles = files;
+    if (compress) {
+      setBusy(true);
+      try {
+        const compressed = await Promise.all(Array.from(files).map((f) => compressImage(f)));
+        // Remplace les fichiers de l'input par leur version compressée,
+        // pour que ce soit bien ça qui parte à l'envoi.
+        const dt = new DataTransfer();
+        compressed.forEach((f) => dt.items.add(f));
+        e.target.files = dt.files;
+        finalFiles = dt.files;
+      } catch {
+        // En cas d'échec de compression, on envoie le fichier original tel quel.
+      }
+      setBusy(false);
+    }
+
+    if (finalFiles.length === 1) {
+      setFileNames(finalFiles[0].name);
     } else {
-      setFileNames(`${files.length} fichiers sélectionnés`);
+      setFileNames(`${finalFiles.length} fichiers sélectionnés`);
     }
     if (autoSubmit) {
       e.target.form?.requestSubmit();
@@ -77,9 +97,10 @@ export default function FileInputButton({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-ink hover:bg-gray-50"
+          disabled={busy}
+          className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-ink hover:bg-gray-50 disabled:opacity-60"
         >
-          {label}
+          {busy ? "Compression..." : label}
         </button>
         <span className="truncate text-sm text-gray-500">
           {fileNames || "Aucun fichier choisi"}

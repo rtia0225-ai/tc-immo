@@ -45,7 +45,7 @@ export default async function ProfileEditPage({ searchParams }) {
             </div>
           )}
           <form action={uploadAvatar} className="flex items-center gap-2">
-            <FileInputButton name="avatar" accept="image/*" required label="Choisir une photo" autoSubmit />
+            <FileInputButton name="avatar" accept="image/*" required label="Choisir une photo" autoSubmit compress />
           </form>
         </div>
 
@@ -152,7 +152,7 @@ export default async function ProfileEditPage({ searchParams }) {
             </div>
           )}
           <form action={uploadAvatar} className="flex items-center gap-2">
-            <FileInputButton name="avatar" accept="image/*" required label="Choisir une photo" autoSubmit />
+            <FileInputButton name="avatar" accept="image/*" required label="Choisir une photo" autoSubmit compress />
           </form>
         </div>
         <p className="mt-2 text-xs text-gray-500">
@@ -412,7 +412,7 @@ export default async function ProfileEditPage({ searchParams }) {
         ) : (
           <>
             <form action={addArtisanPhoto} className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <FileInputButton name="photo" accept="image/*,video/*" multiple required label="Choisir des photos ou vidéos" className="flex-1" />
+              <FileInputButton name="photo" accept="image/*,video/*" multiple required label="Choisir des photos ou vidéos" className="flex-1" compress />
               <input
                 name="caption"
                 placeholder="Légende (optionnel, appliquée à toutes)"
