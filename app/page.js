@@ -35,6 +35,17 @@ const STEPS = [
 export default async function HomePage() {
   const supabase = createClient();
 
+  const { data: heroSection } = await supabase
+    .from("page_sections")
+    .select("title, body")
+    .eq("page", "accueil")
+    .order("order_index", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  const heroTitle = heroSection?.title || "Construisez chez vous, en toute sécurité, depuis n'importe où";
+  const heroSubtitle = heroSection?.body || "TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.";
+
   const { data: artisans } = await supabase
     .from("artisan_profiles")
     .select(`id, trade, is_verified, years_experience, pricing_info, profiles!inner ( full_name, city, avatar_url, approval_status )`)
@@ -62,10 +73,10 @@ export default async function HomePage() {
             <div className="mt-2 w-1 shrink-0 self-stretch rounded-full bg-brand" aria-hidden="true" />
             <div>
               <h1 className="font-heading text-4xl font-extrabold leading-[1.1] sm:text-5xl">
-                Construisez chez vous, en toute sécurité, depuis n'importe où
+                {heroTitle}
               </h1>
               <p className="mt-4 max-w-md text-base text-white/90 sm:text-lg">
-                TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.
+                {heroSubtitle}
               </p>
             </div>
           </div>

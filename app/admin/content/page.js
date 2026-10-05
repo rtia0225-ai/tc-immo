@@ -3,8 +3,10 @@ import { redirect } from "next/navigation";
 import { addPageSection, updatePageSection, deletePageSection } from "../actions";
 
 const PAGES = [
+  { value: "accueil", label: "Accueil" },
   { value: "comment-ca-marche", label: "Comment ça marche" },
   { value: "ressources", label: "Ressources" },
+  { value: "faq", label: "FAQ" },
 ];
 
 export default async function ContentManagementPage({ searchParams }) {
