@@ -16,13 +16,41 @@ export default function FileInputButton({
 }) {
   const inputRef = useRef(null);
   const [fileNames, setFileNames] = useState("");
+  const [error, setError] = useState("");
+
+  // Vérifie nous-mêmes le type de fichier : l'attribut "accept" n'est
+  // qu'une suggestion pour la boîte de dialogue du navigateur, certains
+  // navigateurs/systèmes laissent quand même sélectionner un fichier qui
+  // ne correspond pas, sans aucun avertissement visible pour la personne.
+  const isAcceptedType = (file) => {
+    if (!accept) return true;
+    const patterns = accept.split(",").map((p) => p.trim());
+    return patterns.some((pattern) => {
+      if (pattern.endsWith("/*")) return file.type.startsWith(pattern.replace("/*", "/"));
+      if (pattern.startsWith(".")) return file.name.toLowerCase().endsWith(pattern.toLowerCase());
+      return file.type === pattern;
+    });
+  };
 
   const handleChange = (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) {
       setFileNames("");
+      setError("");
       return;
     }
+
+    const rejected = Array.from(files).find((f) => !isAcceptedType(f));
+    if (rejected) {
+      setError(
+        `"${rejected.name}" n'est pas un format accepté${rejected.type ? ` (${rejected.type})` : ""}. Essayez une photo au format JPG ou PNG.`
+      );
+      setFileNames("");
+      e.target.value = "";
+      return;
+    }
+    setError("");
+
     if (files.length === 1) {
       setFileNames(files[0].name);
     } else {
@@ -34,27 +62,30 @@ export default function FileInputButton({
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <input
-        ref={inputRef}
-        type="file"
-        name={name}
-        accept={accept}
-        required={required}
-        multiple={multiple}
-        onChange={handleChange}
-        className="hidden"
-      />
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-ink hover:bg-gray-50"
-      >
-        {label}
-      </button>
-      <span className="truncate text-sm text-gray-500">
-        {fileNames || "Aucun fichier choisi"}
-      </span>
+    <div className={className}>
+      <div className="flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="file"
+          name={name}
+          accept={accept}
+          required={required}
+          multiple={multiple}
+          onChange={handleChange}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-ink hover:bg-gray-50"
+        >
+          {label}
+        </button>
+        <span className="truncate text-sm text-gray-500">
+          {fileNames || "Aucun fichier choisi"}
+        </span>
+      </div>
+      {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
