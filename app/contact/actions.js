@@ -20,10 +20,10 @@ export async function sendContactMessage(formData) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "TC-Immo <contact@tcholding-immo.com>",
+        from: "TCHolding-Immo <contact@tcholding-immo.com>",
         to: "contact@tcholding-immo.com",
         reply_to: email,
-        subject: `Nouveau message de ${firstName} ${lastName} (TC-Immo)`,
+        subject: `Nouveau message de ${firstName} ${lastName} (TCHolding-Immo)`,
         text: `Nom : ${firstName} ${lastName}\nEmail : ${email}\n\nMessage :\n${message}`,
       }),
     });

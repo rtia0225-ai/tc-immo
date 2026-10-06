@@ -44,7 +44,7 @@ export default async function HomePage() {
     .maybeSingle();
 
   const heroTitle = heroSection?.title || "Construisez chez vous, en toute sécurité, depuis n'importe où";
-  const heroSubtitle = heroSection?.body || "TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.";
+  const heroSubtitle = heroSection?.body || "TCHolding-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.";
 
   const { data: allArtisans } = await supabase
     .from("artisan_profiles")
@@ -77,7 +77,10 @@ export default async function HomePage() {
       {/* Hero plein écran : photo en fond, titre, simulateur et recherche
           réunis dans le même bloc, la première impression ne doit pas
           être coupée. */}
-      <section className="relative flex min-h-[400px] flex-col overflow-hidden bg-ink sm:min-h-[640px] lg:min-h-[720px]">
+      <section
+        className="relative flex min-h-[400px] flex-col overflow-hidden sm:min-h-[640px] lg:min-h-[720px]"
+        style={{ background: "radial-gradient(circle at center, #4a2c18 0%, #241307 65%, #140a04 100%)" }}
+      >
         {/* Sur mobile : la photo entière reste visible (object-contain),
             jamais recadrée ni zoomée, quitte à garder un peu de fond uni
             de part et d'autre. À partir de sm, assez de largeur pour

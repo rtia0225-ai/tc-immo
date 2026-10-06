@@ -6,7 +6,7 @@ import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
 export const metadata = {
   title: "Trouver un artisan vérifié en Côte d'Ivoire",
-  description: "Maçons, électriciens, plombiers, architectes, géomètres... Recherchez parmi les artisans et professionnels vérifiés de TC-Immo, par métier et par ville.",
+  description: "Maçons, électriciens, plombiers, architectes, géomètres... Recherchez parmi les artisans et professionnels vérifiés de TCHolding-Immo, par métier et par ville.",
 };
 
 // searchParams renvoie une chaîne s'il n'y a qu'une valeur, un tableau

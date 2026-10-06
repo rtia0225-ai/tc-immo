@@ -241,7 +241,7 @@ export default async function SignupPage({ searchParams }) {
         </button>
 
         <p className="text-xs text-gray-500">
-          TC-Immo, projet en cours de création, collecte votre nom, prénom et adresse e-mail pour créer votre compte et vous prévenir de l'ouverture de la plateforme. Ces données sont conservées 3 ans au maximum et ne sont jamais vendues. Pour les consulter, les corriger ou les supprimer : contact@tcholding-immo.com.
+          TCHolding-Immo, projet en cours de création, collecte votre nom, prénom et adresse e-mail pour créer votre compte et vous prévenir de l'ouverture de la plateforme. Ces données sont conservées 3 ans au maximum et ne sont jamais vendues. Pour les consulter, les corriger ou les supprimer : contact@tcholding-immo.com.
         </p>
 
         {role === "artisan" && (

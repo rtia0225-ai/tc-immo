@@ -174,7 +174,7 @@ function pickLayout(orderIndex) {
 
 export const metadata = {
   title: "Comment ça marche",
-  description: "Le parcours client, le rôle de chaque professionnel (géomètre, architecte, technicien BTP) et les garanties de sécurité de TC-Immo, expliqués simplement.",
+  description: "Le parcours client, le rôle de chaque professionnel (géomètre, architecte, technicien BTP) et les garanties de sécurité de TCHolding-Immo, expliqués simplement.",
 };
 
 export default async function CommentCaMarchePage() {
@@ -204,7 +204,7 @@ export default async function CommentCaMarchePage() {
               Comment ça marche
             </h1>
             <p className="mt-3 text-justify text-sm leading-relaxed text-white/90 sm:text-base">
-              Construire depuis loin n'a rien d'évident. Voici, étape par étape, comment TC-Immo rend ça possible, et pourquoi vous pouvez avoir confiance à chaque instant.
+              Construire depuis loin n'a rien d'évident. Voici, étape par étape, comment TCHolding-Immo rend ça possible, et pourquoi vous pouvez avoir confiance à chaque instant.
             </p>
           </div>
         </div>

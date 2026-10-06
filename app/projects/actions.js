@@ -39,7 +39,7 @@ Montant convenu : ${amount} ${currency}
 Échéancier de paiement convenu :
 ${scheduleText || "  (aucune étape définie)"}
 
-Le paiement du client est séquestré sur la plateforme TC-Immo. Chaque montant listé ci-dessus n'est libéré au prestataire qu'après validation, par l'artisan, de l'étape correspondante.
+Le paiement du client est séquestré sur la plateforme TCHolding-Immo. Chaque montant listé ci-dessus n'est libéré au prestataire qu'après validation, par l'artisan, de l'étape correspondante.
 
 Chaque prestataire du projet est indépendant : ce contrat ne concerne que sa propre prestation, à ses propres conditions.
 

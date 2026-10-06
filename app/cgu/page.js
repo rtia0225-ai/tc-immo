@@ -1,6 +1,6 @@
 export const metadata = {
   title: "Conditions Générales d'Utilisation",
-  description: "Conditions Générales d'Utilisation du site TC-Immo, en phase de pré-ouverture.",
+  description: "Conditions Générales d'Utilisation du site TCHolding-Immo, en phase de pré-ouverture.",
 };
 
 export default function CguPage() {
@@ -15,10 +15,10 @@ export default function CguPage() {
         <section>
           <h2 className="font-heading text-lg font-bold text-ink">Article 1 — Objet et éditeur</h2>
           <p className="mt-2 text-justify">
-            Le site tcholding-immo.com (le « Site ») présente la plateforme TC-Immo, un projet de marketplace destiné à mettre en relation des personnes qui souhaitent construire ou rénover en Afrique, notamment depuis l'étranger, avec des professionnels indépendants du bâtiment.
+            Le site tcholding-immo.com (le « Site ») présente la plateforme TCHolding-Immo, un projet de marketplace destiné à mettre en relation des personnes qui souhaitent construire ou rénover en Afrique, notamment depuis l'étranger, avec des professionnels indépendants du bâtiment.
           </p>
           <p className="mt-2 text-justify">
-            Le Site est édité par Tia Carelle, porteuse du projet TC-Immo, dont la société TC HOLDING IMMO est en cours de constitution (l'« Éditeur »). Contact : contact@tcholding-immo.com.
+            Le Site est édité par Tia Carelle, porteuse du projet TCHolding-Immo, dont la société TC HOLDING IMMO est en cours de constitution (l'« Éditeur »). Contact : contact@tcholding-immo.com.
           </p>
           <p className="mt-2 text-justify">
             Les présentes conditions encadrent l'utilisation du Site pendant sa phase de pré-ouverture.
@@ -66,7 +66,7 @@ export default function CguPage() {
         <section>
           <h2 className="font-heading text-lg font-bold text-ink">Article 7 — Propriété intellectuelle</h2>
           <p className="mt-2 text-justify">
-            La marque TC-Immo, les logos, textes, vidéos et éléments graphiques du Site appartiennent à l'Éditeur. Toute reproduction ou utilisation sans autorisation écrite préalable est interdite.
+            La marque TCHolding-Immo, les logos, textes, vidéos et éléments graphiques du Site appartiennent à l'Éditeur. Toute reproduction ou utilisation sans autorisation écrite préalable est interdite.
           </p>
         </section>
 

@@ -38,7 +38,7 @@ export async function addAdminNote(formData) {
   await sendPush(
     artisanId,
     "Remarque sur votre profil",
-    "L'équipe TC-Immo a laissé une remarque sur votre profil. Consultez-la dans votre espace.",
+    "L'équipe TCHolding-Immo a laissé une remarque sur votre profil. Consultez-la dans votre espace.",
     "/dashboard/profile"
   );
 
@@ -94,7 +94,7 @@ export async function approveAccount(formData) {
   await sendPush(
     userId,
     "Compte validé",
-    "Votre compte TC-Immo a été validé, vous avez maintenant accès à votre espace.",
+    "Votre compte TCHolding-Immo a été validé, vous avez maintenant accès à votre espace.",
     "/dashboard"
   );
 

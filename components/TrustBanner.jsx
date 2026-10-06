@@ -27,7 +27,7 @@ export default function TrustBanner() {
       <div className="mx-auto max-w-6xl">
         <div>
           <h2 className="font-heading text-xl font-bold text-white sm:text-2xl">
-            Pourquoi construire avec TC-Immo
+            Pourquoi construire avec TCHolding-Immo
           </h2>
           <p className="mt-2 w-full text-justify text-xs text-white/80 sm:text-sm">
             Chaque étape de votre projet est pensée pour vous rassurer, même à distance.

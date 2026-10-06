@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 const WELCOME_MESSAGE = {
   role: "assistant",
-  content: "Bonjour ! Je suis là pour répondre à vos questions sur TC-Immo (recherche d'artisan, paiement sécurisé, suivi de chantier...). Comment puis-je vous aider ?",
+  content: "Bonjour ! Je suis là pour répondre à vos questions sur TCHolding-Immo (recherche d'artisan, paiement sécurisé, suivi de chantier...). Comment puis-je vous aider ?",
 };
 
 export default function ChatWidget() {
@@ -60,7 +60,7 @@ export default function ChatWidget() {
       {open && (
         <div className="mb-3 flex h-[28rem] w-80 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
           <div className="flex items-center justify-between bg-forest px-4 py-3 text-white">
-            <p className="font-heading text-sm font-bold">Assistant TC-Immo</p>
+            <p className="font-heading text-sm font-bold">Assistant TCHolding-Immo</p>
             <button
               type="button"
               onClick={() => setOpen(false)}

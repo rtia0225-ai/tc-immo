@@ -28,7 +28,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${name}, ${artisan.trade}${city ? ` à ${city}` : ""}`,
-    description: artisan.bio?.slice(0, 155) || `${artisan.trade} vérifié sur TC-Immo${city ? `, disponible à ${city}` : ""}.`,
+    description: artisan.bio?.slice(0, 155) || `${artisan.trade} vérifié sur TCHolding-Immo${city ? `, disponible à ${city}` : ""}.`,
   };
 }
 

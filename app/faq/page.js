@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
   title: "Questions fréquentes",
-  description: "Sécurité des paiements, vérification des artisans, suivi de chantier à distance : les réponses aux questions les plus posées sur TC-Immo.",
+  description: "Sécurité des paiements, vérification des artisans, suivi de chantier à distance : les réponses aux questions les plus posées sur TCHolding-Immo.",
 };
 
 export default async function FaqPage() {

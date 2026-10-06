@@ -72,7 +72,7 @@ export default async function InterestRegisteredPage({ searchParams }) {
 
           <label className="mt-4 flex items-start gap-2 text-sm text-gray-600">
             <input type="checkbox" name="acceptRecontact" required className="mt-0.5 accent-brand" />
-            <span>J'accepte d'être recontacté(e) par TC-Immo à l'ouverture de la plateforme.</span>
+            <span>J'accepte d'être recontacté(e) par TCHolding-Immo à l'ouverture de la plateforme.</span>
           </label>
 
           <button

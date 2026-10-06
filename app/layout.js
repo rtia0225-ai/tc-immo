@@ -9,11 +9,11 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata = {
   metadataBase: new URL("https://www.tcholding-immo.com"),
   title: {
-    default: "TC-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
-    template: "%s | TC-Immo",
+    default: "TCHolding-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
+    template: "%s | TCHolding-Immo",
   },
   description:
-    "TC-Immo (TC Holding Immo) connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres, architectes et techniques BTP vérifiés, pour construire en Côte d'Ivoire en toute confiance, paiement sécurisé, suivi à distance, échéancier en plusieurs étapes.",
+    "TCHolding-Immo (TC Holding Immo) connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres, architectes et techniques BTP vérifiés, pour construire en Côte d'Ivoire en toute confiance, paiement sécurisé, suivi à distance, échéancier en plusieurs étapes.",
   keywords: [
     "construire en Côte d'Ivoire",
     "construire en Côte d'Ivoire depuis l'étranger",
@@ -22,14 +22,14 @@ export const metadata = {
     "architecte Côte d'Ivoire",
     "technicien BTP Côte d'Ivoire",
     "TC Holding Immo",
-    "TC-Immo",
+    "TCHolding-Immo",
   ],
   manifest: "/manifest.json",
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    siteName: "TC-Immo",
-    title: "TC-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
+    siteName: "TCHolding-Immo",
+    title: "TCHolding-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
     description:
       "Trouvez un artisan, un géomètre ou un architecte vérifié pour construire en Côte d'Ivoire, où que vous soyez. Paiement sécurisé, suivi à distance.",
     images: ["/hero-elephants.jpg"],
@@ -59,7 +59,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="fr">
       <head>
-        {/* Aide Google à associer "TC-Immo", "TC Holding Immo" et
+        {/* Aide Google à associer "TCHolding-Immo", "TC Holding Immo" et
             "TCHolding-Immo" à la même entité, pour les recherches de marque. */}
         <script
           type="application/ld+json"
@@ -67,7 +67,7 @@ export default async function RootLayout({ children }) {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "TC-Immo",
+              name: "TCHolding-Immo",
               alternateName: ["TC Holding Immo", "TCHolding-Immo", "TC Holding"],
               url: "https://www.tcholding-immo.com",
               logo: "https://www.tcholding-immo.com/logo-navbar.png",

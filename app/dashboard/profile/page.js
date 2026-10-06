@@ -109,7 +109,7 @@ export default async function ProfileEditPage({ searchParams }) {
       {adminNotes && adminNotes.length > 0 && (
         <div className="mt-4 rounded-lg border border-brand bg-brand-light p-4">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-dark">
-            Remarques de l'équipe TC-Immo
+            Remarques de l'équipe TCHolding-Immo
           </p>
           <div className="mt-2 flex flex-col gap-2">
             {adminNotes.map((n) => (

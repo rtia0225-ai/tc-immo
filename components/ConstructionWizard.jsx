@@ -79,7 +79,7 @@ function buildRoadmap(answers) {
       text: "L'architecte mène cette démarche en votre nom. Le terrain et le permis restent bien à vous, et une fois obtenu, il livre le Permis de Construire directement sur la plateforme.",
       professional: {
         trade: "Architecture",
-        note: "L'architecte dessine les plans réglementaires de la maison, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TC-Immo.",
+        note: "L'architecte dessine les plans réglementaires de la maison, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TCHolding-Immo.",
       },
     });
   } else if (answers.construction === "grand") {
@@ -89,7 +89,7 @@ function buildRoadmap(answers) {
       professional: [
         {
           trade: "Architecture",
-          note: "L'architecte dessine les plans réglementaires, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TC-Immo.",
+          note: "L'architecte dessine les plans réglementaires, dépose le dossier en votre nom, et remet le Permis de Construire obtenu sur TCHolding-Immo.",
         },
         {
           trade: "Ingénieur génie civil",
@@ -212,7 +212,7 @@ export default function ConstructionWizard() {
               Nous ne pouvons pas encore vous accompagner pour ce terrain
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-white/85">
-              Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TC-Immo prend en charge pour le moment. Nous vous conseillons de contacter votre propre géomètre-topographe pour entamer cette étape.
+              Un terrain non loti demande d'abord ses propres démarches de lotissement, en dehors de ce que TCHolding-Immo prend en charge pour le moment. Nous vous conseillons de contacter votre propre géomètre-topographe pour entamer cette étape.
             </p>
             <p className="mt-2 text-sm leading-relaxed text-white/85">
               Une fois votre terrain loti, revenez avec plaisir pour la suite de votre projet, on sera là pour vous accompagner.

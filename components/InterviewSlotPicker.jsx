@@ -17,7 +17,7 @@ export default function InterviewSlotPicker({ slots }) {
         Réservez un rendez-vous avant que votre inscription soit validée
       </p>
       <p className="mt-1 text-xs text-brand-dark">
-        Pour votre métier, un entretien avec l'équipe TC-Immo est requis. Choisissez un créneau ci-dessous.
+        Pour votre métier, un entretien avec l'équipe TCHolding-Immo est requis. Choisissez un créneau ci-dessous.
       </p>
 
       <input type="hidden" name="interviewSlotId" value={selectedId} required />

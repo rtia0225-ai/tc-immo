@@ -28,7 +28,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl gap-12 sm:grid-cols-3">
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-footer.png" alt="TC-Immo" className="h-10 w-auto" />
+          <img src="/logo-footer.png" alt="TCHolding-Immo" className="h-10 w-auto" />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-400">
             La marketplace de confiance pour construire en Côte d'Ivoire, où que vous soyez.
           </p>
@@ -69,7 +69,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto mt-14 flex max-w-6xl flex-col gap-3 border-t border-white/10 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 TC-Immo. Tous droits réservés.</p>
+        <p>© 2026 TCHolding-Immo. Tous droits réservés.</p>
         <div className="flex flex-wrap gap-x-4 gap-y-2">
           <a href="/cgu" className="transition-colors hover:text-brand">Conditions Générales d'Utilisation</a>
           <a href="/confidentialite" className="transition-colors hover:text-brand">Confidentialité</a>

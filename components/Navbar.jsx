@@ -54,7 +54,7 @@ export default function Navbar({ user, isAdmin }) {
           </button>
           <Link href="/" className="flex shrink-0 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-navbar.png" alt="TC-Immo" className="h-9 w-auto sm:h-10 md:h-14" />
+            <img src="/logo-navbar.png" alt="TCHolding-Immo" className="h-9 w-auto sm:h-10 md:h-14" />
           </Link>
 
           {/* Menu horizontal, visible uniquement à partir de la taille ordinateur */}
