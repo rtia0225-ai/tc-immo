@@ -4,6 +4,15 @@ import PhotoCarousel from "@/components/PhotoCarousel";
 import Link from "next/link";
 import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
 
+// Crédits photo discrets pour quelques profils de démonstration dont la
+// photo vient d'une banque d'images gratuite (licence Freepik).
+const AVATAR_PHOTO_CREDITS = {
+  "eb4f5d1c-7f3a-4cb4-bfdd-022fde6e0493": "Freepik", // Koffi Armand Yao
+  "1cbe062c-1fa8-47be-977a-efa5e51aeaa4": "Freepik", // Koffi Kouadio Alphonse
+  "35f5c752-1e54-4f0f-b1e3-4262effd0da7": "Freepik", // Traoré Moussa
+  "4c4ac297-db57-456f-9af0-1595ee1437f7": "ASphotofamily / Freepik", // Kacou Régine
+};
+
 export async function generateMetadata({ params }) {
   const supabase = createClient();
   const { data: artisan } = await supabase
@@ -90,12 +99,19 @@ export default async function ArtisanProfilePage({ params }) {
       {/* Identité */}
       <div className="mt-6 flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-6">
         {artisan.profiles?.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={`${artisan.profiles.avatar_url}?v=${Date.now()}`}
-            alt={artisan.profiles?.full_name}
-            className="h-20 w-20 shrink-0 rounded-full object-cover"
-          />
+          <div className="shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${artisan.profiles.avatar_url}?v=${Date.now()}`}
+              alt={artisan.profiles?.full_name}
+              className="h-20 w-20 rounded-full object-cover"
+            />
+            {AVATAR_PHOTO_CREDITS[artisan.id] && (
+              <p className="mt-1 text-center text-[8px] leading-none text-gray-300">
+                {AVATAR_PHOTO_CREDITS[artisan.id]}
+              </p>
+            )}
+          </div>
         ) : (
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gray-50 font-heading text-xl font-bold text-gray-300">
             {artisan.profiles?.full_name?.slice(0, 2).toUpperCase()}
