@@ -217,6 +217,11 @@ export default async function SignupPage({ searchParams }) {
         )}
 
         <label className="flex items-start gap-2 text-sm text-gray-600">
+          <input type="checkbox" name="confirmAdult" required className="mt-0.5 accent-brand" />
+          <span>Je confirme être majeur(e).</span>
+        </label>
+
+        <label className="flex items-start gap-2 text-sm text-gray-600">
           <input type="checkbox" name="acceptTerms" required className="mt-0.5 accent-brand" />
           <span>
             J'ai lu et j'accepte les{" "}

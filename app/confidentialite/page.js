@@ -25,7 +25,8 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="font-heading text-lg font-bold text-ink">2. Données collectées</h2>
           <ul className="mt-2 flex flex-col gap-1.5 pl-5 text-justify">
-            <li className="list-disc">À l'inscription : nom, prénom et adresse e-mail.</li>
+            <li className="list-disc">À l'inscription (tous) : nom, prénom, numéro de téléphone ou adresse e-mail, ville, confirmation de majorité, et le cas échéant nom et téléphone d'un contact d'urgence.</li>
+            <li className="list-disc">À l'inscription (professionnels uniquement) : métier, services proposés, années d'expérience, description, tarification indicative, ville(s) d'intervention, numéro et opérateur Mobile Money, pièce d'identité, photos ou vidéos de réalisations.</li>
             <li className="list-disc">Une fois connecté : pages et profils consultés, demandes de contact effectuées, associés au compte de l'utilisateur.</li>
             <li className="list-disc">Formulaire de contact : nom, adresse e-mail et message.</li>
             <li className="list-disc">Données techniques : adresse IP, type d'appareil et de navigateur, pages consultées, date et heure de visite.</li>

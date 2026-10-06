@@ -16,6 +16,18 @@ export async function signup(formData) {
   const city = formData.get("city");
   const country = formData.get("country");
   const redirectTo = formData.get("redirect"); // page à retrouver après connexion
+  const confirmAdult = formData.get("confirmAdult");
+  const acceptTerms = formData.get("acceptTerms");
+
+  // Vérifié aussi côté serveur : la case cochée côté navigateur peut être
+  // contournée par quelqu'un qui le ferait exprès.
+  if (!confirmAdult || !acceptTerms) {
+    const message = "Vous devez confirmer être majeur(e) et accepter les CGU pour vous inscrire.";
+    const url = redirectTo
+      ? `/auth/signup?redirect=${encodeURIComponent(redirectTo)}&error=${encodeURIComponent(message)}`
+      : `/auth/signup?error=${encodeURIComponent(message)}`;
+    return redirect(url);
+  }
 
   // Champs supplémentaires, uniquement utilisés si artisan
   const trade = formData.get("trade");
