@@ -29,14 +29,18 @@ export async function sendContactMessage(formData) {
     });
 
     if (!response.ok) {
-      // L'envoi échoue en coulisses (clé Resend à corriger), mais on ne
-      // montre rien à la personne qui remplit le formulaire, pas
-      // d'erreur affichée tant que ce n'est pas réglé.
       const errorText = await response.text();
       console.error("Erreur d'envoi Resend :", errorText);
+      // L'envoi a vraiment échoué : on le dit à la personne plutôt que
+      // de prétendre que son message est parti alors que ce n'est pas
+      // le cas, elle pourrait sinon attendre une réponse qui ne viendra
+      // jamais.
+      redirect("/contact?error=" + encodeURIComponent("Votre message n'a pas pu être envoyé. Merci de réessayer dans quelques instants, ou d'écrire directement à contact@tcholding-immo.com."));
     }
   } catch (err) {
+    if (err?.digest?.startsWith("NEXT_REDIRECT")) throw err; // laisse passer le redirect ci-dessus
     console.error("Erreur d'envoi du message de contact :", err);
+    redirect("/contact?error=" + encodeURIComponent("Votre message n'a pas pu être envoyé. Merci de réessayer dans quelques instants, ou d'écrire directement à contact@tcholding-immo.com."));
   }
 
   redirect("/contact?success=1");
