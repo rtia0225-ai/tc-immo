@@ -77,12 +77,16 @@ export default async function HomePage() {
       {/* Hero plein écran : photo en fond, titre, simulateur et recherche
           réunis dans le même bloc, la première impression ne doit pas
           être coupée. */}
-      <section className="relative flex min-h-[400px] flex-col overflow-hidden sm:min-h-[640px] lg:min-h-[720px]">
+      <section className="relative flex min-h-[400px] flex-col overflow-hidden bg-ink sm:min-h-[640px] lg:min-h-[720px]">
+        {/* Sur mobile : la photo entière reste visible (object-contain),
+            jamais recadrée ni zoomée, quitte à garder un peu de fond uni
+            de part et d'autre. À partir de sm, assez de largeur pour
+            recouvrir le cadre sans recadrage excessif (object-cover). */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero-elephants.jpg"
           alt="Savane en Côte d'Ivoire"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain sm:object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/70" />
 
