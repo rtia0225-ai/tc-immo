@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallAssistant from "@/components/InstallAssistant";
 import CookieBanner from "@/components/CookieBanner";
+import ChatWidget from "@/components/ChatWidget";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -88,6 +89,7 @@ export default async function RootLayout({ children }) {
         <Footer />
         <InstallAssistant loggedIn={!!user} />
         <CookieBanner />
+        <ChatWidget />
       </body>
     </html>
   );

@@ -1,13 +1,11 @@
-import { sendContactMessage } from "./actions";
-
 export const metadata = {
   title: "Nous contacter",
-  description: "Une question ? Écrivez-nous directement via le formulaire ci-dessous.",
+  description: "Une question ? Écrivez-nous directement par email.",
 };
 
 const EMAIL = "contact@tcholding-immo.com";
 
-export default function ContactPage({ searchParams }) {
+export default function ContactPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-16">
       <h1 className="font-heading text-3xl font-bold text-ink">Nous contacter</h1>
@@ -31,59 +29,10 @@ export default function ContactPage({ searchParams }) {
         </div>
       </a>
 
-      <div className="mt-8 border-t border-gray-100 pt-8">
-        <p className="mb-4 text-sm font-bold text-ink">Ou écrivez-nous directement ici</p>
-
-        {searchParams?.success && (
-          <p className="mb-4 rounded-lg bg-forest-light p-3 text-sm text-forest">
-            Message envoyé, merci ! Nous vous répondons au plus vite.
-          </p>
-        )}
-        {searchParams?.error && (
-          <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
-        )}
-
-        <form action={sendContactMessage} className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              name="firstName"
-              placeholder="Prénom"
-              required
-              className="rounded-lg border border-gray-300 p-2 text-sm"
-            />
-            <input
-              name="lastName"
-              placeholder="Nom"
-              required
-              className="rounded-lg border border-gray-300 p-2 text-sm"
-            />
-          </div>
-          <input
-            type="email"
-            name="email"
-            placeholder="Votre email"
-            required
-            className="rounded-lg border border-gray-300 p-2 text-sm"
-          />
-          <textarea
-            name="message"
-            placeholder="Votre message"
-            required
-            rows={5}
-            className="rounded-lg border border-gray-300 p-2 text-sm"
-          />
-          <button
-            type="submit"
-            className="mt-1 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark"
-          >
-            Envoyer
-          </button>
-          <p className="text-xs text-gray-500">
-            Les informations saisies sont utilisées uniquement pour répondre à votre message. Elles sont conservées 3 ans. Vous pouvez exercer vos droits à contact@tcholding-immo.com. En savoir plus :{" "}
-            <a href="/confidentialite" className="text-brand underline">Politique de confidentialité</a>.
-          </p>
-        </form>
-      </div>
+      <p className="mt-8 text-xs text-gray-500">
+        Les informations que vous nous envoyez sont utilisées uniquement pour répondre à votre message. En savoir plus :{" "}
+        <a href="/confidentialite" className="text-brand underline">Politique de confidentialité</a>.
+      </p>
     </div>
   );
 }
