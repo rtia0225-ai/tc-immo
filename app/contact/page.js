@@ -67,7 +67,7 @@ export default function ContactPage({ searchParams }) {
           />
           <textarea
             name="message"
-            placeholder="Ton message"
+            placeholder="Votre message"
             required
             rows={5}
             className="rounded-lg border border-gray-300 p-2 text-sm"
@@ -78,6 +78,10 @@ export default function ContactPage({ searchParams }) {
           >
             Envoyer
           </button>
+          <p className="text-xs text-gray-500">
+            Les informations saisies sont utilisées uniquement pour répondre à votre message. Elles sont conservées 3 ans. Vous pouvez exercer vos droits à contact@tcholding-immo.com. En savoir plus :{" "}
+            <a href="/confidentialite" className="text-brand underline">Politique de confidentialité</a>.
+          </p>
         </form>
       </div>
     </div>

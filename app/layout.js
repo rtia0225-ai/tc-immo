@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallAssistant from "@/components/InstallAssistant";
+import CookieBanner from "@/components/CookieBanner";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
@@ -36,7 +37,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#f22222",
+  themeColor: "#9F0F2E",
 };
 
 export default async function RootLayout({ children }) {
@@ -58,19 +59,6 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="fr">
       <head>
-        {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-53TV4ZCT7Q" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', 'G-53TV4ZCT7Q');
-            `,
-          }}
-        />
         {/* Aide Google à associer "TC-Immo", "TC Holding Immo" et
             "TCHolding-Immo" à la même entité, pour les recherches de marque. */}
         <script
@@ -99,6 +87,7 @@ export default async function RootLayout({ children }) {
         <main className="flex-1">{children}</main>
         <Footer />
         <InstallAssistant loggedIn={!!user} />
+        <CookieBanner />
       </body>
     </html>
   );

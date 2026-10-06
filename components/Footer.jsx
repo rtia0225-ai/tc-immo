@@ -1,3 +1,5 @@
+import ManageCookiesLink from "./ManageCookiesLink";
+
 const SOCIAL_LINKS = [
   {
     name: "Facebook",
@@ -66,9 +68,13 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto mt-14 flex max-w-6xl flex-col gap-2 border-t border-white/10 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto mt-14 flex max-w-6xl flex-col gap-3 border-t border-white/10 pt-6 text-xs text-gray-500 sm:flex-row sm:items-center sm:justify-between">
         <p>© 2026 TC-Immo. Tous droits réservés.</p>
-        <p>Construit pour la diaspora ivoirienne et tous ceux qui bâtissent à distance.</p>
+        <div className="flex flex-wrap gap-x-4 gap-y-2">
+          <a href="/cgu" className="transition-colors hover:text-brand">Conditions Générales d'Utilisation</a>
+          <a href="/confidentialite" className="transition-colors hover:text-brand">Confidentialité</a>
+          <ManageCookiesLink className="transition-colors hover:text-brand" />
+        </div>
       </div>
     </footer>
   );

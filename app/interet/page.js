@@ -70,12 +70,21 @@ export default async function InterestRegisteredPage({ searchParams }) {
             </label>
           </div>
 
+          <label className="mt-4 flex items-start gap-2 text-sm text-gray-600">
+            <input type="checkbox" name="acceptRecontact" required className="mt-0.5 accent-brand" />
+            <span>J'accepte d'être recontacté(e) par TC-Immo à l'ouverture de la plateforme.</span>
+          </label>
+
           <button
             type="submit"
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-heading font-bold text-white hover:bg-brand-dark"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-heading font-bold text-white hover:bg-brand-dark"
           >
             🔔 Me notifier dès l'ouverture
           </button>
+
+          <p className="mt-3 text-xs text-gray-500">
+            Votre demande est enregistrée pour vous prévenir de l'ouverture du service. Elle est conservée 3 ans au maximum. Vous pouvez retirer votre accord à tout moment en écrivant à contact@tcholding-immo.com.
+          </p>
         </form>
       )}
 

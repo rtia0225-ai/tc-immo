@@ -216,6 +216,16 @@ export default async function SignupPage({ searchParams }) {
           </>
         )}
 
+        <label className="flex items-start gap-2 text-sm text-gray-600">
+          <input type="checkbox" name="acceptTerms" required className="mt-0.5 accent-brand" />
+          <span>
+            J'ai lu et j'accepte les{" "}
+            <a href="/cgu" target="_blank" className="text-brand underline">Conditions Générales d'Utilisation</a>
+            {" "}et la{" "}
+            <a href="/confidentialite" target="_blank" className="text-brand underline">Politique de confidentialité</a>.
+          </span>
+        </label>
+
         <button
           type="submit"
           className={`rounded-lg py-3 font-heading font-bold text-white ${
@@ -224,6 +234,10 @@ export default async function SignupPage({ searchParams }) {
         >
           Créer mon compte
         </button>
+
+        <p className="text-xs text-gray-500">
+          TC-Immo, projet en cours de création, collecte votre nom, prénom et adresse e-mail pour créer votre compte et vous prévenir de l'ouverture de la plateforme. Ces données sont conservées 3 ans au maximum et ne sont jamais vendues. Pour les consulter, les corriger ou les supprimer : contact@tcholding-immo.com.
+        </p>
 
         {role === "artisan" && (
           <p className="text-center text-xs text-gray-400">
