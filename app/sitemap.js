@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-const BASE_URL = "https://tcholding-immo.com";
+const BASE_URL = "https://www.tcholding-immo.com";
 
 export default async function sitemap() {
   const supabase = createClient();

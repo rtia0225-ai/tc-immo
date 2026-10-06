@@ -5,6 +5,6 @@ export default function robots() {
       allow: "/",
       disallow: ["/dashboard", "/admin", "/auth", "/interet"],
     },
-    sitemap: "https://tcholding-immo.com/sitemap.xml",
+    sitemap: "https://www.tcholding-immo.com/sitemap.xml",
   };
 }

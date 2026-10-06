@@ -7,7 +7,7 @@ import CookieBanner from "@/components/CookieBanner";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  metadataBase: new URL("https://tcholding-immo.com"),
+  metadataBase: new URL("https://www.tcholding-immo.com"),
   title: {
     default: "TC-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
     template: "%s | TC-Immo",
@@ -69,8 +69,8 @@ export default async function RootLayout({ children }) {
               "@type": "Organization",
               name: "TC-Immo",
               alternateName: ["TC Holding Immo", "TCHolding-Immo", "TC Holding"],
-              url: "https://tcholding-immo.com",
-              logo: "https://tcholding-immo.com/logo-navbar.png",
+              url: "https://www.tcholding-immo.com",
+              logo: "https://www.tcholding-immo.com/logo-navbar.png",
               description:
                 "Plateforme qui connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres et architectes vérifiés, pour construire en Côte d'Ivoire.",
               areaServed: {

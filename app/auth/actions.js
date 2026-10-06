@@ -221,7 +221,7 @@ export async function requestPasswordReset(formData) {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://tcholding-immo.com"}/auth/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.tcholding-immo.com"}/auth/reset-password`,
   });
 
   // Toujours répondre "envoyé", même en cas d'erreur, pour ne pas
