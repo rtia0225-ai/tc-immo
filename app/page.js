@@ -46,20 +46,38 @@ export default async function HomePage() {
   const heroTitle = heroSection?.title || "Construisez chez vous, en toute sécurité, depuis n'importe où";
   const heroSubtitle = heroSection?.body || "TC-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.";
 
-  const { data: artisans } = await supabase
+  const { data: allArtisans } = await supabase
     .from("artisan_profiles")
     .select(`id, trade, is_verified, years_experience, pricing_info, profiles!inner ( full_name, city, avatar_url, approval_status )`)
     .eq("is_suspended", false)
     .eq("profiles.approval_status", "approved")
-    .order("is_verified", { ascending: false })
-    .limit(6);
+    .order("is_verified", { ascending: false });
+
+  // Mélange en alternance par métier (1 maçon, 1 architecte, 1
+  // géomètre...), pour qu'un seul métier très représenté ne truste pas
+  // à lui seul la mise en avant de l'accueil.
+  const byTrade = new Map();
+  for (const a of allArtisans || []) {
+    if (!byTrade.has(a.trade)) byTrade.set(a.trade, []);
+    byTrade.get(a.trade).push(a);
+  }
+  const buckets = Array.from(byTrade.values());
+  const mixed = [];
+  let bucketIndex = 0;
+  while (mixed.length < (allArtisans?.length || 0)) {
+    for (const bucket of buckets) {
+      if (bucketIndex < bucket.length) mixed.push(bucket[bucketIndex]);
+    }
+    bucketIndex += 1;
+  }
+  const artisans = mixed.slice(0, 6);
 
   return (
     <div>
       {/* Hero plein écran : photo en fond, titre, simulateur et recherche
           réunis dans le même bloc, la première impression ne doit pas
           être coupée. */}
-      <section className="relative flex min-h-[480px] flex-col overflow-hidden sm:min-h-[640px] lg:min-h-[720px]">
+      <section className="relative flex min-h-[400px] flex-col overflow-hidden sm:min-h-[640px] lg:min-h-[720px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hero-elephants.jpg"
@@ -88,7 +106,7 @@ export default async function HomePage() {
         <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10">
           <form
             action="/artisans"
-            className="grid gap-px overflow-hidden rounded-xl border border-gray-200 bg-gray-200 shadow-lg sm:grid-cols-5"
+            className="grid gap-px overflow-hidden rounded-xl border border-brand/40 bg-brand/30 shadow-xl sm:grid-cols-5"
           >
             <div className="bg-white p-3">
               <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Métier</label>
