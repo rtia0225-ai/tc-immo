@@ -99,7 +99,7 @@ export default async function ArtisanProfilePage({ params }) {
       {/* Identité */}
       <div className="mt-6 flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-6">
         {artisan.profiles?.avatar_url ? (
-          <div className="shrink-0">
+          <div className="relative shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${artisan.profiles.avatar_url}?v=${Date.now()}`}
@@ -107,7 +107,7 @@ export default async function ArtisanProfilePage({ params }) {
               className="h-20 w-20 rounded-full object-cover"
             />
             {AVATAR_PHOTO_CREDITS[artisan.id] && (
-              <p className="mt-1 text-center text-[8px] leading-none text-gray-300">
+              <p className="pointer-events-none absolute inset-x-0 bottom-0.5 text-center text-[6px] leading-none text-white/60 [text-shadow:0_1px_1px_rgba(0,0,0,0.5)]">
                 {AVATAR_PHOTO_CREDITS[artisan.id]}
               </p>
             )}
