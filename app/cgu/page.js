@@ -18,7 +18,7 @@ export default function CguPage() {
             Le site tcholding-immo.com (le « Site ») présente la plateforme TC-Immo, un projet de marketplace destiné à mettre en relation des personnes qui souhaitent construire ou rénover en Afrique, notamment depuis l'étranger, avec des professionnels indépendants du bâtiment.
           </p>
           <p className="mt-2 text-justify">
-            Le Site est édité par Tia Carell, porteuse du projet TC-Immo, dont la société TC HOLDING IMMO est en cours de constitution (l'« Éditeur »). Contact : contact@tcholding-immo.com.
+            Le Site est édité par Tia Carelle, porteuse du projet TC-Immo, dont la société TC HOLDING IMMO est en cours de constitution (l'« Éditeur »). Contact : contact@tcholding-immo.com.
           </p>
           <p className="mt-2 text-justify">
             Les présentes conditions encadrent l'utilisation du Site pendant sa phase de pré-ouverture.

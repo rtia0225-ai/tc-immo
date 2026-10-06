@@ -15,7 +15,7 @@ export default function ConfidentialitePage() {
         <section>
           <h2 className="font-heading text-lg font-bold text-ink">1. Responsable du traitement</h2>
           <p className="mt-2 text-justify">
-            Le responsable du traitement est Tia Carell, porteuse du projet TC-Immo, dont la société TC HOLDING IMMO est en cours de constitution. Contact : contact@tcholding-immo.com.
+            Le responsable du traitement est Tia Carelle, porteuse du projet TC-Immo, dont la société TC HOLDING IMMO est en cours de constitution. Contact : contact@tcholding-immo.com.
           </p>
           <p className="mt-2 text-justify">
             Les données sont traitées conformément à la loi ivoirienne n° 2013-450 du 19 juin 2013 relative à la protection des données à caractère personnel et, pour les personnes situées dans l'Union européenne, au Règlement (UE) 2016/679 (RGPD).
