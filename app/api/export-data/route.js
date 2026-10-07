@@ -105,6 +105,11 @@ export async function GET() {
   }
   parts.push("");
 
+  parts.push("TRANSCRIPTIONS DES APPELS VIDÉO");
+  parts.push(line());
+  parts.push("Aucune transcription disponible pour le moment.");
+  parts.push("");
+
   parts.push("CONVERSATIONS ET MESSAGES");
   parts.push(line());
   if (!conversations || conversations.length === 0) {
@@ -119,9 +124,6 @@ export async function GET() {
     }
     parts.push("");
   }
-
-  parts.push(line("="));
-  parts.push("Les appels vidéo (rendez-vous) ne sont pas enregistrés ni transcrits par la plateforme : seule leur planification (date, heure, statut) apparaît ci-dessus.");
 
   const content = parts.join("\n");
 
