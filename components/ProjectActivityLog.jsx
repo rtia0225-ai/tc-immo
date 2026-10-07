@@ -21,6 +21,12 @@ const EVENT_ICONS = {
   appointment: "📅",
 };
 
+// Les grandes étapes du chantier (fondations, dalle...) ressortent en
+// gros points colorés ; tout le reste (rendez-vous, documents, photos,
+// paiements) reste en petits repères entre deux grandes étapes, pour
+// qu'on distingue d'un coup d'œil l'avancement réel du détail.
+const MAJOR_EVENT_TYPES = ["milestone_completed", "contract_signed"];
+
 export default function ProjectActivityLog({
   projectId,
   timelineEvents,
@@ -45,6 +51,7 @@ export default function ProjectActivityLog({
       description: e.description,
       mediaUrl: e.media_url,
       actor: e.actor?.full_name,
+      major: MAJOR_EVENT_TYPES.includes(e.event_type),
     })),
     ...(appointments || []).map((a) => ({
       key: `appt-${a.id}`,
@@ -52,21 +59,22 @@ export default function ProjectActivityLog({
       icon: EVENT_ICONS.appointment,
       title: `Rendez-vous avec ${a.artisan?.profiles?.full_name || "le professionnel"} (${a.status})`,
       description: a.notes,
+      major: false,
     })),
   ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const pendingRequests = (additionRequests || []).filter((r) => r.status === "pending");
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <div className="flex items-center justify-between">
-        <h2 className="font-heading font-bold text-ink">Journal du chantier</h2>
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="flex items-center justify-between bg-forest px-5 py-4">
+        <h2 className="font-heading text-lg font-bold text-white">🏗️ Suivi du chantier</h2>
         <div className="flex gap-2">
           {isArtisan && (
             <button
               type="button"
               onClick={() => setShowReportForm((v) => !v)}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-bold text-ink hover:bg-gray-50"
+              className="rounded-lg border border-white/40 bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
             >
               📸 Envoyer un rapport
             </button>
@@ -81,6 +89,8 @@ export default function ProjectActivityLog({
           </button>
         </div>
       </div>
+
+      <div className="p-5">
 
       {showReportForm && (
         <form action={submitTechnicianReport} className="mt-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -180,22 +190,33 @@ export default function ProjectActivityLog({
         </div>
       )}
 
-      <ol className="relative mt-5 border-l-2 border-gray-200 pl-5">
+      <ol className="relative mt-6 border-l-2 border-brand-light pl-6">
         {combined.length === 0 && (
           <p className="text-sm text-gray-500">Aucun événement pour le moment.</p>
         )}
-        {combined.map((item) => (
-          <li key={item.key} className="mb-5 last:mb-0">
-            <span className="absolute -left-[9px] flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px]">
-              {item.icon}
-            </span>
-            <p className="text-xs text-gray-400">{formatDate(item.date)}</p>
-            <p className="text-sm font-bold text-ink">{item.title}</p>
-            {item.description && <p className="text-sm text-gray-600">{item.description}</p>}
-            {item.actor && <p className="text-xs text-gray-400">Par {item.actor}</p>}
-          </li>
-        ))}
+        {combined.map((item) =>
+          item.major ? (
+            <li key={item.key} className="relative mb-7 last:mb-0">
+              <span className="absolute -left-[33px] flex h-8 w-8 items-center justify-center rounded-full bg-brand text-base text-white shadow-md">
+                {item.icon}
+              </span>
+              <p className="text-xs font-semibold text-brand">{formatDate(item.date)}</p>
+              <p className="font-heading text-base font-bold text-ink">{item.title}</p>
+              {item.description && <p className="text-sm text-gray-600">{item.description}</p>}
+              {item.actor && <p className="text-xs text-gray-400">Par {item.actor}</p>}
+            </li>
+          ) : (
+            <li key={item.key} className="relative mb-3 last:mb-0">
+              <span className="absolute -left-[26px] top-1.5 h-1.5 w-1.5 rounded-full bg-gray-300" />
+              <p className="text-xs text-gray-400">
+                {formatDate(item.date)} — <span className="font-medium text-gray-600">{item.title}</span>
+              </p>
+              {item.description && <p className="text-xs text-gray-500">{item.description}</p>}
+            </li>
+          )
+        )}
       </ol>
+      </div>
     </div>
   );
 }

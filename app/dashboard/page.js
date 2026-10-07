@@ -382,51 +382,23 @@ export default async function DashboardPage({ searchParams }) {
           <div className="py-6">
             {activeTab === "projets" && (
               <>
-                {activeProject ? (
-                  <div className="rounded-lg border border-gray-200 bg-white p-5">
-                    <div className="flex items-center justify-between">
-                      <p className="font-heading font-bold">{activeProject.title}</p>
-                      <Link
-                        href={`/suivi/${activeProject.id}`}
-                        className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark"
-                      >
-                        Suivi du chantier
-                      </Link>
-                    </div>
-
-                    <div className="mt-4">
-                      <ProjectTimeline
-                        projectId={activeProject.id}
-                        milestones={milestones}
-                        isArtisan={false}
-                        currency={activeProject.currency}
-                      />
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <Link href={`/projects/${activeProject.id}`} className="rounded-lg border border-gray-200 py-2 text-center text-xs font-medium hover:bg-gray-50">
-                        Documents
-                      </Link>
-                      <Link href={`/projects/${activeProject.id}`} className="rounded-lg bg-forest py-2 text-center text-xs font-medium text-white hover:bg-forest-dark">
-                        Messagerie
-                      </Link>
-                    </div>
-                  </div>
+                {!projects || projects.length === 0 ? (
+                  <p className="text-gray-500">Aucun projet pour le moment.</p>
                 ) : (
-                  <p className="text-gray-500">Aucun projet en cours pour le moment.</p>
-                )}
-
-                {projects && projects.length > 0 && (
-                  <div className="mt-6">
-                    <p className="mb-2 text-sm font-semibold text-gray-700">Historique</p>
-                    <div className="flex flex-col gap-2">
-                      {projects.map((p) => (
-                        <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3 text-sm hover:shadow-sm">
-                          <span>{p.title}</span>
-                          <span className="text-gray-500">{translateStatus(p.status)}</span>
-                        </Link>
-                      ))}
-                    </div>
+                  <div className="flex flex-col gap-3">
+                    {projects.map((p) => (
+                      <Link
+                        key={p.id}
+                        href={`/projects/${p.id}`}
+                        className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:border-brand hover:shadow-sm"
+                      >
+                        <div>
+                          <p className="font-heading font-bold text-ink">{p.title}</p>
+                          <p className="mt-0.5 text-xs text-gray-500">{translateStatus(p.status)}</p>
+                        </div>
+                        <span className="text-brand">→</span>
+                      </Link>
+                    ))}
                   </div>
                 )}
               </>

@@ -246,6 +246,20 @@ export default async function ProjectPage({ params }) {
         </div>
       </div>
 
+      <div className="mb-6">
+        <ProjectActivityLog
+          projectId={project.id}
+          timelineEvents={timelineEvents}
+          progressReports={progressReports}
+          additionRequests={additionRequests}
+          appointments={projectAppointments}
+          userId={user.id}
+          isArtisan={isArtisan}
+          isAdmin={isAdmin}
+          artisansOnProject={artisansOnProject}
+        />
+      </div>
+
       {/* Statut global du projet */}
       <div className="mb-6 rounded-lg border border-brand-light bg-white p-5">
         <h2 className="mb-3 font-semibold">Avancement global</h2>
@@ -276,6 +290,7 @@ export default async function ProjectPage({ params }) {
       </div>
 
       {/* Une carte par artisan : sa prestation, son contrat, son échéancier */}
+      <h2 className="mb-3 font-heading text-lg font-bold text-ink">💰 Paiement du projet</h2>
       <div className="mb-6 flex flex-col gap-4">
         {artisansOnProject.map((a) => {
           const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
@@ -315,18 +330,6 @@ export default async function ProjectPage({ params }) {
           );
         })}
       </div>
-
-      <ProjectActivityLog
-        projectId={project.id}
-        timelineEvents={timelineEvents}
-        progressReports={progressReports}
-        additionRequests={additionRequests}
-        appointments={projectAppointments}
-        userId={user.id}
-        isArtisan={isArtisan}
-        isAdmin={isAdmin}
-        artisansOnProject={artisansOnProject}
-      />
 
       {/* Raccourcis : messagerie, rendez-vous, documents, suivi */}
       <div className="grid gap-3 sm:grid-cols-2">
