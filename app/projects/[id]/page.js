@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectTimeline from "@/components/ProjectTimeline";
+import ProjectActivityLog from "@/components/ProjectActivityLog";
 import { advanceProjectStatus, removeParticipant } from "../actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -16,10 +17,11 @@ export default async function ProjectPage({ params }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, is_admin")
     .eq("id", user.id)
     .single();
   const isArtisan = profile?.role === "artisan";
+  const isAdmin = !!profile?.is_admin;
 
   const { data: project } = await supabase
     .from("projects")
@@ -28,6 +30,30 @@ export default async function ProjectPage({ params }) {
     .single();
 
   if (!project) return <p>Projet introuvable.</p>;
+
+  const { data: timelineEvents } = await supabase
+    .from("project_timeline_events")
+    .select("*, actor:actor_id ( full_name )")
+    .eq("project_id", id)
+    .order("event_at", { ascending: false });
+
+  const { data: progressReports } = await supabase
+    .from("technician_progress_reports")
+    .select("*, technician:technician_id ( full_name ), technician_report_media ( media_url, media_type )")
+    .eq("project_id", id)
+    .order("created_at", { ascending: false });
+
+  const { data: additionRequests } = await supabase
+    .from("project_addition_requests")
+    .select("*, requester:requested_by ( full_name )")
+    .eq("project_id", id)
+    .order("created_at", { ascending: false });
+
+  const { data: projectAppointments } = await supabase
+    .from("appointments")
+    .select("*, artisan:artisan_id ( profiles ( full_name ) )")
+    .eq("project_id", id)
+    .order("scheduled_at", { ascending: false });
 
   const { data: participants } = await supabase
     .from("project_participants")
@@ -289,6 +315,18 @@ export default async function ProjectPage({ params }) {
           );
         })}
       </div>
+
+      <ProjectActivityLog
+        projectId={project.id}
+        timelineEvents={timelineEvents}
+        progressReports={progressReports}
+        additionRequests={additionRequests}
+        appointments={projectAppointments}
+        userId={user.id}
+        isArtisan={isArtisan}
+        isAdmin={isAdmin}
+        artisansOnProject={artisansOnProject}
+      />
 
       {/* Raccourcis : messagerie, rendez-vous, documents, suivi */}
       <div className="grid gap-3 sm:grid-cols-2">

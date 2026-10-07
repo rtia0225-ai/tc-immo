@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
 import { logClientActivity } from "@/lib/activityLog";
+import { logTimelineEvent } from "@/lib/projectTimeline";
 
 // Vérifie que l'échéancier respecte la règle du métier : une seule
 // échéance (100%) pour Architecte/Topographe, au moins 5 pour tous les
@@ -28,7 +29,7 @@ function buildContractContent({ clientName, artisanName, trade, title, descripti
     .map((m) => `  - ${m.title} : ${m.payment_percentage}% (${m.amount} ${currency})`)
     .join("\n");
 
-  return `CONTRAT DE PRESTATION, TC-IMMO
+  return `CONTRAT DE PRESTATION, TCHOLDING-IMMO
 
 Entre le client ${clientName || ""} et le prestataire ${artisanName || ""} (${trade || ""}).
 
@@ -59,10 +60,12 @@ export async function createProject(formData) {
 
   const { data: requesterProfile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, is_admin")
     .eq("id", user.id)
     .single();
-  if (requesterProfile?.role === "artisan") {
+  // L'admin peut démarrer un projet pour tester les fonctionnalités,
+  // même si son propre compte n'est pas un compte client.
+  if (requesterProfile?.role === "artisan" && !requesterProfile?.is_admin) {
     redirect("/dashboard");
   }
 
@@ -182,6 +185,14 @@ export async function createProject(formData) {
     project_id: project.id,
     amount,
     currency,
+  });
+
+  await logTimelineEvent(supabase, {
+    projectId: project.id,
+    eventType: "contract_signed",
+    title: `Début du contrat : ${title}`,
+    description: `Avec ${artisanData?.profiles?.full_name || "le professionnel"}`,
+    actorId: user.id,
   });
 
   redirect(`/projects/${project.id}/contract/${artisanId}`);

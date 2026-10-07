@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { logTimelineEvent } from "@/lib/projectTimeline";
 
 export async function addMilestone(formData) {
   const supabase = createClient();
@@ -34,13 +35,24 @@ export async function toggleMilestone(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  await supabase
+  const { data: milestone } = await supabase
     .from("project_milestones")
     .update({
       is_completed: !isCompleted,
       completed_at: !isCompleted ? new Date().toISOString() : null,
     })
-    .eq("id", milestoneId);
+    .eq("id", milestoneId)
+    .select("title")
+    .single();
+
+  if (!isCompleted && milestone) {
+    await logTimelineEvent(supabase, {
+      projectId,
+      eventType: "milestone_completed",
+      title: `Étape validée : ${milestone.title}`,
+      actorId: user.id,
+    });
+  }
 
   redirect(`/projects/${projectId}`);
 }
@@ -68,11 +80,23 @@ export async function releasePayment(formData) {
   // pour une étape déjà validée par l'artisan.
   if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
 
-  await supabase
+  const { data: paidMilestone } = await supabase
     .from("project_milestones")
     .update({ paid_at: new Date().toISOString() })
     .eq("id", milestoneId)
-    .eq("is_completed", true);
+    .eq("is_completed", true)
+    .select("title, amount")
+    .single();
+
+  if (paidMilestone) {
+    await logTimelineEvent(supabase, {
+      projectId,
+      eventType: "payment_made",
+      title: `Paiement effectué : ${paidMilestone.title}`,
+      description: paidMilestone.amount ? `${paidMilestone.amount}` : null,
+      actorId: user.id,
+    });
+  }
 
   redirect(`/projects/${projectId}`);
 }
@@ -108,14 +132,24 @@ export async function uploadDeliverable(formData) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent(uploadError.message)}`);
   }
 
-  await supabase
+  const { data: deliveredMilestone } = await supabase
     .from("project_milestones")
     .update({
       is_completed: true,
       completed_at: new Date().toISOString(),
       deliverable_document_url: path,
     })
-    .eq("id", milestoneId);
+    .eq("id", milestoneId)
+    .select("title")
+    .single();
+
+  await logTimelineEvent(supabase, {
+    projectId,
+    eventType: "document_added",
+    title: `Document livré : ${deliveredMilestone?.title || ""}`,
+    mediaUrl: path,
+    actorId: user.id,
+  });
 
   redirect(`/projects/${projectId}`);
 }

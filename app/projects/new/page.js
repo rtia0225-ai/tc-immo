@@ -21,12 +21,12 @@ export default async function NewProjectPage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id_document_url, role")
+    .select("id_document_url, role, is_admin")
     .eq("id", user.id)
     .single();
 
-  // Seul un client peut démarrer un projet, pas l'artisan.
-  if (profile?.role === "artisan") {
+  // Seul un client peut démarrer un projet, sauf l'admin qui peut tester.
+  if (profile?.role === "artisan" && !profile?.is_admin) {
     redirect("/dashboard");
   }
 
@@ -38,7 +38,7 @@ export default async function NewProjectPage({ searchParams }) {
 
   // Pièce d'identité obligatoire avant de démarrer un projet, pas avant,
   // le client reste libre de naviguer/discuter sans la fournir.
-  if (!profile?.id_document_url) {
+  if (!profile?.id_document_url && !profile?.is_admin) {
     return (
       <div className="mx-auto max-w-md px-4 py-12">
         <h1 className="font-heading text-2xl font-bold">Vérification d'identité requise</h1>
