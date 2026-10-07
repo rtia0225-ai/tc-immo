@@ -63,6 +63,22 @@ export default async function ProfileEditPage({ searchParams }) {
             Enregistrer
           </button>
         </form>
+
+        <div className="mt-8 border-t border-gray-100 pt-6">
+          <p className="font-heading font-bold text-ink">Mon dossier</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Téléchargez à tout moment un fichier reprenant vos projets, échéanciers, rendez-vous et conversations sur la plateforme.
+          </p>
+          <a
+            href="/api/export-data"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-bold text-ink hover:bg-gray-50"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16" />
+            </svg>
+            Télécharger mon dossier
+          </a>
+        </div>
       </div>
     );
   }
