@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { submitTechnicianReport, requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
+import ProjectPathView from "@/components/ProjectPathView";
 
 function formatDate(d) {
   if (!d) return "";
@@ -29,6 +30,8 @@ const MAJOR_EVENT_TYPES = ["milestone_completed", "contract_signed"];
 
 export default function ProjectActivityLog({
   projectId,
+  projectCreatedAt,
+  milestones,
   timelineEvents,
   progressReports,
   additionRequests,
@@ -68,13 +71,13 @@ export default function ProjectActivityLog({
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
       <div className="flex items-center justify-between bg-forest px-5 py-4">
-        <h2 className="font-heading text-lg font-bold text-white">🏗️ Suivi du chantier</h2>
+        <h2 className="font-heading text-lg font-bold text-white">Suivi du chantier</h2>
         <div className="flex gap-2">
           {isArtisan && (
             <button
               type="button"
               onClick={() => setShowReportForm((v) => !v)}
-              className="rounded-lg border border-white/40 bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+              className="rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-forest hover:bg-gray-100"
             >
               📸 Envoyer un rapport
             </button>
@@ -91,6 +94,12 @@ export default function ProjectActivityLog({
       </div>
 
       <div className="p-5">
+
+      <ProjectPathView
+        projectCreatedAt={projectCreatedAt}
+        milestones={milestones}
+        appointments={appointments}
+      />
 
       {showReportForm && (
         <form action={submitTechnicianReport} className="mt-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -136,7 +145,7 @@ export default function ProjectActivityLog({
       {pendingRequests.length > 0 && (
         <div className="mt-4 flex flex-col gap-2">
           {pendingRequests.map((r) => (
-            <div key={r.id} className="rounded-lg border border-gold/40 bg-amber-50 p-3 text-sm">
+            <div key={r.id} className="rounded-lg border-l-4 border-gold bg-amber-50 p-3 text-sm">
               <p className="font-bold text-ink">
                 En attente de validation : {r.title} {r.amount ? `(${r.amount})` : ""}
               </p>
