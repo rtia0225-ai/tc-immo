@@ -2,11 +2,9 @@ import { toggleMilestone, releasePayment, uploadDeliverable } from "@/app/projec
 import FileInputButton from "@/components/FileInputButton";
 import { SINGLE_INSTALLMENT_TRADES } from "@/lib/constants";
 
-// Chronologie "ligne + points" : chaque étape porte un montant lié au
-// contrat. L'artisan coche l'étape une fois le travail fait (date
-// horodatée), puis le client confirme le virement correspondant (date
-// horodatée séparément). Pour Architecte/Topographe, l'étape se termine
-// automatiquement par l'envoi du document livré (Permis/ACD).
+// Échéancier horizontal : chaque étape est un point relié au suivant,
+// colorée selon son état (payé / validé / en attente). L'étape qui
+// demande une action affiche son formulaire juste en dessous de la ligne.
 export default function ProjectTimeline({
   projectId,
   milestones,
@@ -16,117 +14,113 @@ export default function ProjectTimeline({
 }) {
   const requiresDeliverable = !!SINGLE_INSTALLMENT_TRADES[trade];
 
+  if (!milestones || milestones.length === 0) {
+    return (
+      <div className="rounded-lg border-l-4 border-brand bg-white p-5">
+        <h2 className="mb-1 font-heading font-bold text-ink">Échéancier de paiement</h2>
+        <p className="text-sm text-gray-500">Aucun échéancier défini pour ce projet.</p>
+      </div>
+    );
+  }
+
+  const activeMilestone = milestones.find((m) => !m.paid_at);
+
   return (
-    <div className="rounded-lg border border-brand-light bg-white p-5">
-      <h2 className="mb-4 font-semibold">Échéancier de paiement</h2>
+    <div className="overflow-hidden rounded-lg border-l-4 border-brand bg-white">
+      <div className="p-5 pb-2">
+        <h2 className="font-heading font-bold text-ink">Échéancier de paiement</h2>
+      </div>
 
-      {!milestones || milestones.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          Aucun échéancier défini pour ce projet.
-        </p>
-      ) : (
-        <ol className="relative border-l-2 border-gray-200 pl-6">
-          {milestones.map((m) => (
-            <li key={m.id} className="mb-6 last:mb-0">
-              <span
-                className={`absolute -left-[9px] mt-1 flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                  m.paid_at
-                    ? "border-forest bg-forest"
-                    : m.is_completed
-                      ? "border-brand bg-brand"
-                      : "border-gray-300 bg-white"
-                }`}
-              />
-
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <p className={`font-medium ${m.is_completed ? "text-ink" : "text-gray-500"}`}>
+      <div className="overflow-x-auto px-5 pb-4">
+        <div className="flex min-w-max items-start gap-0 pt-2">
+          {milestones.map((m, i) => (
+            <div key={m.id} className="flex items-start">
+              <div className="flex w-32 flex-col items-center text-center">
+                <div
+                  className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ${
+                    m.paid_at ? "bg-forest" : m.is_completed ? "bg-brand" : "border-2 border-dashed border-gray-300 bg-white text-gray-300"
+                  }`}
+                >
+                  {m.paid_at ? "✓" : i + 1}
+                </div>
+                <p className={`mt-2 text-xs font-bold leading-tight ${m.is_completed ? "text-ink" : "text-gray-400"}`}>
                   {m.title}
                 </p>
                 {m.amount != null && (
-                  <p className="text-sm font-semibold text-gray-700">
+                  <p className="mt-0.5 text-[11px] font-semibold text-gray-600">
                     {m.amount.toLocaleString("fr-FR")} {currency}
-                    {m.payment_percentage != null && (
-                      <span className="ml-1 text-xs font-normal text-gray-400">
-                        ({m.payment_percentage}%)
-                      </span>
-                    )}
                   </p>
                 )}
+                <p className={`mt-0.5 text-[10px] font-medium ${m.paid_at ? "text-forest" : m.is_completed ? "text-brand" : "text-gray-400"}`}>
+                  {m.paid_at ? "Payé" : m.is_completed ? "Validé" : "À venir"}
+                </p>
               </div>
-
-              {/* Côté artisan : case à cocher normale, ou envoi du document
-                  livré pour Architecte/Topographe */}
-              {isArtisan && !m.is_completed && (
-                requiresDeliverable ? (
-                  <form action={uploadDeliverable} className="mt-2 flex flex-col gap-2">
-                    <input type="hidden" name="milestoneId" value={m.id} />
-                    <input type="hidden" name="projectId" value={projectId} />
-                    <FileInputButton name="document" accept=".pdf,image/*" required label="Choisir le document" />
-                    <button
-                      type="submit"
-                      className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark"
-                    >
-                      Envoyer et débloquer le paiement
-                    </button>
-                  </form>
-                ) : (
-                  <form action={toggleMilestone} className="mt-2">
-                    <input type="hidden" name="milestoneId" value={m.id} />
-                    <input type="hidden" name="projectId" value={projectId} />
-                    <input type="hidden" name="isCompleted" value="false" />
-                    <button
-                      type="submit"
-                      className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark"
-                    >
-                      Marquer comme terminé
-                    </button>
-                  </form>
-                )
+              {i < milestones.length - 1 && (
+                <div className={`mt-[18px] h-0.5 w-8 shrink-0 ${m.paid_at ? "bg-forest" : "border-t-2 border-dashed border-gray-300"}`} />
               )}
-
-              {m.is_completed && (
-                <p className="mt-1 text-xs text-gray-400">
-                  Terminé par l'artisan le {new Date(m.completed_at).toLocaleDateString("fr-FR")}
-                  {m.deliverableSignedUrl && (
-                    <>
-                      {", "}
-                      <a href={m.deliverableSignedUrl} target="_blank" rel="noreferrer" className="text-brand hover:underline">
-                        voir le document
-                      </a>
-                    </>
-                  )}
-                </p>
-              )}
-
-              {/* Bouton de virement côté client, une fois l'étape validée */}
-              {!isArtisan && m.is_completed && !m.paid_at && (
-                <form action={releasePayment} className="mt-2">
-                  <input type="hidden" name="milestoneId" value={m.id} />
-                  <input type="hidden" name="projectId" value={projectId} />
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-forest px-3 py-1.5 text-xs font-semibold text-white hover:bg-forest-dark"
-                  >
-                    Confirmer le virement effectué
-                  </button>
-                </form>
-              )}
-
-              {m.paid_at && (
-                <p className="mt-1 text-xs font-medium text-forest">
-                  Paiement confirmé le {new Date(m.paid_at).toLocaleDateString("fr-FR")}
-                </p>
-              )}
-
-              {!m.is_completed && !isArtisan && (
-                <p className="mt-1 text-xs text-gray-400">En attente de l'artisan</p>
-              )}
-            </li>
+            </div>
           ))}
-        </ol>
+        </div>
+      </div>
+
+      {activeMilestone && (
+        <div className="border-t border-gray-100 bg-brand-light/40 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand">Étape en cours</p>
+          <p className="mt-1 font-heading font-bold text-ink">{activeMilestone.title}</p>
+
+          {isArtisan && !activeMilestone.is_completed && (
+            requiresDeliverable ? (
+              <form action={uploadDeliverable} className="mt-3 flex flex-col gap-2">
+                <input type="hidden" name="milestoneId" value={activeMilestone.id} />
+                <input type="hidden" name="projectId" value={projectId} />
+                <FileInputButton name="document" accept=".pdf,image/*" required label="Choisir le document" />
+                <button type="submit" className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark">
+                  Envoyer et débloquer le paiement
+                </button>
+              </form>
+            ) : (
+              <form action={toggleMilestone} className="mt-3">
+                <input type="hidden" name="milestoneId" value={activeMilestone.id} />
+                <input type="hidden" name="projectId" value={projectId} />
+                <input type="hidden" name="isCompleted" value="false" />
+                <button type="submit" className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark">
+                  Marquer comme terminé
+                </button>
+              </form>
+            )
+          )}
+
+          {activeMilestone.is_completed && (
+            <p className="mt-1 text-xs text-gray-500">
+              Terminé par l'artisan le {new Date(activeMilestone.completed_at).toLocaleDateString("fr-FR")}
+              {activeMilestone.deliverableSignedUrl && (
+                <>
+                  {", "}
+                  <a href={activeMilestone.deliverableSignedUrl} target="_blank" rel="noreferrer" className="text-brand underline">
+                    voir le document
+                  </a>
+                </>
+              )}
+            </p>
+          )}
+
+          {!isArtisan && activeMilestone.is_completed && !activeMilestone.paid_at && (
+            <form action={releasePayment} className="mt-3">
+              <input type="hidden" name="milestoneId" value={activeMilestone.id} />
+              <input type="hidden" name="projectId" value={projectId} />
+              <button type="submit" className="rounded-lg bg-forest px-3 py-1.5 text-xs font-semibold text-white hover:bg-forest-dark">
+                Confirmer le virement effectué
+              </button>
+            </form>
+          )}
+
+          {!activeMilestone.is_completed && !isArtisan && (
+            <p className="mt-2 text-xs text-gray-500">En attente de l'artisan</p>
+          )}
+        </div>
       )}
 
-      <p className="mt-4 border-t border-gray-100 pt-3 text-xs text-gray-500">
+      <p className="border-t border-gray-100 p-4 text-xs text-gray-500">
         L'échéancier a été défini par le client à la création du projet, selon le contrat convenu avec l'artisan, il ne peut plus être modifié.
       </p>
     </div>

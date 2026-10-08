@@ -93,7 +93,7 @@ export default function ProjectActivityLog({
         </div>
       </div>
 
-      <div className="p-5">
+      <div className="bg-[#FAF8F3] p-5">
 
       <ProjectPathView
         projectCreatedAt={projectCreatedAt}
@@ -209,10 +209,12 @@ export default function ProjectActivityLog({
               <span className="absolute -left-[33px] flex h-8 w-8 items-center justify-center rounded-full bg-brand text-base text-white shadow-md">
                 {item.icon}
               </span>
-              <p className="text-xs font-semibold text-brand">{formatDate(item.date)}</p>
-              <p className="font-heading text-base font-bold text-ink">{item.title}</p>
-              {item.description && <p className="text-sm text-gray-600">{item.description}</p>}
-              {item.actor && <p className="text-xs text-gray-400">Par {item.actor}</p>}
+              <div className="rounded-lg bg-white p-3 shadow-sm">
+                <p className="text-xs font-semibold text-brand">{formatDate(item.date)}</p>
+                <p className="font-heading text-base font-bold text-ink">{item.title}</p>
+                {item.description && <p className="text-sm text-gray-600">{item.description}</p>}
+                {item.actor && <p className="text-xs text-gray-400">Par {item.actor}</p>}
+              </div>
             </li>
           ) : (
             <li key={item.key} className="relative mb-3 last:mb-0">

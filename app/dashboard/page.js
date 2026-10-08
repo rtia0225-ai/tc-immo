@@ -244,7 +244,7 @@ export default async function DashboardPage({ searchParams }) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-4xl bg-[#FAF8F3] px-4 py-8">
       {/* Bandeau d'accueil */}
       <div className="rounded-lg bg-forest p-6 text-white">
         <div className="flex items-center justify-between">
@@ -289,7 +289,7 @@ export default async function DashboardPage({ searchParams }) {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <Link
               href="/messages"
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+              className="flex items-center justify-between rounded-lg border-l-4 border-brand bg-white p-4 shadow-sm hover:shadow-md"
             >
               <span className="text-sm font-semibold text-ink">Nouveaux messages</span>
               {unreadCount > 0 && (
@@ -298,7 +298,7 @@ export default async function DashboardPage({ searchParams }) {
             </Link>
             <Link
               href="/appointments"
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+              className="flex items-center justify-between rounded-lg border-l-4 border-forest bg-white p-4 shadow-sm hover:shadow-md"
             >
               <span className="text-sm font-semibold text-ink">Nouveaux rendez-vous</span>
               {upcomingCount > 0 && (
@@ -309,7 +309,7 @@ export default async function DashboardPage({ searchParams }) {
 
           <Link
             href="/dashboard/revenus"
-            className="mt-3 block rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+            className="mt-3 block rounded-lg border-l-4 border-gold bg-white p-4 shadow-sm hover:shadow-md"
           >
             <span className="text-sm font-semibold text-ink">Mes revenus</span>
             <p className="mt-0.5 text-xs text-gray-500">Paiements perçus et en attente</p>
@@ -317,7 +317,7 @@ export default async function DashboardPage({ searchParams }) {
 
           <Link
             href="/dashboard/availability"
-            className="mt-3 block rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+            className="mt-3 block rounded-lg border-l-4 border-brand bg-white p-4 shadow-sm hover:shadow-md"
           >
             <span className="text-sm font-semibold text-ink">Mes disponibilités</span>
             <p className="mt-0.5 text-xs text-gray-500">Créneaux visio proposés aux clients</p>
