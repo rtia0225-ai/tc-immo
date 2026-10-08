@@ -58,7 +58,7 @@ export default function ChatWidget() {
   return (
     <div className="fixed bottom-5 right-5 z-40">
       {open && (
-        <div className="mb-3 flex h-[28rem] w-80 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
+        <div className="mb-3 flex h-[28rem] w-80 flex-col overflow-hidden rounded-lg bg-white shadow-xl">
           <div className="flex items-center justify-between bg-forest px-4 py-3 text-white">
             <p className="font-heading text-sm font-bold">Assistant TCHolding-Immo</p>
             <button

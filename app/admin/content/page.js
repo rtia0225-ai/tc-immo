@@ -55,7 +55,7 @@ export default async function ContentManagementPage({ searchParams }) {
 
       <div className="mt-6 flex flex-col gap-4">
         {sections?.map((s) => (
-          <details key={s.id} className="rounded-lg border border-gray-200 bg-white p-4">
+          <details key={s.id} className="rounded-lg bg-white shadow-card p-4">
             <summary className="cursor-pointer font-heading font-bold text-ink">
               {s.order_index}. {s.title}
             </summary>

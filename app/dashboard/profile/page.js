@@ -71,7 +71,7 @@ export default async function ProfileEditPage({ searchParams }) {
           </p>
           <a
             href="/api/export-data"
-            className="mt-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-bold text-ink hover:bg-gray-50"
+            className="mt-3 inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-ink hover:bg-gray-200"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16" />
@@ -123,7 +123,7 @@ export default async function ProfileEditPage({ searchParams }) {
       <h1 className="font-heading text-2xl font-bold">Modifier mon profil</h1>
 
       {adminNotes && adminNotes.length > 0 && (
-        <div className="mt-4 rounded-lg border border-brand bg-brand-light p-4">
+        <div className="mt-4 rounded-lg bg-brand-light p-4 shadow-card">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-dark">
             Remarques de l'équipe TCHolding-Immo
           </p>

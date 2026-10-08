@@ -41,13 +41,13 @@ export default async function RevenusPage() {
       </h1>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-brand-light bg-white p-5">
+        <div className="rounded-lg bg-white shadow-card p-5">
           <p className="text-sm text-gray-500">Total perçu</p>
           <p className="text-2xl font-bold text-brand-dark">
             {totalReleased.toLocaleString("fr-FR")} {currency}
           </p>
         </div>
-        <div className="rounded-lg border border-brand-light bg-white p-5">
+        <div className="rounded-lg bg-white shadow-card p-5">
           <p className="text-sm text-gray-500">
             En attente (projets en cours)
           </p>
@@ -65,7 +65,7 @@ export default async function RevenusPage() {
           {projects.map((p) => (
             <div
               key={p.id}
-              className="flex items-center justify-between rounded-lg border border-brand-light bg-white p-4"
+              className="flex items-center justify-between rounded-lg bg-white shadow-card p-4"
             >
               <span>{p.title}</span>
               <span className="text-sm text-gray-500">

@@ -53,7 +53,7 @@ export default function InstallAssistant({ loggedIn }) {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white p-4 shadow-lg">
+    <div className="fixed inset-x-0 bottom-0 z-40 bg-white p-4 shadow-lg">
       <div className="mx-auto flex max-w-2xl items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -39,7 +39,7 @@ export default async function InterviewAvailabilityPage({ searchParams }) {
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
       )}
 
-      <form action={addInterviewSlot} className="mt-6 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4">
+      <form action={addInterviewSlot} className="mt-6 flex flex-col gap-3 rounded-lg bg-white shadow-card p-4">
         <p className="text-sm font-medium">Ajouter un créneau</p>
         <div className="grid grid-cols-3 gap-2">
           <input type="date" name="date" required min={today} className="rounded-lg border border-gray-300 p-2 text-sm" />

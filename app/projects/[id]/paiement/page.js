@@ -77,7 +77,7 @@ export default async function ProjectPaymentPage({ params }) {
           const artisanMilestones = (allMilestones || []).filter((m) => m.artisan_id === a.artisanId);
 
           return (
-            <div key={a.artisanId} className="rounded-lg border border-gray-200 bg-white p-5">
+            <div key={a.artisanId} className="rounded-lg bg-white shadow-card p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-heading font-bold">{a.fullName}, {a.trade}</p>

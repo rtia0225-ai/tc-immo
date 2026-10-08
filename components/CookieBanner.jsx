@@ -65,7 +65,7 @@ export default function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white px-4 py-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:px-6">
+    <div className="fixed inset-x-0 bottom-0 z-50 bg-white px-4 py-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] sm:px-6">
       <div className="mx-auto max-w-4xl">
         {!customizing ? (
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -77,14 +77,14 @@ export default function CookieBanner() {
               <button
                 type="button"
                 onClick={() => setCustomizing(true)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-bold text-ink hover:bg-gray-50"
+                className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-ink hover:bg-gray-200"
               >
                 Personnaliser
               </button>
               <button
                 type="button"
                 onClick={refuseAll}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-bold text-ink hover:bg-gray-50"
+                className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-ink hover:bg-gray-200"
               >
                 Tout refuser
               </button>
@@ -126,7 +126,7 @@ export default function CookieBanner() {
               <button
                 type="button"
                 onClick={() => setCustomizing(false)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-bold text-ink hover:bg-gray-50"
+                className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-ink hover:bg-gray-200"
               >
                 Retour
               </button>

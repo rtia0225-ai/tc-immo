@@ -131,7 +131,7 @@ export default async function ProjectPage({ params }) {
       <p className="mb-6 text-gray-600">{project.description}</p>
 
       {(project.terrain_location || project.terrain_reference_number || project.terrain_document_type || project.terrain_area || project.terrain_notes || project.terrain_latitude) && (
-        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
+        <div className="mb-6 rounded-lg bg-white shadow-card p-5">
           <p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
             Informations sur le terrain
           </p>
@@ -191,16 +191,16 @@ export default async function ProjectPage({ params }) {
             <Link
               key={a.artisanId}
               href={`/projects/${project.id}/contract/${a.artisanId}`}
-              className="block rounded-lg border border-brand bg-brand-light p-4 text-sm font-medium text-brand-dark hover:opacity-90"
+              className="block rounded-lg bg-brand-light p-4 text-sm font-medium text-brand-dark shadow-card hover:opacity-90"
             >
-              Contrat avec {a.fullName} en attente de signature, clique pour le consulter et signer
+              Contrat avec {a.fullName} en attente de signature, cliquez pour le consulter et signer
             </Link>
           ))}
         </div>
       )}
 
       {/* Participants au projet */}
-      <div className="mb-6 rounded-lg border border-brand-light bg-white p-5">
+      <div className="mb-6 rounded-lg bg-white shadow-card p-5">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">Participants</h2>
           {!isArtisan && (
@@ -262,7 +262,7 @@ export default async function ProjectPage({ params }) {
       </div>
 
       {/* Statut global du projet */}
-      <div className="mb-6 rounded-lg border border-brand-light bg-white p-5">
+      <div className="mb-6 rounded-lg bg-white shadow-card p-5">
         <h2 className="mb-3 font-semibold">Avancement global</h2>
         <p className="text-sm text-gray-600">Statut : {translateStatus(project.status)}</p>
         {(() => {
@@ -294,37 +294,37 @@ export default async function ProjectPage({ params }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href={conversation ? `/messages/${conversation.id}` : "/messages"}
-          className="rounded-lg border-l-4 border-brand bg-white p-4 shadow-sm hover:shadow-md"
+          className="rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
         >
-          <p className="font-medium text-ink">Ma messagerie</p>
-          <p className="text-sm text-gray-600">
+          <p className="font-medium">Ma messagerie</p>
+          <p className="text-sm text-brand-light">
             Fil de discussion sur ce projet
           </p>
         </Link>
 
         <Link
           href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
-          className="rounded-lg border-l-4 border-forest bg-white p-4 shadow-sm hover:shadow-md"
+          className="rounded-lg bg-forest p-4 text-white shadow-card transition hover:bg-forest-dark"
         >
-          <p className="font-medium text-ink">Mes rendez-vous</p>
-          <p className="text-sm text-gray-600">
+          <p className="font-medium">Mes rendez-vous</p>
+          <p className="text-sm text-forest-light">
             Planifier ou consulter un appel
           </p>
         </Link>
 
-        <div className="rounded-lg border-l-4 border-gold bg-white p-4 shadow-sm">
-          <p className="font-medium text-ink">Mes documents</p>
-          <p className="text-sm text-gray-600">
+        <div className="rounded-lg bg-gold p-4 text-ink shadow-card">
+          <p className="font-medium">Mes documents</p>
+          <p className="text-sm text-ink/70">
             Devis, plans et pièces liées au projet
           </p>
         </div>
 
         <Link
           href={`/projects/${project.id}/paiement`}
-          className="rounded-lg border-l-4 border-brand bg-white p-4 shadow-sm hover:shadow-md"
+          className="rounded-lg bg-azure p-4 text-white shadow-card transition hover:bg-azure-dark"
         >
-          <p className="font-medium text-ink">Paiement</p>
-          <p className="text-sm text-gray-600">
+          <p className="font-medium">Paiement</p>
+          <p className="text-sm text-azure-light">
             Suivre et faire avancer l'échéancier
           </p>
         </Link>

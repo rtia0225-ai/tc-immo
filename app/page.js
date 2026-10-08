@@ -113,7 +113,7 @@ export default async function HomePage() {
         <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10">
           <form
             action="/artisans"
-            className="grid gap-px overflow-hidden rounded-xl border border-brand/40 bg-brand/30 shadow-xl sm:grid-cols-5"
+            className="grid gap-px overflow-hidden rounded-xl bg-brand shadow-xl sm:grid-cols-5"
           >
             <div className="bg-white p-3">
               <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Métier</label>
@@ -182,7 +182,7 @@ export default async function HomePage() {
               <Link
                 key={a.id}
                 href={`/artisans/${a.id}`}
-                className="group w-80 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white"
+                className="group w-80 shrink-0 overflow-hidden rounded-lg bg-white shadow-card"
               >
                 <div className="relative">
                   {a.profiles?.avatar_url ? (

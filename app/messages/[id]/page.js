@@ -40,7 +40,7 @@ export default async function ConversationPage({ params, searchParams }) {
         </p>
       )}
 
-      <div className="flex-1 overflow-y-auto rounded-lg border border-gray-200 bg-white p-4">
+      <div className="flex-1 overflow-y-auto rounded-lg bg-white shadow-card p-4">
         {!messages || messages.length === 0 ? (
           <p className="text-sm text-gray-500">
             Aucun message. Écris le premier !

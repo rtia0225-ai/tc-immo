@@ -41,7 +41,7 @@ export default function RecruiterSelect({ technicians }) {
         className="w-full rounded-lg border border-gray-300 p-2 text-sm"
       />
       {open && filtered.length > 0 && (
-        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white shadow-card shadow-lg">
           {filtered.map((t) => (
             <button
               key={t.id}

@@ -15,7 +15,7 @@ export default function ContactPage() {
 
       <a
         href={`mailto:${EMAIL}`}
-        className="mt-6 flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 hover:border-brand hover:bg-brand-light"
+        className="mt-6 flex items-center gap-4 rounded-lg bg-white p-4 shadow-card hover:shadow-md"
       >
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-light text-brand">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

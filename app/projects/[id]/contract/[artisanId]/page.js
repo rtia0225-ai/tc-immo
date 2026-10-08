@@ -57,12 +57,12 @@ export default async function ContractPage({ params }) {
         </p>
       )}
 
-      <div className="mt-6 whitespace-pre-line rounded-lg border border-gray-200 bg-white p-6 text-sm leading-relaxed text-ink">
+      <div className="mt-6 whitespace-pre-line rounded-lg bg-white shadow-card p-6 text-sm leading-relaxed text-ink">
         {contract.content}
       </div>
 
       <div className="mt-6 grid gap-2 text-sm sm:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="rounded-lg bg-white shadow-card p-4">
           <p className="font-medium">Client</p>
           <p className="mt-1 text-gray-500">
             {contract.client_signed_at
@@ -70,7 +70,7 @@ export default async function ContractPage({ params }) {
               : "Pas encore signé"}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="rounded-lg bg-white shadow-card p-4">
           <p className="font-medium">Artisan</p>
           <p className="mt-1 text-gray-500">
             {contract.artisan_signed_at

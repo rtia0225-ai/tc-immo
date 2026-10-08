@@ -70,7 +70,7 @@ export default function VoiceRecorder({ conversationId }) {
           onClick={startRecording}
           disabled={status === "sending"}
           aria-label="Enregistrer une note vocale"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 text-ink hover:bg-gray-50 disabled:opacity-50"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-ink hover:bg-gray-200 disabled:opacity-50"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />

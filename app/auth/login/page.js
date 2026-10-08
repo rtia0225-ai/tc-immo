@@ -42,7 +42,7 @@ export default function LoginPage({ searchParams }) {
       <p className="mt-6 text-center text-sm text-gray-500">Pas encore de compte ?</p>
       <Link
         href={redirectTo ? `/auth/signup?redirect=${encodeURIComponent(redirectTo)}` : "/auth/signup"}
-        className="mt-2 block rounded-lg border-2 border-forest py-3 text-center font-heading font-bold text-forest hover:bg-forest-light"
+        className="mt-2 block rounded-lg bg-forest-light py-3 text-center font-heading font-bold text-forest-dark hover:brightness-95"
       >
         Créer un compte
       </Link>

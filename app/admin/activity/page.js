@@ -95,7 +95,7 @@ export default async function ClientActivityPage({ searchParams }) {
           <p className="text-sm text-gray-500">Aucune activité enregistrée pour le moment.</p>
         )}
         {events?.map((e) => (
-          <div key={e.id} className="rounded-lg border border-gray-200 bg-white p-3 text-sm">
+          <div key={e.id} className="rounded-lg bg-white shadow-card p-3 text-sm">
             <p className="font-medium text-ink">
               {e.client?.full_name || "Client"}, {EVENT_LABELS[e.event_type] || e.event_type}
             </p>

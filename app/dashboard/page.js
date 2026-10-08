@@ -107,8 +107,8 @@ export default async function DashboardPage({ searchParams }) {
               <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
             )}
             {Object.keys(slotsByDate).length === 0 ? (
-              <p className="mt-4 rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-500">
-                Aucun créneau disponible pour le moment, reviens un peu plus tard.
+              <p className="mt-4 rounded-lg bg-white p-4 text-sm text-gray-500 shadow-card">
+                Aucun créneau disponible pour le moment, revenez un peu plus tard.
               </p>
             ) : (
               <div className="mt-4 flex flex-col gap-4 text-left">
@@ -289,45 +289,45 @@ export default async function DashboardPage({ searchParams }) {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <Link
               href="/messages"
-              className="flex items-center justify-between rounded-lg border-l-4 border-brand bg-white p-4 shadow-sm hover:shadow-md"
+              className="flex items-center justify-between rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
             >
-              <span className="text-sm font-semibold text-ink">Nouveaux messages</span>
+              <span className="text-sm font-semibold">Nouveaux messages</span>
               {unreadCount > 0 && (
-                <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">{unreadCount}</span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-brand">{unreadCount}</span>
               )}
             </Link>
             <Link
               href="/appointments"
-              className="flex items-center justify-between rounded-lg border-l-4 border-forest bg-white p-4 shadow-sm hover:shadow-md"
+              className="flex items-center justify-between rounded-lg bg-forest p-4 text-white shadow-card transition hover:bg-forest-dark"
             >
-              <span className="text-sm font-semibold text-ink">Nouveaux rendez-vous</span>
+              <span className="text-sm font-semibold">Nouveaux rendez-vous</span>
               {upcomingCount > 0 && (
-                <span className="rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-white">{upcomingCount}</span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-forest">{upcomingCount}</span>
               )}
             </Link>
           </div>
 
           <Link
             href="/dashboard/revenus"
-            className="mt-3 block rounded-lg border-l-4 border-gold bg-white p-4 shadow-sm hover:shadow-md"
+            className="mt-3 block rounded-lg bg-gold p-4 text-ink shadow-card transition hover:bg-gold/90"
           >
-            <span className="text-sm font-semibold text-ink">Mes revenus</span>
-            <p className="mt-0.5 text-xs text-gray-500">Paiements perçus et en attente</p>
+            <span className="text-sm font-semibold">Mes revenus</span>
+            <p className="mt-0.5 text-xs text-ink/70">Paiements perçus et en attente</p>
           </Link>
 
           <Link
             href="/dashboard/availability"
-            className="mt-3 block rounded-lg border-l-4 border-brand bg-white p-4 shadow-sm hover:shadow-md"
+            className="mt-3 block rounded-lg bg-azure p-4 text-white shadow-card transition hover:bg-azure-dark"
           >
-            <span className="text-sm font-semibold text-ink">Mes disponibilités</span>
-            <p className="mt-0.5 text-xs text-gray-500">Créneaux visio proposés aux clients</p>
+            <span className="text-sm font-semibold">Mes disponibilités</span>
+            <p className="mt-0.5 text-xs text-azure-light">Créneaux visio proposés aux clients</p>
           </Link>
 
           {/* Projets en cours */}
           <div className="mt-6">
             <p className="mb-2 text-sm font-semibold text-gray-700">Projets en cours</p>
             {activeProject ? (
-              <div className="rounded-lg border border-gray-200 bg-white p-5">
+              <div className="rounded-lg bg-white p-5 shadow-card">
                 <p className="font-heading font-bold">{activeProject.title}</p>
 
                 <div className="mt-4">
@@ -353,7 +353,7 @@ export default async function DashboardPage({ searchParams }) {
             {allProjects && allProjects.length > 0 && (
               <div className="mt-4 flex flex-col gap-2">
                 {allProjects.map((p) => (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3 text-sm hover:shadow-sm">
+                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
                     <span>{p.title}</span>
                     <span className="text-gray-500">{translateStatus(p.status)}</span>
                   </Link>
@@ -390,7 +390,7 @@ export default async function DashboardPage({ searchParams }) {
                       <Link
                         key={p.id}
                         href={`/projects/${p.id}`}
-                        className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:border-brand hover:shadow-sm"
+                        className="flex items-center justify-between rounded-lg bg-white p-4 shadow-card hover:shadow-md"
                       >
                         <div>
                           <p className="font-heading font-bold text-ink">{p.title}</p>
@@ -410,7 +410,7 @@ export default async function DashboardPage({ searchParams }) {
                   <p className="text-gray-500">Aucun paiement pour le moment.</p>
                 ) : (
                   projects.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white p-3 text-sm">
+                    <div key={p.id} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm shadow-card">
                       <span>{p.title}</span>
                       <span className="font-medium">{p.amount} {p.currency}, {translateStatus(p.status)}</span>
                     </div>
@@ -425,7 +425,7 @@ export default async function DashboardPage({ searchParams }) {
                   <p className="text-gray-500">Aucune conversation pour le moment.</p>
                 ) : (
                   conversations.map((c) => (
-                    <Link key={c.id} href={`/messages/${c.id}`} className="rounded-lg border border-gray-100 bg-white p-3 text-sm hover:shadow-sm">
+                    <Link key={c.id} href={`/messages/${c.id}`} className="rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
                       Conversation avec {c.artisan?.profiles?.full_name || c.client?.full_name}
                     </Link>
                   ))

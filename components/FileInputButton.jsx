@@ -98,7 +98,7 @@ export default function FileInputButton({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={busy}
-          className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-ink hover:bg-gray-50 disabled:opacity-60"
+          className="shrink-0 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-ink hover:bg-gray-200 disabled:opacity-60"
         >
           {busy ? "Compression..." : label}
         </button>

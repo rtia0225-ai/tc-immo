@@ -105,7 +105,7 @@ export default async function AdminArtisanDetailPage({ params }) {
       )}
 
       {/* Informations privées */}
-      <div className="mt-6 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mt-6 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Informations privées</p>
         <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
           <div><dt className="text-gray-400">Téléphone</dt><dd>{p?.phone || "—"}</dd></div>
@@ -137,7 +137,7 @@ export default async function AdminArtisanDetailPage({ params }) {
       </div>
 
       {/* Pièce d'identité */}
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mt-4 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Pièce d'identité</p>
         {idDocumentSignedUrl ? (
           <div className="mt-3">
@@ -159,7 +159,7 @@ export default async function AdminArtisanDetailPage({ params }) {
       </div>
 
       {/* Profil professionnel */}
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mt-4 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Profil professionnel</p>
         <dl className="mt-3 flex flex-col gap-2 text-sm">
           <div><dt className="text-gray-400">Description</dt><dd>{artisan.bio || "—"}</dd></div>
@@ -171,7 +171,7 @@ export default async function AdminArtisanDetailPage({ params }) {
       </div>
 
       {/* Photos de réalisations */}
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mt-4 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">
           Photos de réalisations ({photos?.length || 0})
         </p>
@@ -194,7 +194,7 @@ export default async function AdminArtisanDetailPage({ params }) {
       </div>
 
       {/* Remarques admin */}
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-5">
+      <div className="mt-4 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Remarques (internes)</p>
         <div className="mt-3 flex flex-col gap-2">
           {notes?.length === 0 && <p className="text-sm text-gray-500">Aucune remarque pour le moment.</p>}

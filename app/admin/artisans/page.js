@@ -42,7 +42,7 @@ export default async function AdminArtisansPage() {
           <Link
             key={a.id}
             href={`/admin/artisans/${a.id}`}
-            className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:shadow-sm"
+            className="flex items-center justify-between rounded-lg bg-white shadow-card p-4 hover:shadow-sm"
           >
             <div className="flex items-center gap-3">
               {a.profiles?.avatar_url ? (

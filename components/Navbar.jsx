@@ -37,7 +37,7 @@ export default function Navbar({ user, isAdmin }) {
   const showInstallButton = !isStandalone && (installPromptEvent || isIos);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-gray-100 bg-white">
+    <header className="sticky top-0 z-30 bg-white shadow-card">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 md:py-4">
         <div className="flex min-w-0 items-center gap-2">
           <button
@@ -91,7 +91,7 @@ export default function Navbar({ user, isAdmin }) {
               type="button"
               onClick={handleInstall}
               aria-label="Télécharger l'application"
-              className="flex h-9 items-center gap-1.5 rounded-md border border-forest px-2.5 text-forest hover:bg-forest-light"
+              className="flex h-9 items-center gap-1.5 rounded-md bg-forest-light px-2.5 text-forest-dark hover:brightness-95"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -126,7 +126,7 @@ export default function Navbar({ user, isAdmin }) {
             onClick={() => setMenuOpen(false)}
             className="fixed inset-0 z-20 cursor-default md:hidden"
           />
-          <div className="relative z-30 border-t border-gray-100 bg-white px-4 py-3 md:hidden">
+          <div className="relative z-30 bg-white px-4 py-3 shadow-card md:hidden">
             <div className="mx-auto flex max-w-6xl flex-col gap-1 text-sm font-medium text-ink">
               <Link href="/a-propos" className="rounded px-2 py-2 hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                 À propos

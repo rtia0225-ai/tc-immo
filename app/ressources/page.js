@@ -57,7 +57,7 @@ export default async function RessourcesPage() {
           {/* Vignette vedette, plus grande, sur 2 colonnes */}
           {featured && (
             <Link href={`/ressources/${featured.id}`} className="group block h-full sm:col-span-2 lg:col-span-2 lg:row-span-2">
-              <article className="relative h-full min-h-[22rem] overflow-hidden rounded-2xl border border-ink/15">
+              <article className="relative h-full min-h-[22rem] overflow-hidden rounded-2xl shadow-card">
                 {featured.image_url && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -82,7 +82,7 @@ export default async function RessourcesPage() {
           {/* Les autres articles, en vignettes */}
           {rest.map((s) => (
             <Link key={s.id} href={`/ressources/${s.id}`} className="group block h-full">
-              <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-ink/15">
+              <article className="flex h-full flex-col overflow-hidden rounded-2xl shadow-card">
                 {s.image_url && (
                   <div className="relative overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}

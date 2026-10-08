@@ -75,7 +75,7 @@ export default function CitySelect({
           </div>
         )}
         {open && filtered.length > 0 && (
-          <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+          <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white shadow-card shadow-lg">
             {filtered.slice(0, 50).map((c) => (
               <button
                 key={c}
@@ -110,7 +110,7 @@ export default function CitySelect({
         className={inputClassName}
       />
       {open && filtered.length > 0 && (
-        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white shadow-card shadow-lg">
           {filtered.slice(0, 50).map((c) => (
             <button
               key={c}

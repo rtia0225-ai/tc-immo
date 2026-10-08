@@ -46,13 +46,13 @@ function TimelineSection({ title, body }) {
 
       <div className="relative mt-8 pl-2">
         {/* Ligne de cotation verticale, pointillée, façon plan technique */}
-        <div className="absolute left-[19px] top-2 bottom-2 w-px border-l border-dashed border-forest/40" />
+        <div className="absolute left-[19px] top-2 bottom-2 w-px border-l border-dashed border-forest-light" />
         <div className="flex flex-col gap-8">
           {items.map((item, i) => {
             const Icon = STEP_ICONS[i % STEP_ICONS.length];
             return (
               <div key={item.number} className="relative flex gap-5">
-                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-forest bg-white font-heading text-sm font-bold text-forest">
+                <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest font-heading text-sm font-bold text-white shadow-card">
                   {item.number}
                 </div>
                 <div className="flex-1 pt-1.5">
@@ -133,7 +133,7 @@ function SecuritySection({ title, body }) {
           const Icon = matchSecurityIcon(item.title);
           return (
             <div key={item.title} className="flex gap-3 border-t border-gray-100 pt-5">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-forest text-forest">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest text-white shadow-card">
                 <Icon />
               </div>
               <div>

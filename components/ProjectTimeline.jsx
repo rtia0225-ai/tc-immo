@@ -16,9 +16,11 @@ export default function ProjectTimeline({
 
   if (!milestones || milestones.length === 0) {
     return (
-      <div className="rounded-lg border-l-4 border-brand bg-white p-5">
-        <h2 className="mb-1 font-heading font-bold text-ink">Échéancier de paiement</h2>
-        <p className="text-sm text-gray-500">Aucun échéancier défini pour ce projet.</p>
+      <div className="overflow-hidden rounded-lg shadow-card">
+        <div className="bg-brand p-5">
+          <h2 className="font-heading font-bold text-white">Échéancier de paiement</h2>
+        </div>
+        <p className="bg-white p-5 text-sm text-gray-500">Aucun échéancier défini pour ce projet.</p>
       </div>
     );
   }
@@ -26,12 +28,12 @@ export default function ProjectTimeline({
   const activeMilestone = milestones.find((m) => !m.paid_at);
 
   return (
-    <div className="overflow-hidden rounded-lg border-l-4 border-brand bg-white">
-      <div className="p-5 pb-2">
-        <h2 className="font-heading font-bold text-ink">Échéancier de paiement</h2>
+    <div className="overflow-hidden rounded-lg shadow-card">
+      <div className="bg-brand p-5 pb-4">
+        <h2 className="font-heading font-bold text-white">Échéancier de paiement</h2>
       </div>
 
-      <div className="overflow-x-auto px-5 pb-4">
+      <div className="overflow-x-auto bg-white px-5 pb-4 pt-4">
         <div className="flex min-w-max items-start gap-0 pt-2">
           {milestones.map((m, i) => (
             <div key={m.id} className="flex items-start">
@@ -64,7 +66,7 @@ export default function ProjectTimeline({
       </div>
 
       {activeMilestone && (
-        <div className="border-t border-gray-100 bg-brand-light/40 p-5">
+        <div className="bg-brand-light p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand">Étape en cours</p>
           <p className="mt-1 font-heading font-bold text-ink">{activeMilestone.title}</p>
 
@@ -120,7 +122,7 @@ export default function ProjectTimeline({
         </div>
       )}
 
-      <p className="border-t border-gray-100 p-4 text-xs text-gray-500">
+      <p className="bg-gray-50 p-4 text-xs text-gray-500">
         L'échéancier a été défini par le client à la création du projet, selon le contrat convenu avec l'artisan, il ne peut plus être modifié.
       </p>
     </div>

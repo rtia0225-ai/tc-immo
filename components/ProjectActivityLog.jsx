@@ -69,7 +69,7 @@ export default function ProjectActivityLog({
   const pendingRequests = (additionRequests || []).filter((r) => r.status === "pending");
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-lg bg-white shadow-card">
       <div className="flex items-center justify-between bg-forest px-5 py-4">
         <h2 className="font-heading text-lg font-bold text-white">Suivi du chantier</h2>
         <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default function ProjectActivityLog({
       />
 
       {showReportForm && (
-        <form action={submitTechnicianReport} className="mt-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <form action={submitTechnicianReport} className="mt-4 flex flex-col gap-3 rounded-lg bg-gray-50 p-4">
           <input type="hidden" name="projectId" value={projectId} />
           <p className="text-xs font-semibold text-gray-500">Rapport d'avancement (photos/vidéos + notes)</p>
           <FileInputButton name="media" accept="image/*,video/*" multiple label="Ajouter des photos/vidéos" compress />
@@ -119,7 +119,7 @@ export default function ProjectActivityLog({
       )}
 
       {showAddForm && (
-        <form action={requestAddition} className="mt-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <form action={requestAddition} className="mt-4 flex flex-col gap-3 rounded-lg bg-gray-50 p-4">
           <input type="hidden" name="projectId" value={projectId} />
           <p className="text-xs font-semibold text-gray-500">Demander l'ajout d'un paiement, d'un document ou autre, à valider par l'équipe TCHolding-Immo</p>
           <select name="requestType" className="rounded-lg border border-gray-300 p-2 text-sm" required>
@@ -145,11 +145,11 @@ export default function ProjectActivityLog({
       {pendingRequests.length > 0 && (
         <div className="mt-4 flex flex-col gap-2">
           {pendingRequests.map((r) => (
-            <div key={r.id} className="rounded-lg border-l-4 border-gold bg-amber-50 p-3 text-sm">
-              <p className="font-bold text-ink">
+            <div key={r.id} className="rounded-lg bg-gold p-3 text-sm text-ink shadow-card">
+              <p className="font-bold">
                 En attente de validation : {r.title} {r.amount ? `(${r.amount})` : ""}
               </p>
-              <p className="mt-0.5 text-xs text-gray-600">
+              <p className="mt-0.5 text-xs text-ink/70">
                 Demandé par {r.requester?.full_name} — {r.justification}
               </p>
               {isAdmin && (
@@ -166,7 +166,7 @@ export default function ProjectActivityLog({
                     <input type="hidden" name="requestId" value={r.id} />
                     <input type="hidden" name="projectId" value={projectId} />
                     <input type="hidden" name="decision" value="rejected" />
-                    <button type="submit" className="rounded-md border border-gray-300 px-3 py-1 text-xs font-bold text-ink hover:bg-gray-50">
+                    <button type="submit" className="rounded-md bg-white px-3 py-1 text-xs font-bold text-ink shadow-card hover:bg-gray-50">
                       Refuser
                     </button>
                   </form>
@@ -180,7 +180,7 @@ export default function ProjectActivityLog({
       {progressReports?.length > 0 && (
         <div className="mt-4 flex flex-col gap-3">
           {progressReports.map((r) => (
-            <div key={r.id} className="rounded-lg border border-gray-200 p-3">
+            <div key={r.id} className="rounded-lg bg-white p-3 shadow-card">
               <p className="text-xs font-semibold text-gray-500">
                 Rapport de {r.technician?.full_name} — {formatDate(r.created_at)}
               </p>

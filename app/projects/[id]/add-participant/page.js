@@ -132,7 +132,7 @@ export default async function AddParticipantPage({ params, searchParams }) {
       ) : (
         <div className="mt-6 flex flex-col gap-3">
           {artisans.map((a) => (
-            <div key={a.id} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4">
+            <div key={a.id} className="flex items-center justify-between rounded-lg bg-white shadow-card p-4">
               <div className="flex items-center gap-3">
                 {a.profiles?.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element

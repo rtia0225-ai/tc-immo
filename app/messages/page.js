@@ -32,7 +32,7 @@ export default async function MessagesPage() {
             <Link
               key={c.id}
               href={`/messages/${c.id}`}
-              className="rounded-lg border border-brand-light bg-white p-4 hover:shadow-sm"
+              className="rounded-lg bg-white shadow-card p-4 hover:shadow-sm"
             >
               Conversation avec{" "}
               {c.artisan?.profiles?.full_name || c.client?.full_name}

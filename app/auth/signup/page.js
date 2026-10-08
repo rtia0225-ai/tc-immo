@@ -58,7 +58,7 @@ export default async function SignupPage({ searchParams }) {
           <p className="text-sm text-gray-500">Ou</p>
           <Link
             href={redirectTo ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}` : "/auth/login"}
-            className="rounded-lg border-2 border-brand py-3 font-heading font-semibold text-brand hover:bg-brand-light"
+            className="rounded-lg bg-brand-light py-3 font-heading font-semibold text-brand-dark hover:brightness-95"
           >
             Connexion
           </Link>

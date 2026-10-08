@@ -110,7 +110,7 @@ export default async function ArtisansPage({ searchParams }) {
         </div>
       )}
 
-      <form action="/artisans" className="mt-6 grid gap-px overflow-visible rounded-lg border border-gray-200 bg-gray-200 sm:grid-cols-4">
+      <form action="/artisans" className="mt-6 grid gap-px overflow-visible rounded-lg bg-gray-200 shadow-card sm:grid-cols-4">
         <MultiSelectDropdown
           name="trade"
           options={CONSTRUCTION_SERVICES}
@@ -147,7 +147,7 @@ export default async function ArtisansPage({ searchParams }) {
             <Link
               key={a.id}
               href={`/artisans/${a.id}`}
-              className="group overflow-hidden rounded-lg border border-ink/15 bg-white"
+              className="group overflow-hidden rounded-lg bg-white shadow-card"
             >
               <div className="relative">
                 {a.profiles?.avatar_url ? (

@@ -57,7 +57,7 @@ export default async function PendingAccountsPage() {
           <p className="text-sm text-gray-500">Rien en attente pour le moment.</p>
         )}
         {pending?.map((p) => (
-          <div key={p.id} className="rounded-lg border border-gray-200 bg-white p-4">
+          <div key={p.id} className="rounded-lg bg-white shadow-card p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-bold text-ink">{p.full_name}</p>
@@ -80,7 +80,7 @@ export default async function PendingAccountsPage() {
               <div className="flex shrink-0 gap-2">
                 <form action={rejectAccount}>
                   <input type="hidden" name="userId" value={p.id} />
-                  <button type="submit" className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-50">
+                  <button type="submit" className="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-200">
                     Refuser
                   </button>
                 </form>

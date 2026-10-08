@@ -54,7 +54,7 @@ export default async function AppointmentsPage() {
             return (
               <div
                 key={a.id}
-                className="rounded-lg border border-brand-light bg-white p-5"
+                className="rounded-lg bg-white shadow-card p-5"
               >
                 <div className="mb-2 flex items-center justify-between">
                   <span className="font-medium">
@@ -134,7 +134,7 @@ export default async function AppointmentsPage() {
                       />
                       <button
                         type="submit"
-                        className="rounded-lg border border-brand px-4 py-2 text-sm font-medium text-brand hover:bg-brand-light"
+                        className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
                       >
                         Envoyer la proposition
                       </button>

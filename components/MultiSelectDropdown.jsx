@@ -43,7 +43,7 @@ export default function MultiSelectDropdown({ name, options, defaultValues = [],
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 w-64 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 w-64 overflow-y-auto rounded-lg bg-white shadow-card p-2 shadow-lg">
           {searchable && (
             <input
               type="text"
