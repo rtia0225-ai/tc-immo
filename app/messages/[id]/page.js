@@ -26,7 +26,7 @@ export default async function ConversationPage({ params, searchParams }) {
     .order("created_at", { ascending: true });
 
   return (
-    <div className="flex h-[70vh] flex-col">
+    <div className="mx-auto flex h-[70vh] max-w-3xl flex-col px-4 py-4">
       <h1 className="mb-1 text-xl font-bold text-brand-dark">Conversation</h1>
       {conversation?.regarding?.profiles?.full_name && (
         <p className="mb-4 text-sm text-gray-500">
