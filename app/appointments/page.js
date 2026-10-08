@@ -36,7 +36,7 @@ export default async function AppointmentsPage() {
     .order("scheduled_at", { ascending: true });
 
   return (
-    <div>
+    <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold text-brand-dark">
         Mes rendez-vous
       </h1>
