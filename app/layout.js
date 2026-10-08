@@ -85,7 +85,7 @@ export default async function RootLayout({ children }) {
       <body className="flex min-h-screen flex-col">
         <ServiceWorkerRegister />
         <Navbar user={user} isAdmin={isAdmin} />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pb-16">{children}</main>
         <Footer />
         <InstallAssistant loggedIn={!!user} />
         <CookieBanner />

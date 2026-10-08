@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
+import ProjectPathView from "@/components/ProjectPathView";
 import { advanceProjectStatus, removeParticipant } from "../actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -125,7 +126,7 @@ export default async function ProjectPage({ params }) {
   });
 
   return (
-    <div>
+    <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-1 text-2xl font-bold text-brand-dark">
         {project.title}
       </h1>
@@ -246,6 +247,18 @@ export default async function ProjectPage({ params }) {
         </div>
       </div>
 
+      <div className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="bg-forest-light px-5 py-4">
+          <h2 className="font-heading font-bold text-forest-dark">Le chemin du chantier</h2>
+          <p className="mt-0.5 text-xs text-forest-dark/70">Validé en bordeaux, à venir en pointillés — se met à jour automatiquement.</p>
+        </div>
+        <ProjectPathView
+          projectCreatedAt={project.created_at}
+          milestones={milestonesWithDeliverables}
+          appointments={projectAppointments}
+        />
+      </div>
+
       <div className="mb-6">
         <ProjectActivityLog
           projectId={project.id}
@@ -290,7 +303,7 @@ export default async function ProjectPage({ params }) {
       </div>
 
       {/* Une carte par artisan : sa prestation, son contrat, son échéancier */}
-      <h2 className="mb-3 font-heading text-lg font-bold text-ink">💰 Paiement du projet</h2>
+      <h2 id="paiement" className="mb-3 scroll-mt-20 font-heading text-lg font-bold text-ink">💰 Paiement du projet</h2>
       <div className="mb-6 flex flex-col gap-4">
         {artisansOnProject.map((a) => {
           const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
@@ -335,42 +348,40 @@ export default async function ProjectPage({ params }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href={conversation ? `/messages/${conversation.id}` : "/messages"}
-          className="rounded-lg border border-brand-light bg-white p-4 hover:shadow-sm"
+          className="rounded-lg border border-brand/30 bg-brand-light p-4 hover:shadow-sm"
         >
-          <p className="font-medium">Ma messagerie</p>
-          <p className="text-sm text-gray-500">
+          <p className="font-medium text-ink">Ma messagerie</p>
+          <p className="text-sm text-gray-600">
             Fil de discussion sur ce projet
           </p>
         </Link>
 
         <Link
           href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
-          className="rounded-lg border border-brand-light bg-white p-4 hover:shadow-sm"
+          className="rounded-lg border border-forest/30 bg-forest-light p-4 hover:shadow-sm"
         >
-          <p className="font-medium">Mes rendez-vous</p>
-          <p className="text-sm text-gray-500">
+          <p className="font-medium text-ink">Mes rendez-vous</p>
+          <p className="text-sm text-gray-600">
             Planifier ou consulter un appel
           </p>
         </Link>
 
-        <div className="rounded-lg border border-brand-light bg-white p-4">
-          <p className="font-medium">Mes documents</p>
-          <p className="text-sm text-gray-500">
+        <div className="rounded-lg border border-gold/40 bg-amber-50 p-4">
+          <p className="font-medium text-ink">Mes documents</p>
+          <p className="text-sm text-gray-600">
             Devis, plans et pièces liées au projet
           </p>
         </div>
 
-        {!isArtisan && (
-          <Link
-            href={`/suivi/${project.id}`}
-            className="rounded-lg border border-brand-light bg-white p-4 hover:shadow-sm"
-          >
-            <p className="font-medium">Suivi du chantier</p>
-            <p className="text-sm text-gray-500">
-              Voir l'avancement en direct
-            </p>
-          </Link>
-        )}
+        <a
+          href="#paiement"
+          className="rounded-lg border border-brand/30 bg-brand-light p-4 hover:shadow-sm"
+        >
+          <p className="font-medium text-ink">Paiement</p>
+          <p className="text-sm text-gray-600">
+            Suivre et faire avancer l'échéancier
+          </p>
+        </a>
       </div>
     </div>
   );
