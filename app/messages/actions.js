@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { notifyNewMessage } from "@/lib/notifications";
-import { containsPhoneNumber, containsExternalPlatformMention, containsFullName } from "@/lib/phoneFilter";
+import { containsPhoneNumber, containsEmailAddress, containsExternalPlatformMention, containsFullName } from "@/lib/phoneFilter";
 
 export async function startConversation(formData) {
   const supabase = createClient();
@@ -66,6 +66,14 @@ export async function sendMessage(formData) {
     redirect(
       `/messages/${conversationId}?error=${encodeURIComponent(
         "Ton message contient un numéro de téléphone. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
+      )}`
+    );
+  }
+
+  if (containsEmailAddress(content)) {
+    redirect(
+      `/messages/${conversationId}?error=${encodeURIComponent(
+        "Ton message contient une adresse e-mail. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
       )}`
     );
   }
