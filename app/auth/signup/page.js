@@ -106,16 +106,32 @@ export default async function SignupPage({ searchParams }) {
             <label className="mb-1 block text-sm font-medium">Nom complet</label>
             <input name="fullName" required className="w-full rounded-lg border border-gray-300 p-2" />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Email ou numéro de téléphone</label>
-            <input
-              type="text"
-              name="identifier"
-              required
-              placeholder="email@exemple.com ou 07 00 00 00 00"
-              className="w-full rounded-lg border border-gray-300 p-2"
-            />
-          </div>
+          {role === "client" ? (
+            <div>
+              <label className="mb-1 block text-sm font-medium">Email</label>
+              <input
+                type="email"
+                name="identifier"
+                required
+                placeholder="email@exemple.com"
+                className="w-full rounded-lg border border-gray-300 p-2"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                L'inscription se fait obligatoirement par e-mail, pour pouvoir vous recontacter.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label className="mb-1 block text-sm font-medium">Email ou numéro de téléphone</label>
+              <input
+                type="text"
+                name="identifier"
+                required
+                placeholder="email@exemple.com ou 07 00 00 00 00"
+                className="w-full rounded-lg border border-gray-300 p-2"
+              />
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-sm font-medium">Mot de passe</label>
             <PasswordField minLength={6} />

@@ -29,6 +29,18 @@ export async function signup(formData) {
     return redirect(url);
   }
 
+  // Les clients doivent obligatoirement s'inscrire avec une vraie adresse
+  // e-mail (pour être certain de pouvoir les recontacter) : le numéro de
+  // téléphone n'est pas accepté comme identifiant pour eux. Vérifié aussi
+  // côté serveur car le champ email côté navigateur peut être contourné.
+  if (role === "client" && !identifier?.includes("@")) {
+    const message = "L'inscription en tant que client se fait obligatoirement avec une adresse e-mail, le numéro de téléphone n'est pas accepté.";
+    const url = redirectTo
+      ? `/auth/signup?role=client&redirect=${encodeURIComponent(redirectTo)}&error=${encodeURIComponent(message)}`
+      : `/auth/signup?role=client&error=${encodeURIComponent(message)}`;
+    return redirect(url);
+  }
+
   // Champs supplémentaires, uniquement utilisés si artisan
   const trade = formData.get("trade");
   const bio = formData.get("bio");
