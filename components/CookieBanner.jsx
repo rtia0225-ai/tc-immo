@@ -48,17 +48,20 @@ export default function CookieBanner() {
   const acceptAll = () => {
     window.localStorage.setItem(STORAGE_KEY, "accepted");
     loadAnalytics();
+    window.dispatchEvent(new Event("tc-immo:consent-updated"));
     setVisible(false);
   };
 
   const refuseAll = () => {
     window.localStorage.setItem(STORAGE_KEY, "refused");
+    window.dispatchEvent(new Event("tc-immo:consent-updated"));
     setVisible(false);
   };
 
   const saveCustom = () => {
     window.localStorage.setItem(STORAGE_KEY, analyticsChoice ? "accepted" : "refused");
     if (analyticsChoice) loadAnalytics();
+    window.dispatchEvent(new Event("tc-immo:consent-updated"));
     setVisible(false);
   };
 
