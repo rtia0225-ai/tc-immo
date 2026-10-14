@@ -5,6 +5,7 @@ const LINKS = [
   { href: "/admin/pending", label: "En attente" },
   { href: "/admin/activity", label: "Parcours des clients" },
   { href: "/admin/analytics", label: "Fréquentation" },
+  { href: "/admin/wizard-leads", label: "Rapport simulateur" },
   { href: "/admin/content", label: "Contenu du site" },
   { href: "/admin/interview-availability", label: "Créneaux d'entretien" },
 ];
