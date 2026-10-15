@@ -311,16 +311,45 @@ export default async function ProjectPage({ params, searchParams }) {
         })()}
       </div>
 
-      {/* Raccourci restant : la messagerie n'est pas liée à une étape précise */}
-      <Link
-        href={conversation ? `/messages/${conversation.id}` : "/messages"}
-        className="block rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
-      >
-        <p className="font-medium">Ma messagerie</p>
-        <p className="text-sm text-brand-light">
-          Fil de discussion sur ce projet
-        </p>
-      </Link>
+      {/* Raccourcis : messagerie, rendez-vous, documents, paiement */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link
+          href={conversation ? `/messages/${conversation.id}` : "/messages"}
+          className="rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
+        >
+          <p className="font-medium">Ma messagerie</p>
+          <p className="text-sm text-brand-light">
+            Fil de discussion sur ce projet
+          </p>
+        </Link>
+
+        <Link
+          href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
+          className="rounded-lg bg-forest p-4 text-white shadow-card transition hover:bg-forest-dark"
+        >
+          <p className="font-medium">Mes rendez-vous</p>
+          <p className="text-sm text-forest-light">
+            Planifier ou consulter un appel
+          </p>
+        </Link>
+
+        <div className="rounded-lg bg-gold p-4 text-ink shadow-card">
+          <p className="font-medium">Mes documents</p>
+          <p className="text-sm text-ink/70">
+            Devis, plans et pièces liées au projet
+          </p>
+        </div>
+
+        <Link
+          href={`/projects/${project.id}/paiement`}
+          className="rounded-lg bg-azure p-4 text-white shadow-card transition hover:bg-azure-dark"
+        >
+          <p className="font-medium">Paiement</p>
+          <p className="text-sm text-azure-light">
+            Suivre et faire avancer l'échéancier
+          </p>
+        </Link>
+      </div>
     </div>
   );
 }

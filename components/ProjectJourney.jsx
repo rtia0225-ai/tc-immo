@@ -176,20 +176,35 @@ export default function ProjectJourney({
         <p className="text-xs text-brand-light">{totalAmount?.toLocaleString("fr-FR")} {currency} au total</p>
       </div>
 
-      <div className="flex flex-col gap-4 bg-[#FAF8F3] p-4">
-        {/* Contrat */}
-        <div className="rounded-lg bg-white p-3.5 shadow-card">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-bold text-ink">📄 Contrat</p>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${contractSignedAt ? "bg-forest-light text-forest" : "bg-gold text-ink"}`}>
-              {contractSignedAt ? `Signé le ${formatDate(contractSignedAt)}` : "En attente de signature"}
-            </span>
+      <div className="flex flex-col bg-[#FAF8F3] p-4">
+        {/* Contrat — premier maillon du parcours, relié en pointillés aux
+            étapes suivantes tant qu'il n'est pas signé. */}
+        <div className="flex gap-3">
+          <div className="flex w-8 shrink-0 flex-col items-center">
+            <div
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm shadow-sm ${
+                contractSignedAt ? "bg-forest text-white" : "border-2 border-dashed border-gray-300 bg-white text-gray-400"
+              }`}
+            >
+              📄
+            </div>
+            <div className={`mt-1 w-0.5 flex-1 ${contractSignedAt ? "bg-forest" : "border-l-2 border-dashed border-gray-300"}`} />
           </div>
-          {!contractSignedAt && contractHref && (
-            <Link href={contractHref} className="mt-2 inline-block text-xs font-bold text-brand hover:underline">
-              Consulter et signer le contrat →
-            </Link>
-          )}
+          <div className="flex-1 pb-4">
+            <div className="rounded-lg bg-white p-3.5 shadow-card">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-ink">Contrat</p>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${contractSignedAt ? "bg-forest-light text-forest" : "bg-gold text-ink"}`}>
+                  {contractSignedAt ? `Signé le ${formatDate(contractSignedAt)}` : "En attente de signature"}
+                </span>
+              </div>
+              {!contractSignedAt && contractHref && (
+                <Link href={contractHref} className="mt-2 inline-block text-xs font-bold text-brand hover:underline">
+                  Consulter et signer le contrat →
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
 
         {sortedMilestones.map((m, i) => {
@@ -202,12 +217,31 @@ export default function ProjectJourney({
               ? "bg-brand-light text-brand"
               : "bg-gold text-ink";
           const education = educationByTitle?.[m.title];
+          const isLast = i === sortedMilestones.length - 1;
 
           return (
-            <div key={m.id} className="rounded-lg bg-white p-3.5 shadow-card">
+            <div key={m.id} className="flex gap-3">
+              <div className="flex w-8 shrink-0 flex-col items-center">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-sm ${
+                    m.paid_at
+                      ? "bg-forest text-white"
+                      : m.is_completed
+                        ? "bg-brand text-white"
+                        : "border-2 border-dashed border-gray-300 bg-white text-gray-400"
+                  }`}
+                >
+                  {m.paid_at ? "✓" : i + 1}
+                </div>
+                {!isLast && (
+                  <div className={`mt-1 w-0.5 flex-1 ${m.paid_at ? "bg-forest" : "border-l-2 border-dashed border-gray-300"}`} />
+                )}
+              </div>
+              <div className="flex-1 pb-4">
+            <div className="rounded-lg bg-white p-3.5 shadow-card">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-bold text-ink">
-                  {i + 1}. {m.title}
+                  {m.title}
                 </p>
                 <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor}`}>{status}</span>
               </div>
@@ -277,11 +311,13 @@ export default function ProjectJourney({
 
               <EducationBlock content={education} />
             </div>
+              </div>
+            </div>
           );
         })}
 
         {looseAppointments.length > 0 && (
-          <div className="rounded-lg bg-white p-3.5 shadow-card">
+          <div className="ml-11 rounded-lg bg-white p-3.5 shadow-card">
             <p className="text-sm font-bold text-ink">📞 Autres appels</p>
             <div className="mt-2 flex flex-col gap-1.5">
               {looseAppointments.map((a) => (

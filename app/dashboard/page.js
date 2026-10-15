@@ -101,16 +101,26 @@ export default async function DashboardPage({ searchParams }) {
         ) : (
           <>
             <p className="mt-3 text-sm text-gray-600">
-              Pour continuer, un échange avec notre équipe est nécessaire. Choisissez un créneau ci-dessous.
+              Pour continuer, un échange avec notre équipe est nécessaire. Réservez directement un créneau sur l'agenda ci-dessous.
             </p>
+
+            <a
+              href="https://calendar.app.google/CcUhY8gztNhNT9c3A"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-block rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-card hover:bg-brand-dark"
+            >
+              Réserver un créneau sur l'agenda →
+            </a>
+
             {searchParams?.error && (
               <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
             )}
-            {Object.keys(slotsByDate).length === 0 ? (
-              <p className="mt-4 rounded-lg bg-white p-4 text-sm text-gray-500 shadow-card">
-                Aucun créneau disponible pour le moment, revenez un peu plus tard.
-              </p>
-            ) : (
+            {Object.keys(slotsByDate).length === 0 ? null : (
+              <>
+                <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Ou choisissez un créneau ci-dessous
+                </p>
               <div className="mt-4 flex flex-col gap-4 text-left">
                 {Object.entries(slotsByDate).map(([date, daySlots]) => (
                   <div key={date}>
@@ -133,6 +143,7 @@ export default async function DashboardPage({ searchParams }) {
                   </div>
                 ))}
               </div>
+              </>
             )}
           </>
         )}
