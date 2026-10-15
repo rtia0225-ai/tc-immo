@@ -6,6 +6,7 @@ const LINKS = [
   { href: "/admin/activity", label: "Parcours des clients" },
   { href: "/admin/analytics", label: "Fréquentation" },
   { href: "/admin/wizard-leads", label: "Rapport simulateur" },
+  { href: "/admin/milestone-content", label: "Contenu pédagogique" },
   { href: "/admin/content", label: "Contenu du site" },
   { href: "/admin/interview-availability", label: "Créneaux d'entretien" },
 ];

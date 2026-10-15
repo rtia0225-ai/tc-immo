@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
+import ProjectJourney from "@/components/ProjectJourney";
 import { advanceProjectStatus, removeParticipant } from "../actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { translateStatus } from "@/lib/statusLabels";
 
-export default async function ProjectPage({ params }) {
+export default async function ProjectPage({ params, searchParams }) {
   const supabase = createClient();
   const { id } = params;
 
@@ -29,12 +30,6 @@ export default async function ProjectPage({ params }) {
     .single();
 
   if (!project) return <p>Projet introuvable.</p>;
-
-  const { data: timelineEvents } = await supabase
-    .from("project_timeline_events")
-    .select("*, actor:actor_id ( full_name )")
-    .eq("project_id", id)
-    .order("event_at", { ascending: false });
 
   const { data: progressReports } = await supabase
     .from("technician_progress_reports")
@@ -118,10 +113,12 @@ export default async function ProjectPage({ params }) {
     .eq("project_id", id)
     .maybeSingle();
 
-  const unsignedContracts = artisansOnProject.filter((a) => {
-    const c = allContracts?.find((c) => c.artisan_id === a.artisanId);
-    return c && !(c.client_signed_at && c.artisan_signed_at);
-  });
+  const isClient = project.client_id === user.id;
+
+  const { data: educationRows } = await supabase
+    .from("milestone_education_content")
+    .select("phase_title, summary, video_url, pdf_url, questions_to_ask");
+  const educationByTitle = Object.fromEntries((educationRows || []).map((r) => [r.phase_title, r]));
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -129,6 +126,12 @@ export default async function ProjectPage({ params }) {
         {project.title}
       </h1>
       <p className="mb-6 text-gray-600">{project.description}</p>
+
+      {searchParams?.error && (
+        <div className="mb-6 rounded-lg bg-gold p-4 text-sm font-medium text-ink shadow-card">
+          {searchParams.error}
+        </div>
+      )}
 
       {(project.terrain_location || project.terrain_reference_number || project.terrain_document_type || project.terrain_area || project.terrain_notes || project.terrain_latitude) && (
         <div className="mb-6 rounded-lg bg-white shadow-card p-5">
@@ -185,20 +188,6 @@ export default async function ProjectPage({ params }) {
         </div>
       )}
 
-      {unsignedContracts.length > 0 && (
-        <div className="mb-6 flex flex-col gap-2">
-          {unsignedContracts.map((a) => (
-            <Link
-              key={a.artisanId}
-              href={`/projects/${project.id}/contract/${a.artisanId}`}
-              className="block rounded-lg bg-brand-light p-4 text-sm font-medium text-brand-dark shadow-card hover:opacity-90"
-            >
-              Contrat avec {a.fullName} en attente de signature, cliquez pour le consulter et signer
-            </Link>
-          ))}
-        </div>
-      )}
-
       {/* Participants au projet */}
       <div className="mb-6 rounded-lg bg-white shadow-card p-5">
         <div className="flex items-center justify-between">
@@ -245,19 +234,51 @@ export default async function ProjectPage({ params }) {
         </div>
       </div>
 
+      {/* Le parcours du projet : un seul chemin par prestataire, tout
+          visible en permanence (contrat, étapes, paiements, rendez-vous
+          de validation, documents et contenu pédagogique réunis). */}
+      <div className="mb-6 flex flex-col gap-4">
+        {artisansOnProject.map((a) => {
+          const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
+          const contractSignedAt =
+            contract?.client_signed_at && contract?.artisan_signed_at
+              ? [contract.client_signed_at, contract.artisan_signed_at].sort().pop()
+              : null;
+          const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
+          const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
+
+          return (
+            <ProjectJourney
+              key={a.artisanId}
+              projectId={project.id}
+              artisanId={a.artisanId}
+              artisanName={a.fullName}
+              trade={a.trade}
+              totalAmount={a.amount}
+              currency={a.currency}
+              contractSignedAt={contractSignedAt}
+              contractHref={`/projects/${project.id}/contract/${a.artisanId}`}
+              milestones={artisanMilestones}
+              appointments={artisanAppointments}
+              educationByTitle={educationByTitle}
+              isArtisan={isArtisan && user.id === a.artisanId}
+              isClient={isClient}
+            />
+          );
+        })}
+      </div>
+
+      {/* Mises à jour libres : rapports photo du technicien, demandes
+          d'ajout à valider. Pas une deuxième chronologie des étapes — ce
+          qui se passe sur chaque étape vit désormais dans le parcours
+          ci-dessus. */}
       <div className="mb-6">
         <ProjectActivityLog
           projectId={project.id}
-          projectCreatedAt={project.created_at}
-          milestones={milestonesWithDeliverables}
-          timelineEvents={timelineEvents}
           progressReports={progressReports}
           additionRequests={additionRequests}
-          appointments={projectAppointments}
-          userId={user.id}
           isArtisan={isArtisan}
           isAdmin={isAdmin}
-          artisansOnProject={artisansOnProject}
         />
       </div>
 
@@ -290,45 +311,16 @@ export default async function ProjectPage({ params }) {
         })()}
       </div>
 
-      {/* Raccourcis : messagerie, rendez-vous, documents, paiement */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Link
-          href={conversation ? `/messages/${conversation.id}` : "/messages"}
-          className="rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
-        >
-          <p className="font-medium">Ma messagerie</p>
-          <p className="text-sm text-brand-light">
-            Fil de discussion sur ce projet
-          </p>
-        </Link>
-
-        <Link
-          href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
-          className="rounded-lg bg-forest p-4 text-white shadow-card transition hover:bg-forest-dark"
-        >
-          <p className="font-medium">Mes rendez-vous</p>
-          <p className="text-sm text-forest-light">
-            Planifier ou consulter un appel
-          </p>
-        </Link>
-
-        <div className="rounded-lg bg-gold p-4 text-ink shadow-card">
-          <p className="font-medium">Mes documents</p>
-          <p className="text-sm text-ink/70">
-            Devis, plans et pièces liées au projet
-          </p>
-        </div>
-
-        <Link
-          href={`/projects/${project.id}/paiement`}
-          className="rounded-lg bg-azure p-4 text-white shadow-card transition hover:bg-azure-dark"
-        >
-          <p className="font-medium">Paiement</p>
-          <p className="text-sm text-azure-light">
-            Suivre et faire avancer l'échéancier
-          </p>
-        </Link>
-      </div>
+      {/* Raccourci restant : la messagerie n'est pas liée à une étape précise */}
+      <Link
+        href={conversation ? `/messages/${conversation.id}` : "/messages"}
+        className="block rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
+      >
+        <p className="font-medium">Ma messagerie</p>
+        <p className="text-sm text-brand-light">
+          Fil de discussion sur ce projet
+        </p>
+      </Link>
     </div>
   );
 }

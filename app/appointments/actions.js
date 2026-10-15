@@ -14,6 +14,8 @@ export async function requestAppointment(formData) {
 
   const artisanId = formData.get("artisanId");
   const projectId = formData.get("projectId") || null;
+  const milestoneId = formData.get("milestoneId") || null;
+  const isRequired = formData.get("isRequired") === "true";
   const scheduledAt = formData.get("scheduledAt"); // datetime-local
   const notes = formData.get("notes");
 
@@ -23,6 +25,8 @@ export async function requestAppointment(formData) {
       client_id: user.id,
       artisan_id: artisanId,
       project_id: projectId,
+      milestone_id: milestoneId,
+      is_required: isRequired,
       scheduled_at: new Date(scheduledAt).toISOString(),
       notes,
       status: "proposed",
@@ -32,13 +36,14 @@ export async function requestAppointment(formData) {
     .single();
 
   if (error) {
-    return redirect(
-      `/appointments/new?artisan=${artisanId}&error=${encodeURIComponent(error.message)}`
-    );
+    const back = projectId ? `/projects/${projectId}` : `/appointments/new?artisan=${artisanId}`;
+    return redirect(`${back}?error=${encodeURIComponent(error.message)}`);
   }
 
   // Notifie l'artisan (SMS + rappel), voir lib/notifications.js
   await notifyNewAppointment(appointment.id);
+
+  if (projectId) redirect(`/projects/${projectId}`);
 
   redirect("/appointments");
 }
@@ -127,4 +132,26 @@ export async function cancelAppointment(formData) {
   }
 
   redirect("/appointments");
+}
+
+// Marque un rendez-vous comme effectivement tenu. Pour un rendez-vous lié
+// à une étape (appel de validation obligatoire), c'est ce qui débloque
+// la validation de l'étape dans le parcours du projet.
+export async function markAppointmentCompleted(formData) {
+  const supabase = createClient();
+  const appointmentId = formData.get("appointmentId");
+  const projectId = formData.get("projectId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  await supabase
+    .from("appointments")
+    .update({ status: "completed" })
+    .eq("id", appointmentId)
+    .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`);
+
+  redirect(projectId ? `/projects/${projectId}` : "/appointments");
 }

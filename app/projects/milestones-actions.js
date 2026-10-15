@@ -4,6 +4,24 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 
+// Une étape ne peut être validée que si tous ses rendez-vous obligatoires
+// (appel de validation) ont bien eu lieu — renvoie un message d'erreur si
+// ce n'est pas le cas, sinon null.
+async function checkRequiredAppointments(supabase, milestoneId) {
+  const { data: pending } = await supabase
+    .from("appointments")
+    .select("id")
+    .eq("milestone_id", milestoneId)
+    .eq("is_required", true)
+    .neq("status", "completed")
+    .neq("status", "cancelled");
+
+  if (pending && pending.length > 0) {
+    return "L'appel de validation de cette étape doit d'abord être marqué comme terminé.";
+  }
+  return null;
+}
+
 export async function addMilestone(formData) {
   const supabase = createClient();
   const projectId = formData.get("projectId");
@@ -34,6 +52,13 @@ export async function toggleMilestone(formData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
+
+  if (!isCompleted) {
+    const blockReason = await checkRequiredAppointments(supabase, milestoneId);
+    if (blockReason) {
+      redirect(`/projects/${projectId}?error=${encodeURIComponent(blockReason)}`);
+    }
+  }
 
   const { data: milestone } = await supabase
     .from("project_milestones")
@@ -118,6 +143,11 @@ export async function uploadDeliverable(formData) {
 
   if (!file || typeof file === "string" || file.size === 0) {
     redirect(`/projects/${projectId}?error=Aucun+fichier+sélectionné`);
+  }
+
+  const blockReason = await checkRequiredAppointments(supabase, milestoneId);
+  if (blockReason) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent(blockReason)}`);
   }
 
   const ext = file.name.split(".").pop() || "pdf";
