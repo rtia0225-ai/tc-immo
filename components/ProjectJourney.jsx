@@ -272,6 +272,16 @@ export default function ProjectJourney({
                   </a>
                 </p>
               )}
+              {m.deliverable_document_url && !m.deliverableSignedUrl && m.deliverable_review_status === "needs_manual_review" && (
+                <p className="mt-2 text-xs text-gray-500">
+                  📎 Document déposé, en cours de vérification avant d'être rendu visible.
+                </p>
+              )}
+              {m.deliverable_review_status === "rejected" && (
+                <p className="mt-2 text-xs text-brand">
+                  Le document déposé n'a pas été validé{isArtisan ? " — merci d'en déposer un nouveau." : "."}
+                </p>
+              )}
 
               {isArtisan && !m.is_completed && (
                 hasBlockingRequirement ? (

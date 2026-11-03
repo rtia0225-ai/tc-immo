@@ -1130,3 +1130,26 @@ alter table interview_bookings add constraint interview_bookings_applicant_uniqu
 -- 45. IMAGE PAR SECTION (pour la page Ressources façon blog)
 -- ---------------------------------------------------------
 alter table page_sections add column if not exists image_url text;
+
+-- ---------------------------------------------------------
+-- 46. VÉRIFICATION AUTOMATIQUE (IA) DES DOCUMENTS LIVRÉS
+-- Pour les métiers à livrable unique (SINGLE_INSTALLMENT_TRADES côté
+-- code — liste amenée à évoluer sans toucher au schéma) : avant de
+-- rendre le document visible au client et de débloquer le paiement,
+-- une IA vérifie que le fichier déposé est plausiblement le bon type de
+-- document. Si elle n'est pas sûre, l'étape reste en attente d'une
+-- vérification manuelle par l'admin plutôt que d'être débloquée.
+-- ---------------------------------------------------------
+alter table project_milestones
+  add column if not exists deliverable_review_status text,
+  add column if not exists deliverable_review_note text,
+  add column if not exists deliverable_reviewed_at timestamptz,
+  add column if not exists deliverable_reviewed_by uuid references profiles(id);
+
+alter table project_milestones
+  drop constraint if exists project_milestones_deliverable_review_status_check;
+
+alter table project_milestones
+  add constraint project_milestones_deliverable_review_status_check
+  check (deliverable_review_status is null or deliverable_review_status in
+    ('pending_review', 'approved', 'needs_manual_review', 'rejected'));

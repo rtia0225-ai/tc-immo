@@ -3,6 +3,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
+import { reviewDeliverableDocument } from "@/lib/documentReview";
+import { sendPush } from "@/lib/notifications";
+import { SINGLE_INSTALLMENT_TRADES } from "@/lib/constants";
 
 // Une étape ne peut être validée que si tous ses rendez-vous obligatoires
 // (appel de validation) ont bien eu lieu — renvoie un message d'erreur si
@@ -127,9 +130,14 @@ export async function releasePayment(formData) {
 }
 
 
-// Pour Architecte/Topographe : l'artisan envoie le document livré
-// (Permis de Construire / ACD), ça marque l'étape comme terminée
-// automatiquement et débloque le paiement en un seul virement.
+// Pour les métiers à livrable unique (SINGLE_INSTALLMENT_TRADES —
+// Architecte/Topographe aujourd'hui, liste amenée à évoluer) : l'artisan
+// envoie le document livré (Permis de Construire / ACD). Avant de
+// débloquer le paiement et de rendre le document visible au client, une
+// IA vérifie que le fichier ressemble plausiblement au bon document
+// (lib/documentReview.js). Si elle n'est pas sûre, l'étape reste en
+// attente d'une vérification manuelle par un admin plutôt que d'être
+// débloquée automatiquement.
 export async function uploadDeliverable(formData) {
   const supabase = createClient();
   const milestoneId = formData.get("milestoneId");
@@ -162,24 +170,75 @@ export async function uploadDeliverable(formData) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent(uploadError.message)}`);
   }
 
+  // Métier du prestataire qui dépose, pour savoir quel document est
+  // attendu et donner le bon contexte à la vérification automatique.
+  const { data: milestoneBefore } = await supabase
+    .from("project_milestones")
+    .select("title, artisan_id, artisan:artisan_id ( trade )")
+    .eq("id", milestoneId)
+    .single();
+  const trade = milestoneBefore?.artisan?.trade;
+  const documentLabel = SINGLE_INSTALLMENT_TRADES[trade] || "livrable";
+
+  const review = await reviewDeliverableDocument({
+    fileBuffer: arrayBuffer,
+    contentType: file.type,
+    fileName: file.name,
+    trade,
+    documentLabel,
+  });
+
+  const approved = review.status === "approved";
+
   const { data: deliveredMilestone } = await supabase
     .from("project_milestones")
     .update({
-      is_completed: true,
-      completed_at: new Date().toISOString(),
+      is_completed: approved,
+      completed_at: approved ? new Date().toISOString() : null,
       deliverable_document_url: path,
+      deliverable_review_status: review.status,
+      deliverable_review_note: review.note,
+      deliverable_reviewed_at: new Date().toISOString(),
+      deliverable_reviewed_by: null, // null = vérification automatique
     })
     .eq("id", milestoneId)
     .select("title")
     .single();
 
-  await logTimelineEvent(supabase, {
-    projectId,
-    eventType: "document_added",
-    title: `Document livré : ${deliveredMilestone?.title || ""}`,
-    mediaUrl: path,
-    actorId: user.id,
-  });
+  const milestoneTitle = deliveredMilestone?.title || milestoneBefore?.title || "";
+
+  if (approved) {
+    await logTimelineEvent(supabase, {
+      projectId,
+      eventType: "document_added",
+      title: `Document livré : ${milestoneTitle}`,
+      mediaUrl: path,
+      actorId: user.id,
+    });
+  } else {
+    await logTimelineEvent(supabase, {
+      projectId,
+      eventType: "document_pending_review",
+      title: `Document déposé, en attente de vérification : ${milestoneTitle}`,
+      description: review.note,
+      mediaUrl: path,
+      actorId: user.id,
+    });
+
+    // Notifie les admins (pas le client) : le document n'est pas encore
+    // visible pour lui, inutile de l'avertir avant que ce soit tranché.
+    const { data: admins } = await supabase.from("profiles").select("id").eq("is_admin", true);
+    await Promise.all(
+      (admins || []).map((a) =>
+        sendPush(
+          a.id,
+          "Document à vérifier",
+          `${milestoneTitle} — vérification automatique incertaine, à vérifier manuellement.`,
+          "/admin/documents"
+        )
+      )
+    );
+  }
 
   redirect(`/projects/${projectId}`);
 }

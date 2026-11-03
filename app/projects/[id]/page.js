@@ -90,10 +90,15 @@ export default async function ProjectPage({ params, searchParams }) {
     .order("order_index", { ascending: true });
 
   // Liens signés temporaires pour les documents livrés (Permis/ACD),
-  // le bucket est privé.
+  // le bucket est privé. Le client ne voit le document que si la
+  // vérification (automatique ou admin) l'a approuvé — tant que c'est
+  // "en attente", seuls l'artisan qui l'a déposé et les admins y ont
+  // accès (lib/documentReview.js).
   const milestonesWithDeliverables = await Promise.all(
     (allMilestones || []).map(async (m) => {
       if (!m.deliverable_document_url) return m;
+      const canSeeDeliverable = isAdmin || isArtisan || m.deliverable_review_status === "approved";
+      if (!canSeeDeliverable) return { ...m, deliverableSignedUrl: null };
       const { data } = await supabase.storage
         .from("project-deliverables")
         .createSignedUrl(m.deliverable_document_url, 3600);

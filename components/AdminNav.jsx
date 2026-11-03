@@ -3,6 +3,7 @@ import Link from "next/link";
 const LINKS = [
   { href: "/admin/artisans", label: "Artisans" },
   { href: "/admin/pending", label: "En attente" },
+  { href: "/admin/documents", label: "Documents à vérifier" },
   { href: "/admin/activity", label: "Parcours des clients" },
   { href: "/admin/analytics", label: "Fréquentation" },
   { href: "/admin/wizard-leads", label: "Rapport simulateur" },
