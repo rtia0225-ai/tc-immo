@@ -373,17 +373,6 @@ export default async function ProfileEditPage({ searchParams }) {
                 className="w-full rounded-lg border border-gray-300 p-2"
               />
             </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">Tarification</label>
-              <textarea
-                name="pricingInfo"
-                rows={2}
-                defaultValue={artisan?.pricing_info || ""}
-                placeholder="ex: 25 000 XOF / jour, ou sur devis par contrat"
-                className="w-full rounded-lg border border-gray-300 p-2"
-              />
-            </div>
           </div>
         </section>
 

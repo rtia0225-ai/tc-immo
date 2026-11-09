@@ -106,7 +106,7 @@ export default async function ArtisanProfilePage({ params }) {
             <img
               src={`${artisan.profiles.avatar_url}?v=${Date.now()}`}
               alt={artisan.profiles?.full_name}
-              className="h-20 w-20 rounded-full object-cover"
+              className="h-28 w-28 rounded-full object-cover shadow-md ring-2 ring-offset-2 ring-brand/30"
             />
             {AVATAR_PHOTO_CREDITS[artisan.id] && (
               <p className="pointer-events-none absolute inset-x-0 bottom-0.5 text-center text-[6px] leading-none text-white/60 [text-shadow:0_1px_1px_rgba(0,0,0,0.5)]">
@@ -115,15 +115,35 @@ export default async function ArtisanProfilePage({ params }) {
             )}
           </div>
         ) : (
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gray-50 font-heading text-xl font-bold text-gray-300">
+          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gray-50 font-heading text-2xl font-bold text-gray-300 shadow-md ring-2 ring-offset-2 ring-brand/30">
             {artisan.profiles?.full_name?.slice(0, 2).toUpperCase()}
           </div>
         )}
         <div>
           <h1 className="font-heading text-2xl font-bold text-ink">{artisan.profiles?.full_name}</h1>
-          <p className="mt-0.5 text-sm text-gray-500">
-            {artisan.trade} · {artisan.profiles?.city || "Côte d'Ivoire"}
-          </p>
+          <p className="mt-0.5 text-sm text-gray-500">{artisan.trade}</p>
+
+          {/* Où se trouve le professionnel : d'abord sa ville de base, puis
+              sa mobilité (disponible partout, ou villes précises en plus). */}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-ink">
+              📍 {artisan.profiles?.city || "Côte d'Ivoire"}
+            </span>
+            {artisan.mobility_scope === "all" ? (
+              <span className="inline-flex items-center rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest">
+                Disponible partout
+              </span>
+            ) : (
+              artisan.mobility_cities
+                ?.filter((c) => c !== artisan.profiles?.city)
+                .map((c) => (
+                  <span key={c} className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                    {c}
+                  </span>
+                ))
+            )}
+          </div>
+
           {artisan.is_verified && (
             <span className="mt-2 inline-block rounded bg-forest px-2 py-0.5 text-xs font-bold text-white">
               Profil vérifié
@@ -133,7 +153,7 @@ export default async function ArtisanProfilePage({ params }) {
       </div>
 
       {/* Chiffres clés */}
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="rounded-lg bg-white shadow-card p-4 text-center">
           <p className="font-heading text-2xl font-bold text-ink">{artisan.years_experience || 0}</p>
           <p className="text-xs text-gray-500">années d'expérience</p>
@@ -141,16 +161,6 @@ export default async function ArtisanProfilePage({ params }) {
         <div className="rounded-lg bg-white shadow-card p-4 text-center">
           <p className="font-heading text-2xl font-bold text-ink">{artisan.projects_completed || 0}</p>
           <p className="text-xs text-gray-500">projets réalisés sur la plateforme</p>
-        </div>
-        <div className="col-span-2 rounded-lg bg-white shadow-card p-4 text-center sm:col-span-1">
-          <p className="font-heading text-sm font-bold text-ink">
-            {artisan.mobility_scope === "all" ? "Toute la CI" : "Zones précises"}
-          </p>
-          <p className="mt-1 text-xs text-gray-500">
-            {artisan.mobility_scope === "all"
-              ? "Disponible partout"
-              : artisan.mobility_cities?.join(", ") || "Non précisé"}
-          </p>
         </div>
       </div>
 
@@ -182,13 +192,6 @@ export default async function ArtisanProfilePage({ params }) {
       </div>
 
       <div className="mt-4 rounded-lg bg-white shadow-card p-6">
-        {artisan.pricing_info && (
-          <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Tarification</p>
-            <p className="mt-1 text-sm text-ink">{artisan.pricing_info}</p>
-          </div>
-        )}
-
         {artisan.services && artisan.services.length > 0 && (
           <div className="mb-5">
             <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Services proposés</p>
