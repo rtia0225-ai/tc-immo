@@ -283,6 +283,7 @@ export default async function ProjectPage({ params, searchParams }) {
           progressReports={progressReports}
           additionRequests={additionRequests}
           isArtisan={isArtisan}
+          isClient={isClient}
           isAdmin={isAdmin}
         />
       </div>

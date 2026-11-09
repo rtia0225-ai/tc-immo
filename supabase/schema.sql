@@ -1153,3 +1153,22 @@ alter table project_milestones
   add constraint project_milestones_deliverable_review_status_check
   check (deliverable_review_status is null or deliverable_review_status in
     ('pending_review', 'approved', 'needs_manual_review', 'rejected'));
+
+-- ---------------------------------------------------------
+-- 47. LES DEMANDES D'AJOUT SE VALIDENT PAR LE CLIENT, PAS PAR ROSE
+-- (table project_addition_requests créée précédemment hors de ce fichier)
+-- Rose ne veut plus avoir à approuver chaque demande d'ajout (paiement,
+-- document, autre) faite sur un projet : c'est au client de valider ou
+-- refuser. L'admin garde la policy existante (regard/dépannage
+-- exceptionnel), sans que ce soit une étape obligatoire.
+-- ---------------------------------------------------------
+create policy if not exists "client valide les demandes de son projet"
+  on project_addition_requests
+  for update
+  using (
+    exists (
+      select 1 from projects p
+      where p.id = project_addition_requests.project_id
+        and p.client_id = auth.uid()
+    )
+  );

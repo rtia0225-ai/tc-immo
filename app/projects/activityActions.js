@@ -55,8 +55,11 @@ export async function submitTechnicianReport(formData) {
 }
 
 // Le client ou l'artisan demande l'ajout de quelque chose qui n'était pas
-// prévu au départ (paiement, document...) — jamais effectif tant que
-// l'admin ne l'a pas validé.
+// prévu au départ (paiement, document...). C'est le CLIENT qui valide,
+// pas l'admin — Rose ne veut pas avoir à approuver chaque ajout, juste
+// garder un œil dessus via le journal du projet. Si c'est le client
+// lui-même qui fait la demande, elle est effective tout de suite (il n'y
+// a personne d'autre à faire valider).
 export async function requestAddition(formData) {
   const supabase = createClient();
   const projectId = formData.get("projectId");
@@ -70,6 +73,9 @@ export async function requestAddition(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  const { data: project } = await supabase.from("projects").select("client_id").eq("id", projectId).single();
+  const requestedByClient = project?.client_id === user.id;
+
   await supabase.from("project_addition_requests").insert({
     project_id: projectId,
     requested_by: user.id,
@@ -77,12 +83,14 @@ export async function requestAddition(formData) {
     title,
     justification,
     amount,
+    status: requestedByClient ? "approved" : "pending",
+    reviewed_at: requestedByClient ? new Date().toISOString() : null,
   });
 
   await logTimelineEvent(supabase, {
     projectId,
-    eventType: "addition_requested",
-    title: `Demande d'ajout : ${title}`,
+    eventType: requestedByClient ? "addition_approved" : "addition_requested",
+    title: requestedByClient ? `Ajout : ${title}` : `Demande d'ajout : ${title}`,
     description: justification,
     actorId: user.id,
   });
@@ -90,25 +98,25 @@ export async function requestAddition(formData) {
   redirect(`/projects/${projectId}`);
 }
 
-// L'admin valide ou refuse une demande d'ajout.
+// Le client valide ou refuse une demande d'ajout faite par l'artisan.
 export async function reviewAdditionRequest(formData) {
   const supabase = createClient();
   const requestId = formData.get("requestId");
   const projectId = formData.get("projectId");
   const decision = formData.get("decision"); // 'approved' ou 'rejected'
-  const adminNote = formData.get("adminNote");
+  const clientNote = formData.get("adminNote");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect(`/projects/${projectId}`);
+  const { data: project } = await supabase.from("projects").select("client_id").eq("id", projectId).single();
+  if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
 
   const { data: request } = await supabase
     .from("project_addition_requests")
-    .update({ status: decision, admin_note: adminNote || null, reviewed_at: new Date().toISOString() })
+    .update({ status: decision, admin_note: clientNote || null, reviewed_at: new Date().toISOString() })
     .eq("id", requestId)
     .select("title")
     .single();
@@ -117,7 +125,7 @@ export async function reviewAdditionRequest(formData) {
     projectId,
     eventType: decision === "approved" ? "addition_approved" : "addition_rejected",
     title: `${decision === "approved" ? "Ajout validé" : "Ajout refusé"} : ${request?.title || ""}`,
-    description: adminNote || null,
+    description: clientNote || null,
     actorId: user.id,
   });
 

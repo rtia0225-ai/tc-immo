@@ -19,6 +19,7 @@ export default function ProjectActivityLog({
   progressReports,
   additionRequests,
   isArtisan,
+  isClient,
   isAdmin,
 }) {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -103,7 +104,7 @@ export default function ProjectActivityLog({
                 <p className="mt-0.5 text-xs text-ink/70">
                   Demandé par {r.requester?.full_name} — {r.justification}
                 </p>
-                {isAdmin && (
+                {isClient && (
                   <div className="mt-2 flex gap-2">
                     <form action={reviewAdditionRequest}>
                       <input type="hidden" name="requestId" value={r.id} />
@@ -122,6 +123,9 @@ export default function ProjectActivityLog({
                       </button>
                     </form>
                   </div>
+                )}
+                {isAdmin && (
+                  <p className="mt-2 text-xs italic text-ink/50">En attente de validation par le client — pour information.</p>
                 )}
               </div>
             ))}
