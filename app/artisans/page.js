@@ -177,8 +177,8 @@ export default async function ArtisansPage({ searchParams }) {
               <div className="p-3.5">
                 <p className="font-heading line-clamp-1 text-sm font-bold text-ink">{a.profiles?.full_name}</p>
                 <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">
-                  {a.profiles?.city || "Côte d'Ivoire"}
-                  {a.mobility_scope === "all" && " · Toute la CI"}
+                  📍 {a.profiles?.city || "Côte d'Ivoire"}
+                  {a.mobility_scope === "all" && " · Disponible partout"}
                   {a.years_experience ? ` · ${a.years_experience} ans d'expérience` : ""}
                 </p>
 
@@ -192,15 +192,7 @@ export default async function ArtisansPage({ searchParams }) {
                   </div>
                 )}
 
-                <div className="mt-2.5 flex items-center justify-between gap-3 border-t border-gray-100 pt-2.5">
-                  {a.pricing_info ? (
-                    <div className="min-w-0 max-w-[55%]">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Tarif</p>
-                      <p className="truncate text-xs font-semibold text-brand">{a.pricing_info}</p>
-                    </div>
-                  ) : (
-                    <span />
-                  )}
+                <div className="mt-2.5 flex items-center justify-end border-t border-gray-100 pt-2.5">
                   <span className="shrink-0 rounded-full bg-brand px-3 py-1.5 text-[11px] font-bold text-white">
                     Voir le profil
                   </span>
