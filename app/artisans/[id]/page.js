@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import ReviewList from "@/components/ReviewList";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import Link from "next/link";
-import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
+import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
 
 // Crédits photo discrets pour quelques profils de démonstration dont la
 // photo vient d'une banque d'images gratuite (licence Freepik).
@@ -169,6 +169,10 @@ export default async function ArtisanProfilePage({ params }) {
         {SINGLE_INSTALLMENT_TRADES[artisan.trade] ? (
           <p>
             <strong>À savoir avant de négocier :</strong> la main d'œuvre de ce professionnel (ses honoraires) se paie en une seule fois, uniquement à la livraison du {SINGLE_INSTALLMENT_TRADES[artisan.trade]} sur la plateforme. Les frais administratifs liés au dossier (dépôts, taxes, timbres...) sont distincts : ils se règlent au fur et à mesure de l'avancement réel des démarches, pas en une fois.
+          </p>
+        ) : FINAL_DOCUMENT_TRADES[artisan.trade] ? (
+          <p>
+            <strong>À savoir avant de négocier :</strong> ce métier se déroule en plusieurs étapes bien réelles (pas un paiement unique) — la dernière étant la livraison du {FINAL_DOCUMENT_TRADES[artisan.trade]}, vérifiée automatiquement avant de débloquer son paiement. Le nombre de versements (1, 2 ou 3 en général) et leur répartition sont à discuter avec le professionnel, il n'y a pas de minimum imposé.
           </p>
         ) : (
           <div>

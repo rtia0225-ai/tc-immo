@@ -67,6 +67,11 @@ export async function requestAddition(formData) {
   const title = formData.get("title");
   const justification = formData.get("justification");
   const amount = formData.get("amount") || null;
+  // Position dans le parcours : sur quel professionnel, et juste avant
+  // quelle étape (null = juste après le contrat) — pour afficher l'ajout
+  // au bon endroit sur la ligne verticale une fois validé.
+  const artisanId = formData.get("artisanId") || null;
+  const afterMilestoneId = formData.get("afterMilestoneId") || null;
 
   const {
     data: { user },
@@ -83,6 +88,8 @@ export async function requestAddition(formData) {
     title,
     justification,
     amount,
+    artisan_id: artisanId,
+    after_milestone_id: afterMilestoneId,
     status: requestedByClient ? "approved" : "pending",
     reviewed_at: requestedByClient ? new Date().toISOString() : null,
   });

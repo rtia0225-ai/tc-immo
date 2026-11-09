@@ -1,6 +1,6 @@
 import { toggleMilestone, releasePayment, uploadDeliverable } from "@/app/projects/milestones-actions";
 import FileInputButton from "@/components/FileInputButton";
-import { SINGLE_INSTALLMENT_TRADES } from "@/lib/constants";
+import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 
 // Échéancier horizontal : chaque étape est un point relié au suivant,
 // colorée selon son état (payé / validé / en attente). L'étape qui
@@ -12,7 +12,8 @@ export default function ProjectTimeline({
   currency,
   trade,
 }) {
-  const requiresDeliverable = !!SINGLE_INSTALLMENT_TRADES[trade];
+  const isSingleInstallmentTrade = !!SINGLE_INSTALLMENT_TRADES[trade];
+  const isFinalDocumentTrade = !!FINAL_DOCUMENT_TRADES[trade];
 
   if (!milestones || milestones.length === 0) {
     return (
@@ -26,6 +27,8 @@ export default function ProjectTimeline({
   }
 
   const activeMilestone = milestones.find((m) => !m.paid_at);
+  const activeIsLast = activeMilestone && milestones[milestones.length - 1]?.id === activeMilestone.id;
+  const requiresDeliverable = isSingleInstallmentTrade || (isFinalDocumentTrade && activeIsLast);
 
   return (
     <div className="overflow-hidden rounded-lg shadow-card">

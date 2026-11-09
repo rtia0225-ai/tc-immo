@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 import { reviewDeliverableDocument } from "@/lib/documentReview";
 import { sendPush } from "@/lib/notifications";
-import { SINGLE_INSTALLMENT_TRADES } from "@/lib/constants";
+import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 
 // Une étape ne peut être validée que si tous ses rendez-vous obligatoires
 // (appel de validation) ont bien eu lieu — renvoie un message d'erreur si
@@ -178,7 +178,7 @@ export async function uploadDeliverable(formData) {
     .eq("id", milestoneId)
     .single();
   const trade = milestoneBefore?.artisan?.trade;
-  const documentLabel = SINGLE_INSTALLMENT_TRADES[trade] || "livrable";
+  const documentLabel = SINGLE_INSTALLMENT_TRADES[trade] || FINAL_DOCUMENT_TRADES[trade] || "livrable";
 
   const review = await reviewDeliverableDocument({
     fileBuffer: arrayBuffer,

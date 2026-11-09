@@ -1,10 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
 import ProjectRoadmap from "@/components/ProjectRoadmap";
-import { advanceProjectStatus, removeParticipant } from "../actions";
+import { removeParticipant } from "../actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { translateStatus } from "@/lib/statusLabels";
 
 export default async function ProjectPage({ params, searchParams }) {
   const supabase = createClient();
@@ -256,6 +255,7 @@ export default async function ProjectPage({ params, searchParams }) {
                 : null;
             const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
             const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
+            const artisanAdditionRequests = (additionRequests || []).filter((r) => r.artisan_id === a.artisanId);
 
             return {
               artisanId: a.artisanId,
@@ -273,6 +273,7 @@ export default async function ProjectPage({ params, searchParams }) {
                 contractHref: `/projects/${project.id}/contract/${a.artisanId}`,
                 milestones: artisanMilestones,
                 appointments: artisanAppointments,
+                additionRequests: artisanAdditionRequests,
                 educationByTitle,
                 isArtisan: isArtisan && user.id === a.artisanId,
                 isClient,
@@ -283,48 +284,16 @@ export default async function ProjectPage({ params, searchParams }) {
         />
       </div>
 
-      {/* Mises à jour libres : rapports photo du technicien, demandes
-          d'ajout à valider. Pas une deuxième chronologie des étapes — ce
-          qui se passe sur chaque étape vit désormais dans le parcours
-          ci-dessus. */}
+      {/* Rapports d'avancement libres (photos/vidéos) envoyés par le
+          technicien — les ajouts imprévus (paiement, document, autre) se
+          font désormais directement sur la ligne du parcours ci-dessus,
+          au "+" entre deux étapes. */}
       <div className="mb-6">
         <ProjectActivityLog
           projectId={project.id}
           progressReports={progressReports}
-          additionRequests={additionRequests}
           isArtisan={isArtisan}
-          isClient={isClient}
-          isAdmin={isAdmin}
         />
-      </div>
-
-      {/* Statut global du projet */}
-      <div className="mb-6 rounded-lg bg-white shadow-card p-5">
-        <h2 className="mb-3 font-semibold">Avancement global</h2>
-        <p className="text-sm text-gray-600">Statut : {translateStatus(project.status)}</p>
-        {(() => {
-          const NEXT_STATUS = {
-            draft: "awaiting_payment",
-            awaiting_payment: "funded",
-            funded: "in_progress",
-            in_progress: "completed",
-            completed: "released",
-          };
-          const nextStatus = NEXT_STATUS[project.status];
-          if (!nextStatus) return null;
-          return (
-            <form action={advanceProjectStatus} className="mt-3">
-              <input type="hidden" name="projectId" value={project.id} />
-              <input type="hidden" name="newStatus" value={nextStatus} />
-              <button
-                type="submit"
-                className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-              >
-                Faire avancer le statut → {translateStatus(nextStatus)}
-              </button>
-            </form>
-          );
-        })()}
       </div>
 
       {/* Raccourcis : messagerie, rendez-vous, documents, paiement */}

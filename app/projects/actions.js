@@ -2,19 +2,25 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
+import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
 import { logClientActivity } from "@/lib/activityLog";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 
 // Vérifie que l'échéancier respecte la règle du métier : une seule
-// échéance (100%) pour Architecte/Topographe, au moins 5 pour tous les
-// autres métiers (maçonnerie en tête). Retourne un message d'erreur en
-// français si la règle n'est pas respectée, sinon null.
+// échéance (100%) pour le Topographe ; pas de minimum imposé pour
+// Architecte/Ingénieur (plusieurs étapes réelles, mais le nombre de
+// versements se négocie avec le professionnel) ; au moins 5 pour tous
+// les autres métiers (maçonnerie en tête). Retourne un message d'erreur
+// en français si la règle n'est pas respectée, sinon null.
 function validateInstallmentRule(trade, milestoneTitles) {
   const requiredDoc = SINGLE_INSTALLMENT_TRADES[trade];
   if (requiredDoc) {
     if (milestoneTitles.length !== 1) {
       return `Pour ce métier, l'échéancier doit contenir une seule étape, payée à la livraison du ${requiredDoc}.`;
+    }
+  } else if (FINAL_DOCUMENT_TRADES[trade]) {
+    if (milestoneTitles.length < 1) {
+      return `Pour ce métier, l'échéancier doit contenir au moins une étape, la dernière étant la livraison du ${FINAL_DOCUMENT_TRADES[trade]}.`;
     }
   } else if (milestoneTitles.length < MIN_INSTALLMENTS_OTHER_TRADES) {
     return `Pour ce métier, l'échéancier doit contenir au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, le paiement ne peut pas se faire en une seule fois.`;

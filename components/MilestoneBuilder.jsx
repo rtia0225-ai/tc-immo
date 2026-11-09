@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES, DEFAULT_MILESTONES_BY_TRADE } from "@/lib/constants";
+import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES, DEFAULT_MILESTONES_BY_TRADE } from "@/lib/constants";
 
 export default function MilestoneBuilder({ trade }) {
-  const singleInstallmentDoc = SINGLE_INSTALLMENT_TRADES[trade]; // ex: "Permis de Construire", "ACD" ou "Étude de structure"
+  const singleInstallmentDoc = SINGLE_INSTALLMENT_TRADES[trade]; // ex: "ACD" (Topographe)
   const isSingleInstallment = !!singleInstallmentDoc;
+  // Architecture / Ingénieur génie civil : plusieurs étapes bien réelles,
+  // mais PAS de minimum imposé de 5 — le nombre de versements (1, 2, 3...)
+  // se négocie librement avec le professionnel.
+  const finalDocumentLabel = FINAL_DOCUMENT_TRADES[trade];
+  const isFlexibleMinimum = !!finalDocumentLabel;
   const defaultSchedule = DEFAULT_MILESTONES_BY_TRADE[trade]; // point de départ, toujours modifiable
 
   const [rows, setRows] = useState(
@@ -36,8 +41,10 @@ export default function MilestoneBuilder({ trade }) {
   };
 
   const addRow = () => setRows((r) => [...r, { title: "", percentage: "" }]);
+  const canRemoveRow = (currentLength) =>
+    !isSingleInstallment && (isFlexibleMinimum ? currentLength > 1 : currentLength > MIN_INSTALLMENTS_OTHER_TRADES);
   const removeRow = (i) => {
-    if (!isSingleInstallment && rows.length > MIN_INSTALLMENTS_OTHER_TRADES) {
+    if (canRemoveRow(rows.length)) {
       setRows((r) => r.filter((_, idx) => idx !== i));
     }
   };
@@ -57,7 +64,15 @@ export default function MilestoneBuilder({ trade }) {
       ) : (
         <>
           <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-            Pour ce métier, vous devez prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong>, un échéancier de paiement en plusieurs étapes est requis. Discutez de ce découpage avec l'artisan avant de valider.
+            {isFlexibleMinimum ? (
+              <>
+                Pour ce métier, l'échéancier comporte <strong>plusieurs étapes bien réelles</strong> (pas un paiement unique) — la dernière étant la livraison du {finalDocumentLabel}, vérifiée automatiquement avant de débloquer son paiement. Le nombre de versements (1, 2, 3...) et leur répartition se négocient librement avec le professionnel, il n'y a pas de minimum imposé.
+              </>
+            ) : (
+              <>
+                Pour ce métier, vous devez prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong>, un échéancier de paiement en plusieurs étapes est requis. Discutez de ce découpage avec l'artisan avant de valider.
+              </>
+            )}
           </p>
 
           <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
@@ -108,7 +123,7 @@ export default function MilestoneBuilder({ trade }) {
               placeholder="%"
               className={`w-20 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
             />
-            {!isSingleInstallment && rows.length > MIN_INSTALLMENTS_OTHER_TRADES && (
+            {canRemoveRow(rows.length) && (
               <button
                 type="button"
                 onClick={() => removeRow(i)}
@@ -134,7 +149,7 @@ export default function MilestoneBuilder({ trade }) {
 
       <p className={`mt-2 text-xs ${total === 100 ? "text-forest" : "text-brand"}`}>
         Total : {total}% {total !== 100 && ", doit être égal à 100% pour valider"}
-        {!isSingleInstallment && rows.length < MIN_INSTALLMENTS_OTHER_TRADES && (
+        {!isSingleInstallment && !isFlexibleMinimum && rows.length < MIN_INSTALLMENTS_OTHER_TRADES && (
           <span className="ml-2">, minimum {MIN_INSTALLMENTS_OTHER_TRADES} étapes requises</span>
         )}
       </p>
