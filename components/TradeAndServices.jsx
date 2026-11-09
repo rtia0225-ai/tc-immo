@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CONSTRUCTION_SERVICES, SENIOR_TRADES, SPECIALTY_SERVICES, SPECIALTY_UNRESTRICTED_TRADES } from "@/lib/constants";
+import TagPicker from "@/components/TagPicker";
 
 export default function TradeAndServices({ initialTrade = "", initialServices = [], onTradeChange }) {
   const [trade, setTrade] = useState(initialTrade);
@@ -51,19 +52,11 @@ export default function TradeAndServices({ initialTrade = "", initialServices = 
             Réservé aux architectes et ingénieurs : diriger une équipe pluridisciplinaire. Choisissez ici les corps de métier que vous maîtrisez vous-même.
           </p>
         )}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {availableServices.map((s) => (
-            <label key={s} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name="services"
-                value={s}
-                defaultChecked={initialServices.includes(s)}
-              />
-              {s}
-            </label>
-          ))}
-        </div>
+        <TagPicker
+          options={availableServices}
+          name="services"
+          initialValues={initialServices.filter((s) => !SPECIALTY_SERVICES.includes(s))}
+        />
       </div>
 
       <div>

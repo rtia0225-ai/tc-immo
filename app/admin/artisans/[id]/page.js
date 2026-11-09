@@ -164,7 +164,7 @@ export default async function AdminArtisanDetailPage({ params }) {
         <dl className="mt-3 flex flex-col gap-2 text-sm">
           <div><dt className="text-gray-400">Description</dt><dd>{artisan.bio || "—"}</dd></div>
           <div><dt className="text-gray-400">Expérience</dt><dd>{artisan.years_experience || 0} ans</dd></div>
-          <div><dt className="text-gray-400">Tarification</dt><dd>{artisan.pricing_info || "—"}</dd></div>
+          <div><dt className="text-gray-400">Facteurs de tarification (non visible client)</dt><dd>{artisan.pricing_info || "—"}</dd></div>
           <div><dt className="text-gray-400">Services</dt><dd>{(artisan.services || []).join(", ") || "—"}</dd></div>
           <div><dt className="text-gray-400">Mobilité</dt><dd>{artisan.mobility_scope === "all" ? "Toute la CI" : (artisan.mobility_cities || []).join(", ")}</dd></div>
         </dl>

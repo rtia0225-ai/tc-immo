@@ -354,11 +354,14 @@ export default async function ProfileEditPage({ searchParams }) {
 
             <div>
               <label className="mb-1 block text-sm font-medium">Description (visible sur votre profil)</label>
+              <p className="mb-1 text-xs text-gray-500">
+                C'est votre CV : décrivez vos expériences et vos projets déjà réalisés (pas seulement "je fais ceci, je fais cela"). Expliquez ce qui doit donner envie à un client de vous choisir plutôt qu'un autre professionnel du même métier.
+              </p>
               <textarea
                 name="bio"
-                rows={4}
+                rows={6}
                 defaultValue={artisan?.bio || ""}
-                placeholder="Qui êtes-vous, votre expérience, ce qui vous distingue..."
+                placeholder="ex : Maçon depuis 8 ans, j'ai dirigé la construction de 12 villas à Abidjan et Bingerville, dont une maison à étage de 180m². Je travaille avec une équipe de 4 personnes et je livre toujours dans les délais convenus avec le client..."
                 className="w-full rounded-lg border border-gray-300 p-2"
               />
             </div>
@@ -370,6 +373,20 @@ export default async function ProfileEditPage({ searchParams }) {
                 name="yearsExperience"
                 min="0"
                 defaultValue={artisan?.years_experience || 0}
+                className="w-full rounded-lg border border-gray-300 p-2"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium">Facteurs qui jouent dans votre tarif</label>
+              <p className="mb-1 text-xs text-gray-500">
+                Pas de prix ici — ce champ n'est pas visible par le client. Juste ce qui fait varier votre tarif, pour que vous ayez vous-même une idée claire en discutant avec lui (ex : expérience, taille de l'équipe, surface du chantier, type de matériaux...).
+              </p>
+              <textarea
+                name="pricingInfo"
+                rows={2}
+                defaultValue={artisan?.pricing_info || ""}
+                placeholder="ex: mon tarif dépend surtout de la surface du chantier, du nombre d'étages et de la complexité des finitions demandées"
                 className="w-full rounded-lg border border-gray-300 p-2"
               />
             </div>
