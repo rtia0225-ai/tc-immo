@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
-import ProjectJourney from "@/components/ProjectJourney";
+import ProjectRoadmap from "@/components/ProjectRoadmap";
 import { advanceProjectStatus, removeParticipant } from "../actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -239,38 +239,48 @@ export default async function ProjectPage({ params, searchParams }) {
         </div>
       </div>
 
-      {/* Le parcours du projet : un seul chemin par prestataire, tout
-          visible en permanence (contrat, étapes, paiements, rendez-vous
-          de validation, documents et contenu pédagogique réunis). */}
-      <div className="mb-6 flex flex-col gap-4">
-        {artisansOnProject.map((a) => {
-          const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
-          const contractSignedAt =
-            contract?.client_signed_at && contract?.artisan_signed_at
-              ? [contract.client_signed_at, contract.artisan_signed_at].sort().pop()
-              : null;
-          const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
-          const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
+      {/* Le parcours du projet : un seul fil horizontal, un arrêt par
+          intervenant (architecte, ingénieur, technicien, chef de
+          chantier...), dans l'ordre réel du chantier. On clique sur un
+          arrêt pour voir son détail (contrat, étapes, paiements,
+          rendez-vous, documents) ; les autres restent visibles mais
+          réduits à leur nom, pour qu'on voie le chemin complet sans être
+          noyé sous le détail de tout le monde à la fois. */}
+      <div className="mb-6 rounded-lg bg-white shadow-card p-4">
+        <ProjectRoadmap
+          artisans={artisansOnProject.map((a) => {
+            const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
+            const contractSignedAt =
+              contract?.client_signed_at && contract?.artisan_signed_at
+                ? [contract.client_signed_at, contract.artisan_signed_at].sort().pop()
+                : null;
+            const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
+            const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
 
-          return (
-            <ProjectJourney
-              key={a.artisanId}
-              projectId={project.id}
-              artisanId={a.artisanId}
-              artisanName={a.fullName}
-              trade={a.trade}
-              totalAmount={a.amount}
-              currency={a.currency}
-              contractSignedAt={contractSignedAt}
-              contractHref={`/projects/${project.id}/contract/${a.artisanId}`}
-              milestones={artisanMilestones}
-              appointments={artisanAppointments}
-              educationByTitle={educationByTitle}
-              isArtisan={isArtisan && user.id === a.artisanId}
-              isClient={isClient}
-            />
-          );
-        })}
+            return {
+              artisanId: a.artisanId,
+              trade: a.trade,
+              contractSignedAt,
+              milestones: artisanMilestones,
+              journeyProps: {
+                projectId: project.id,
+                artisanId: a.artisanId,
+                artisanName: a.fullName,
+                trade: a.trade,
+                totalAmount: a.amount,
+                currency: a.currency,
+                contractSignedAt,
+                contractHref: `/projects/${project.id}/contract/${a.artisanId}`,
+                milestones: artisanMilestones,
+                appointments: artisanAppointments,
+                educationByTitle,
+                isArtisan: isArtisan && user.id === a.artisanId,
+                isClient,
+              },
+            };
+          })}
+          defaultOpenArtisanId={isArtisan ? user.id : undefined}
+        />
       </div>
 
       {/* Mises à jour libres : rapports photo du technicien, demandes

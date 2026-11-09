@@ -1,36 +1,33 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
-
-const MASONRY_EXAMPLE_SCHEDULE = [
-  { title: "Fondations terminées", percentage: "20" },
-  { title: "Élévation des murs", percentage: "20" },
-  { title: "Dalle / plancher coulé", percentage: "20" },
-  { title: "Chaînage et poteaux terminés", percentage: "20" },
-  { title: "Enduits et finitions maçonnerie", percentage: "20" },
-];
+import { SINGLE_INSTALLMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES, DEFAULT_MILESTONES_BY_TRADE } from "@/lib/constants";
 
 export default function MilestoneBuilder({ trade }) {
-  const singleInstallmentDoc = SINGLE_INSTALLMENT_TRADES[trade]; // ex: "Permis de Construire" ou "ACD"
+  const singleInstallmentDoc = SINGLE_INSTALLMENT_TRADES[trade]; // ex: "Permis de Construire", "ACD" ou "Étude de structure"
   const isSingleInstallment = !!singleInstallmentDoc;
+  const defaultSchedule = DEFAULT_MILESTONES_BY_TRADE[trade]; // point de départ, toujours modifiable
 
   const [rows, setRows] = useState(
     isSingleInstallment
       ? [{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100" }]
-      : [
-          { title: "", percentage: "" },
-          { title: "", percentage: "" },
-          { title: "", percentage: "" },
-          { title: "", percentage: "" },
-          { title: "", percentage: "" },
-        ]
+      : defaultSchedule
+        ? defaultSchedule.map((r) => ({ ...r }))
+        : [
+            { title: "", percentage: "" },
+            { title: "", percentage: "" },
+            { title: "", percentage: "" },
+            { title: "", percentage: "" },
+            { title: "", percentage: "" },
+          ]
   );
 
   // Si le métier change après coup (rare, mais par sécurité)
   useEffect(() => {
     if (isSingleInstallment) {
       setRows([{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100" }]);
+    } else if (defaultSchedule) {
+      setRows(defaultSchedule.map((r) => ({ ...r })));
     }
   }, [trade]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -64,16 +61,17 @@ export default function MilestoneBuilder({ trade }) {
           </p>
 
           <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
-            {trade === "Maçonnerie" ? (
+            {defaultSchedule ? (
               <>
-                <p className="font-semibold text-ink">Exemple pour la maçonnerie :</p>
-                <p className="mt-1">20% après les fondations, 20% après l'élévation des murs, 20% après la dalle, 20% après le chaînage/poteaux, 20% après les enduits et finitions.</p>
+                <p className="font-semibold text-ink">
+                  Les étapes pré-remplies ci-dessous sont un point de départ pour ce métier — modifiez les titres, les pourcentages, ajoutez ou supprimez une ligne selon les vraies étapes de ce projet précis.
+                </p>
                 <button
                   type="button"
-                  onClick={() => setRows(MASONRY_EXAMPLE_SCHEDULE.map((r) => ({ ...r })))}
+                  onClick={() => setRows(defaultSchedule.map((r) => ({ ...r })))}
                   className="mt-2 font-medium text-forest hover:underline"
                 >
-                  Remplir avec cet exemple
+                  Revenir aux étapes suggérées
                 </button>
               </>
             ) : (
