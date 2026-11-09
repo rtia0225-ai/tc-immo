@@ -170,88 +170,64 @@ export default function ProjectJourney({
   });
 
   return (
-    <div className="overflow-hidden rounded-lg shadow-card">
-      <div className="bg-brand p-4">
-        <h3 className="font-heading font-bold text-white">{artisanName}, {trade}</h3>
-        <p className="text-xs text-brand-light">{totalAmount?.toLocaleString("fr-FR")} {currency} au total</p>
+    <div className="flex flex-col">
+      {/* Juste une ligne verticale en pointillés, un point par étape, et
+          le texte — pas de carte, pas d'en-tête de couleur. */}
+      <p className="mb-2 text-xs font-semibold text-gray-400">{artisanName} · {trade}</p>
+
+      {/* Contrat — premier maillon du parcours. */}
+      <div className="flex gap-3">
+        <div className="flex w-6 shrink-0 flex-col items-center">
+          <div
+            className={`h-2.5 w-2.5 rounded-full ${contractSignedAt ? "bg-forest" : "border-2 border-dashed border-gray-300 bg-white"}`}
+          />
+          <div className={`mt-1 w-px flex-1 ${contractSignedAt ? "bg-forest" : "border-l border-dashed border-gray-300"}`} />
+        </div>
+        <div className="flex-1 pb-4">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <p className="text-sm font-bold text-ink">Contrat</p>
+            <span className="text-xs text-gray-500">
+              {contractSignedAt ? `Signé le ${formatDate(contractSignedAt)}` : "En attente de signature"}
+            </span>
+          </div>
+          {!contractSignedAt && contractHref && (
+            <Link href={contractHref} className="mt-1 inline-block text-xs font-bold text-brand hover:underline">
+              Consulter et signer le contrat →
+            </Link>
+          )}
+        </div>
       </div>
 
-      <div className="flex flex-col bg-[#FAF8F3] p-4">
-        {/* Contrat — premier maillon du parcours, relié en pointillés aux
-            étapes suivantes tant qu'il n'est pas signé. */}
-        <div className="flex gap-3">
-          <div className="flex w-8 shrink-0 flex-col items-center">
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm shadow-sm ${
-                contractSignedAt ? "bg-forest text-white" : "border-2 border-dashed border-gray-300 bg-white text-gray-400"
-              }`}
-            >
-              📄
-            </div>
-            <div className={`mt-1 w-0.5 flex-1 ${contractSignedAt ? "bg-forest" : "border-l-2 border-dashed border-gray-300"}`} />
-          </div>
-          <div className="flex-1 pb-4">
-            <div className="rounded-lg bg-white p-3.5 shadow-card">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-ink">Contrat</p>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${contractSignedAt ? "bg-forest-light text-forest" : "bg-gold text-ink"}`}>
-                  {contractSignedAt ? `Signé le ${formatDate(contractSignedAt)}` : "En attente de signature"}
-                </span>
-              </div>
-              {!contractSignedAt && contractHref && (
-                <Link href={contractHref} className="mt-2 inline-block text-xs font-bold text-brand hover:underline">
-                  Consulter et signer le contrat →
-                </Link>
+      {sortedMilestones.map((m, i) => {
+        const requiredAppointments = (appointmentsByMilestone[m.id] || []).filter((a) => a.is_required);
+        const hasBlockingRequirement = requiredAppointments.length > 0 && !requiredAppointments.some((a) => a.status === "completed");
+        const status = m.paid_at ? "Payée" : m.is_completed ? "Validée" : "En cours";
+        const education = educationByTitle?.[m.title];
+        const isLast = i === sortedMilestones.length - 1;
+
+        return (
+          <div key={m.id} className="flex gap-3">
+            <div className="flex w-6 shrink-0 flex-col items-center">
+              <div
+                className={`h-2.5 w-2.5 rounded-full ${
+                  m.paid_at || m.is_completed ? "bg-forest" : "border-2 border-dashed border-gray-300 bg-white"
+                }`}
+              />
+              {!isLast && (
+                <div className={`mt-1 w-px flex-1 ${m.paid_at || m.is_completed ? "bg-forest" : "border-l border-dashed border-gray-300"}`} />
               )}
             </div>
-          </div>
-        </div>
-
-        {sortedMilestones.map((m, i) => {
-          const requiredAppointments = (appointmentsByMilestone[m.id] || []).filter((a) => a.is_required);
-          const hasBlockingRequirement = requiredAppointments.length > 0 && !requiredAppointments.some((a) => a.status === "completed");
-          const status = m.paid_at ? "Payée" : m.is_completed ? "Validée" : "En cours";
-          const statusColor = m.paid_at
-            ? "bg-forest-light text-forest"
-            : m.is_completed
-              ? "bg-brand-light text-brand"
-              : "bg-gold text-ink";
-          const education = educationByTitle?.[m.title];
-          const isLast = i === sortedMilestones.length - 1;
-
-          return (
-            <div key={m.id} className="flex gap-3">
-              <div className="flex w-8 shrink-0 flex-col items-center">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-sm ${
-                    m.paid_at
-                      ? "bg-forest text-white"
-                      : m.is_completed
-                        ? "bg-brand text-white"
-                        : "border-2 border-dashed border-gray-300 bg-white text-gray-400"
-                  }`}
-                >
-                  {m.paid_at ? "✓" : i + 1}
-                </div>
-                {!isLast && (
-                  <div className={`mt-1 w-0.5 flex-1 ${m.paid_at ? "bg-forest" : "border-l-2 border-dashed border-gray-300"}`} />
+            <div className="flex-1 pb-4">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <p className="text-sm font-bold text-ink">{m.title}</p>
+                <span className="text-xs text-gray-500">{status}</span>
+                {m.amount != null && (
+                  <span className="text-xs text-gray-500">
+                    — {m.amount.toLocaleString("fr-FR")} {currency}
+                    {m.paid_at && ` payé le ${formatDate(m.paid_at)}`}
+                  </span>
                 )}
               </div>
-              <div className="flex-1 pb-4">
-            <div className="rounded-lg bg-white p-3.5 shadow-card">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-bold text-ink">
-                  {m.title}
-                </p>
-                <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${statusColor}`}>{status}</span>
-              </div>
-
-              {m.amount != null && (
-                <p className="mt-1 text-xs font-semibold text-gray-600">
-                  {m.amount.toLocaleString("fr-FR")} {currency}
-                  {m.paid_at && ` — payé le ${formatDate(m.paid_at)}`}
-                </p>
-              )}
 
               {/* Rendez-vous de validation */}
               {requiredAppointments.length > 0 ? (
@@ -266,43 +242,43 @@ export default function ProjectJourney({
 
               {/* Document / validation de l'étape */}
               {m.deliverableSignedUrl && (
-                <p className="mt-2 text-xs">
+                <p className="mt-1 text-xs">
                   <a href={m.deliverableSignedUrl} target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
                     📎 Voir le document livré
                   </a>
                 </p>
               )}
               {m.deliverable_document_url && !m.deliverableSignedUrl && m.deliverable_review_status === "needs_manual_review" && (
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500">
                   📎 Document déposé, en cours de vérification avant d'être rendu visible.
                 </p>
               )}
               {m.deliverable_review_status === "rejected" && (
-                <p className="mt-2 text-xs text-brand">
+                <p className="mt-1 text-xs text-brand">
                   Le document déposé n'a pas été validé{isArtisan ? " — merci d'en déposer un nouveau." : "."}
                 </p>
               )}
 
               {isArtisan && !m.is_completed && (
                 hasBlockingRequirement ? (
-                  <p className="mt-2 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-gray-400">
                     L'appel de validation doit être terminé avant de pouvoir valider cette étape.
                   </p>
                 ) : requiresDeliverable ? (
-                  <form action={uploadDeliverable} className="mt-2 flex flex-col gap-2">
+                  <form action={uploadDeliverable} className="mt-1 flex flex-col gap-2">
                     <input type="hidden" name="milestoneId" value={m.id} />
                     <input type="hidden" name="projectId" value={projectId} />
                     <FileInputButton name="document" accept=".pdf,image/*" required label="Choisir le document" />
-                    <button type="submit" className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark">
+                    <button type="submit" className="w-fit text-xs font-bold text-brand hover:underline">
                       Envoyer et débloquer le paiement
                     </button>
                   </form>
                 ) : (
-                  <form action={toggleMilestone} className="mt-2">
+                  <form action={toggleMilestone} className="mt-1">
                     <input type="hidden" name="milestoneId" value={m.id} />
                     <input type="hidden" name="projectId" value={projectId} />
                     <input type="hidden" name="isCompleted" value="false" />
-                    <button type="submit" className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-dark">
+                    <button type="submit" className="text-xs font-bold text-brand hover:underline">
                       Marquer comme terminé
                     </button>
                   </form>
@@ -310,10 +286,10 @@ export default function ProjectJourney({
               )}
 
               {isClient && m.is_completed && !m.paid_at && (
-                <form action={releasePayment} className="mt-2">
+                <form action={releasePayment} className="mt-1">
                   <input type="hidden" name="milestoneId" value={m.id} />
                   <input type="hidden" name="projectId" value={projectId} />
-                  <button type="submit" className="rounded-lg bg-forest px-3 py-1.5 text-xs font-semibold text-white hover:bg-forest-dark">
+                  <button type="submit" className="text-xs font-bold text-forest hover:underline">
                     Confirmer le virement effectué
                   </button>
                 </form>
@@ -321,28 +297,22 @@ export default function ProjectJourney({
 
               <EducationBlock content={education} />
             </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {looseAppointments.length > 0 && (
-          <div className="ml-11 rounded-lg bg-white p-3.5 shadow-card">
-            <p className="text-sm font-bold text-ink">📞 Autres appels</p>
-            <div className="mt-2 flex flex-col gap-1.5">
-              {looseAppointments.map((a) => (
-                <p key={a.id} className="text-xs text-gray-600">
-                  {formatDateTime(a.scheduled_at)} — {a.status}
-                </p>
-              ))}
-            </div>
           </div>
-        )}
-      </div>
+        );
+      })}
 
-      <p className="bg-gray-50 p-3 text-[11px] text-gray-500">
-        L'échéancier a été défini à la création du projet, selon le contrat convenu avec l'artisan ; il ne peut plus être modifié.
-      </p>
+      {looseAppointments.length > 0 && (
+        <div className="ml-6 pl-3">
+          <p className="text-xs font-bold text-ink">📞 Autres appels</p>
+          <div className="mt-1 flex flex-col gap-0.5">
+            {looseAppointments.map((a) => (
+              <p key={a.id} className="text-xs text-gray-500">
+                {formatDateTime(a.scheduled_at)} — {a.status}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

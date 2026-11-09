@@ -362,7 +362,13 @@ export async function addParticipant(formData) {
   redirect(`/projects/${projectId}/contract/${artisanId}`);
 }
 
-// Le client retire un participant ajouté (pas l'artisan principal)
+// Le client retire un participant ajouté (pas l'artisan principal). Un
+// admin peut aussi le faire, sur n'importe quel projet, sans restriction
+// (même si des paiements ne sont pas finalisés) — son espace sert à
+// tester les fonctionnalités, les règles normales ne s'y appliquent pas.
+// Dans ce cas, le contrat et les étapes de ce prestataire sont aussi
+// supprimés (vraie remise à zéro), contrairement au client qui ne fait
+// que retirer le participant sans toucher à l'historique.
 export async function removeParticipant(formData) {
   const supabase = createClient();
   const projectId = formData.get("projectId");
@@ -373,17 +379,31 @@ export async function removeParticipant(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
   const { data: project } = await supabase
     .from("projects")
     .select("client_id")
     .eq("id", projectId)
     .single();
 
-  if (project?.client_id !== user.id) {
+  const isAdmin = !!profile?.is_admin;
+  if (project?.client_id !== user.id && !isAdmin) {
     redirect(`/projects/${projectId}`);
   }
 
+  const { data: participant } = await supabase
+    .from("project_participants")
+    .select("artisan_id")
+    .eq("id", participantId)
+    .single();
+
   await supabase.from("project_participants").delete().eq("id", participantId);
+
+  if (isAdmin && participant?.artisan_id) {
+    await supabase.from("contracts").delete().eq("project_id", projectId).eq("artisan_id", participant.artisan_id);
+    await supabase.from("project_milestones").delete().eq("project_id", projectId).eq("artisan_id", participant.artisan_id);
+    await supabase.from("appointments").delete().eq("project_id", projectId).eq("artisan_id", participant.artisan_id);
+  }
 
   redirect(`/projects/${projectId}`);
 }
