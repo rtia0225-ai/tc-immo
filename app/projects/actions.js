@@ -245,6 +245,13 @@ export async function advanceProjectStatus(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  // Réservé à l'admin : les transitions automatiques (financé, terminé)
+  // se font seules à partir des vrais paiements (cf. releasePayment dans
+  // milestones-actions.js) — il ne reste à faire à la main que le
+  // passage final "libéré" (argent définitivement soldé côté plateforme).
+  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
+  if (!profile?.is_admin) redirect(`/projects/${projectId}`);
+
   await supabase
     .from("projects")
     .update({ status: newStatus, updated_at: new Date().toISOString() })

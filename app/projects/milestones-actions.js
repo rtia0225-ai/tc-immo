@@ -124,9 +124,49 @@ export async function releasePayment(formData) {
       description: paidMilestone.amount ? `${paidMilestone.amount}` : null,
       actorId: user.id,
     });
+
+    await advanceProjectStatusFromPayment(supabase, projectId);
   }
 
   redirect(`/projects/${projectId}`);
+}
+
+// Fait avancer le statut global du projet (utilisé par la page Revenus)
+// automatiquement, à partir des vrais paiements — plus de bouton manuel
+// déconnecté du parcours. "awaiting_payment" → "funded" dès le premier
+// paiement confirmé ; → "completed" une fois que toutes les étapes de
+// tous les intervenants sont payées. Le passage final "released" (argent
+// définitivement soldé côté plateforme) reste une action manuelle,
+// réservée à l'admin (cf. advanceProjectStatus dans actions.js).
+async function advanceProjectStatusFromPayment(supabase, projectId) {
+  const { data: project } = await supabase.from("projects").select("status").eq("id", projectId).single();
+  if (!project || project.status === "completed" || project.status === "released") return;
+
+  const { data: allMilestones } = await supabase
+    .from("project_milestones")
+    .select("paid_at")
+    .eq("project_id", projectId);
+
+  const allPaid = (allMilestones || []).length > 0 && allMilestones.every((m) => !!m.paid_at);
+
+  let nextStatus = null;
+  if (allPaid) {
+    nextStatus = "completed";
+  } else if (project.status === "awaiting_payment" || project.status === "draft") {
+    nextStatus = "funded";
+  }
+
+  if (nextStatus && nextStatus !== project.status) {
+    await supabase
+      .from("projects")
+      .update({ status: nextStatus, updated_at: new Date().toISOString() })
+      .eq("id", projectId);
+    await supabase.from("escrow_events").insert({
+      project_id: projectId,
+      event_type: nextStatus,
+      metadata: { triggered_by: "auto_payment" },
+    });
+  }
 }
 
 
