@@ -232,39 +232,11 @@ export async function signContract(formData) {
   redirect(`/projects/${projectId}/contract/${artisanId}`);
 }
 
-// NOTE : ceci ne fait qu'avancer le statut en base. L'intégration réelle
-// avec un prestataire de paiement (Stripe Connect, CinetPay...) doit se
-// faire ici avant de changer le statut en production.
-export async function advanceProjectStatus(formData) {
-  const supabase = createClient();
-  const projectId = formData.get("projectId");
-  const newStatus = formData.get("newStatus");
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
-
-  // Réservé à l'admin : les transitions automatiques (financé, terminé)
-  // se font seules à partir des vrais paiements (cf. releasePayment dans
-  // milestones-actions.js) — il ne reste à faire à la main que le
-  // passage final "libéré" (argent définitivement soldé côté plateforme).
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect(`/projects/${projectId}`);
-
-  await supabase
-    .from("projects")
-    .update({ status: newStatus, updated_at: new Date().toISOString() })
-    .eq("id", projectId);
-
-  await supabase.from("escrow_events").insert({
-    project_id: projectId,
-    event_type: newStatus,
-    metadata: { triggered_by: user.id },
-  });
-
-  redirect(`/projects/${projectId}`);
-}
+// Le statut global du projet (utilisé par la page Revenus) avance
+// entièrement seul à partir des vrais paiements — voir
+// advanceProjectStatusFromPayment dans milestones-actions.js, appelé
+// depuis releasePayment. Aucun bouton, nulle part : le client ne clique
+// jamais pour "payer" ou "terminer" quoi que ce soit.
 
 // Le client ajoute un autre artisan (n'importe quel métier) à un projet
 // déjà démarré, avec sa PROPRE prestation, son PROPRE montant et son

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
 import ProjectRoadmap from "@/components/ProjectRoadmap";
-import { removeParticipant, advanceProjectStatus } from "../actions";
+import { removeParticipant } from "../actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -322,20 +322,6 @@ export default async function ProjectPage({ params, searchParams }) {
           <span aria-hidden>💳</span> Paiement
         </Link>
       </div>
-
-      {/* Dernière étape, manuelle et réservée à l'admin : une fois le
-          projet "completed" (toutes les étapes payées), libérer
-          définitivement les fonds côté plateforme. Pas automatique —
-          c'est un geste financier final, pas une étape du parcours. */}
-      {isAdmin && project.status === "completed" && (
-        <form action={advanceProjectStatus} className="mt-3">
-          <input type="hidden" name="projectId" value={project.id} />
-          <input type="hidden" name="newStatus" value="released" />
-          <button type="submit" className="text-xs font-bold text-forest hover:underline">
-            [Admin] Marquer les fonds comme définitivement libérés
-          </button>
-        </form>
-      )}
     </div>
   );
 }

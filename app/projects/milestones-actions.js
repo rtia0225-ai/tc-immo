@@ -132,15 +132,14 @@ export async function releasePayment(formData) {
 }
 
 // Fait avancer le statut global du projet (utilisé par la page Revenus)
-// automatiquement, à partir des vrais paiements — plus de bouton manuel
-// déconnecté du parcours. "awaiting_payment" → "funded" dès le premier
-// paiement confirmé ; → "completed" une fois que toutes les étapes de
-// tous les intervenants sont payées. Le passage final "released" (argent
-// définitivement soldé côté plateforme) reste une action manuelle,
-// réservée à l'admin (cf. advanceProjectStatus dans actions.js).
+// entièrement seul, à partir des vrais paiements — aucun bouton, nulle
+// part : "awaiting_payment" → "funded" dès le premier paiement confirmé,
+// puis → "released" dès que toutes les étapes de tous les intervenants
+// sont payées (l'argent est alors bien chez les professionnels, il n'y a
+// rien d'autre à décider).
 async function advanceProjectStatusFromPayment(supabase, projectId) {
   const { data: project } = await supabase.from("projects").select("status").eq("id", projectId).single();
-  if (!project || project.status === "completed" || project.status === "released") return;
+  if (!project || project.status === "released") return;
 
   const { data: allMilestones } = await supabase
     .from("project_milestones")
@@ -151,7 +150,7 @@ async function advanceProjectStatusFromPayment(supabase, projectId) {
 
   let nextStatus = null;
   if (allPaid) {
-    nextStatus = "completed";
+    nextStatus = "released";
   } else if (project.status === "awaiting_payment" || project.status === "draft") {
     nextStatus = "funded";
   }
