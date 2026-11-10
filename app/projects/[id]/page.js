@@ -296,43 +296,30 @@ export default async function ProjectPage({ params, searchParams }) {
         />
       </div>
 
-      {/* Raccourcis : messagerie, rendez-vous, documents, paiement */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* Raccourcis : messagerie, rendez-vous, documents, paiement — une
+          seule ligne compacte avec icône + libellé, plus de carrés de
+          couleur. */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg bg-white px-4 py-3 text-sm shadow-card">
         <Link
           href={conversation ? `/messages/${conversation.id}` : "/messages"}
-          className="rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
+          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
         >
-          <p className="font-medium">Ma messagerie</p>
-          <p className="text-sm text-brand-light">
-            Fil de discussion sur ce projet
-          </p>
+          <span aria-hidden>💬</span> Messagerie
         </Link>
-
         <Link
           href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
-          className="rounded-lg bg-forest p-4 text-white shadow-card transition hover:bg-forest-dark"
+          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
         >
-          <p className="font-medium">Mes rendez-vous</p>
-          <p className="text-sm text-forest-light">
-            Planifier ou consulter un appel
-          </p>
+          <span aria-hidden>📅</span> Rendez-vous
         </Link>
-
-        <div className="rounded-lg bg-gold p-4 text-ink shadow-card">
-          <p className="font-medium">Mes documents</p>
-          <p className="text-sm text-ink/70">
-            Devis, plans et pièces liées au projet
-          </p>
-        </div>
-
+        <span className="flex items-center gap-1.5 font-medium text-gray-400">
+          <span aria-hidden>📄</span> Documents
+        </span>
         <Link
           href={`/projects/${project.id}/paiement`}
-          className="rounded-lg bg-azure p-4 text-white shadow-card transition hover:bg-azure-dark"
+          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
         >
-          <p className="font-medium">Paiement</p>
-          <p className="text-sm text-azure-light">
-            Suivre et faire avancer l'échéancier
-          </p>
+          <span aria-hidden>💳</span> Paiement
         </Link>
       </div>
     </div>
