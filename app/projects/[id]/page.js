@@ -30,11 +30,26 @@ export default async function ProjectPage({ params, searchParams }) {
 
   if (!project) return <p>Projet introuvable.</p>;
 
-  const { data: progressReports } = await supabase
+  const { data: rawProgressReports } = await supabase
     .from("technician_progress_reports")
     .select("*, technician:technician_id ( full_name ), technician_report_media ( media_url, media_type )")
     .eq("project_id", id)
     .order("created_at", { ascending: false });
+
+  // Le bucket est privé : il faut un lien signé temporaire pour chaque
+  // photo/vidéo de rapport, pas le chemin de stockage brut (qui renvoie
+  // une erreur d'accès si on le met tel quel dans un lien).
+  const progressReports = await Promise.all(
+    (rawProgressReports || []).map(async (r) => ({
+      ...r,
+      technician_report_media: await Promise.all(
+        (r.technician_report_media || []).map(async (m) => {
+          const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(m.media_url, 3600);
+          return { ...m, signedUrl: data?.signedUrl || null };
+        })
+      ),
+    }))
+  );
 
   const { data: additionRequests } = await supabase
     .from("project_addition_requests")
@@ -293,6 +308,7 @@ export default async function ProjectPage({ params, searchParams }) {
           projectId={project.id}
           progressReports={progressReports}
           isArtisan={isArtisan}
+          currentUserId={user.id}
         />
       </div>
 

@@ -5,12 +5,22 @@ import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 
 // Le technicien envoie son rapport périodique (photos/vidéos + notes
-// d'avancement), en plus de la simple validation des étapes.
+// d'avancement), en plus de la simple validation des étapes. Les
+// fichiers sont déjà uploadés côté navigateur (ProjectActivityLog,
+// directement vers Supabase Storage) avant d'appeler cette action — une
+// vidéo dépasse largement la limite de taille d'une requête de Server
+// Action (1 Mo par défaut), donc le binaire ne doit jamais transiter par
+// ici. On ne reçoit que les chemins déjà en place, en JSON.
 export async function submitTechnicianReport(formData) {
   const supabase = createClient();
   const projectId = formData.get("projectId");
   const notes = formData.get("notes");
-  const files = formData.getAll("media").filter((f) => f && typeof f !== "string" && f.size > 0);
+  let uploadedMedia = [];
+  try {
+    uploadedMedia = JSON.parse(formData.get("media") || "[]");
+  } catch {
+    uploadedMedia = [];
+  }
 
   const {
     data: { user },
@@ -27,20 +37,13 @@ export async function submitTechnicianReport(formData) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent("Le rapport n'a pas pu être enregistré.")}`);
   }
 
-  for (const file of files) {
-    const ext = file.name.split(".").pop() || "jpg";
-    const path = `${projectId}/${report.id}/${crypto.randomUUID()}.${ext}`;
-    const arrayBuffer = await file.arrayBuffer();
-    const { error: uploadError } = await supabase.storage
-      .from("project-deliverables")
-      .upload(path, arrayBuffer, { contentType: file.type, upsert: false });
-    if (!uploadError) {
-      await supabase.from("technician_report_media").insert({
-        report_id: report.id,
-        media_url: path,
-        media_type: file.type.startsWith("video/") ? "video" : "image",
-      });
-    }
+  for (const media of uploadedMedia) {
+    if (!media?.path) continue;
+    await supabase.from("technician_report_media").insert({
+      report_id: report.id,
+      media_url: media.path,
+      media_type: media.type === "video" ? "video" : "image",
+    });
   }
 
   await logTimelineEvent(supabase, {

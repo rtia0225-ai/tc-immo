@@ -319,7 +319,7 @@ export default async function DashboardPage({ searchParams }) {
           </div>
 
           <Link
-            href="/dashboard/revenus"
+            href="/revenus"
             className="mt-3 block rounded-lg bg-gold p-4 text-ink shadow-card transition hover:bg-gold/90"
           >
             <span className="text-sm font-semibold">Mes revenus</span>
