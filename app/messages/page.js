@@ -13,12 +13,25 @@ export default async function MessagesPage() {
   const { data: conversations } = await supabase
     .from("conversations")
     .select(
-      `id, created_at,
+      `id, created_at, client_id, artisan_id,
        client:client_id ( full_name ),
-       artisan:artisan_id ( trade, profiles ( full_name ) )`
+       artisan:artisan_id ( trade, profiles ( full_name ) ),
+       project:project_id ( title )`
     )
     .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`)
     .order("created_at", { ascending: false });
+
+  // client_id/artisan_id ne reflètent pas forcément "le client" et "le
+  // prestataire" : entre deux professionnels d'un même projet, les deux
+  // peuvent se retrouver du côté "artisan_id" ou "client_id" selon l'ordre
+  // des identifiants. On affiche donc toujours l'AUTRE participant, peu
+  // importe de quel côté il est rangé.
+  function otherPartyName(c) {
+    if (c.client_id === user.id) {
+      return c.artisan?.profiles?.full_name || c.artisan?.trade || "Professionnel";
+    }
+    return c.client?.full_name || "Utilisateur";
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -34,8 +47,10 @@ export default async function MessagesPage() {
               href={`/messages/${c.id}`}
               className="rounded-lg bg-white shadow-card p-4 hover:shadow-sm"
             >
-              Conversation avec{" "}
-              {c.artisan?.profiles?.full_name || c.client?.full_name}
+              <p>Conversation avec {otherPartyName(c)}</p>
+              {c.project?.title && (
+                <p className="mt-0.5 text-xs text-gray-400">Projet : {c.project.title}</p>
+              )}
             </Link>
           ))}
         </div>

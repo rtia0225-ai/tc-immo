@@ -126,10 +126,16 @@ export default async function ProjectPage({ params, searchParams }) {
     .eq("project_id", id)
     .in("artisan_id", artisanIds);
 
+  // Il peut désormais exister plusieurs conversations sur un même projet
+  // (client ↔ artisan principal, mais aussi professionnel ↔ professionnel) :
+  // on prend celle qui concerne l'utilisateur courant, pas "la" conversation
+  // du projet.
   const { data: conversation } = await supabase
     .from("conversations")
     .select("id")
     .eq("project_id", id)
+    .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`)
+    .limit(1)
     .maybeSingle();
 
   const isClient = project.client_id === user.id;
@@ -296,6 +302,9 @@ export default async function ProjectPage({ params, searchParams }) {
             };
           })}
           defaultOpenArtisanId={isArtisan ? user.id : undefined}
+          projectId={project.id}
+          viewerId={user.id}
+          isArtisanViewer={isArtisan && !isAdmin}
         />
       </div>
 
@@ -329,10 +338,10 @@ export default async function ProjectPage({ params, searchParams }) {
           <span aria-hidden>📅</span> Rendez-vous
         </Link>
         <Link
-          href={`/projects/${project.id}/espace`}
+          href={`/projects/${project.id}/documents`}
           className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
         >
-          <span aria-hidden>📄</span> Espace projet
+          <span aria-hidden>📄</span> Documents
         </Link>
         <Link
           href={`/projects/${project.id}/paiement`}

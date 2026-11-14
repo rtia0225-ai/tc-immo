@@ -52,46 +52,70 @@ export async function sendMessage(formData) {
 
   if (!user || !content?.trim()) return;
 
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .select("client_id, artisan_id, project_id")
+    .eq("id", conversationId)
+    .single();
+
+  // Le filtre anti-coordonnées ne s'applique qu'entre un client et un
+  // professionnel : entre deux professionnels d'un même projet, ils ont le
+  // droit de s'échanger leurs contacts si ça les arrange (cf. demande du
+  // 2026-11). On ne lève cette interdiction que si AUCUN des deux
+  // participants n'est un client (les deux sont artisans).
+  let isBetweenProfessionals = false;
+  if (conversation?.project_id) {
+    const { data: partiesProfiles } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .in("id", [conversation.client_id, conversation.artisan_id]);
+    isBetweenProfessionals =
+      (partiesProfiles || []).length === 2 && partiesProfiles.every((p) => p.role === "artisan");
+  }
+
   // Interdiction d'échanger des coordonnées dans les messages : numéro de
   // téléphone, réseau social externe (Facebook, WhatsApp...), ou son
   // propre nom complet (souvent utilisé pour être retrouvé ailleurs).
-  // Les échanges doivent rester sur la plateforme.
-  const { data: senderProfile } = await supabase
-    .from("profiles")
-    .select("full_name")
-    .eq("id", user.id)
-    .single();
+  // Les échanges doivent rester sur la plateforme — sauf entre
+  // professionnels d'un même projet (voir plus haut).
+  if (!isBetweenProfessionals) {
+    const { data: senderProfile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
 
-  if (containsPhoneNumber(content)) {
-    redirect(
-      `/messages/${conversationId}?error=${encodeURIComponent(
-        "Ton message contient un numéro de téléphone. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
-      )}`
-    );
-  }
+    if (containsPhoneNumber(content)) {
+      redirect(
+        `/messages/${conversationId}?error=${encodeURIComponent(
+          "Ton message contient un numéro de téléphone. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
+        )}`
+      );
+    }
 
-  if (containsEmailAddress(content)) {
-    redirect(
-      `/messages/${conversationId}?error=${encodeURIComponent(
-        "Ton message contient une adresse e-mail. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
-      )}`
-    );
-  }
+    if (containsEmailAddress(content)) {
+      redirect(
+        `/messages/${conversationId}?error=${encodeURIComponent(
+          "Ton message contient une adresse e-mail. Les échanges de coordonnées ne sont pas autorisés ici, utilise la messagerie ou les rendez-vous de la plateforme."
+        )}`
+      );
+    }
 
-  if (containsExternalPlatformMention(content)) {
-    redirect(
-      `/messages/${conversationId}?error=${encodeURIComponent(
-        "Ton message mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Les échanges doivent rester sur la plateforme."
-      )}`
-    );
-  }
+    if (containsExternalPlatformMention(content)) {
+      redirect(
+        `/messages/${conversationId}?error=${encodeURIComponent(
+          "Ton message mentionne un réseau social, une appli externe, ou le nom d'une entreprise/cabinet. Les échanges doivent rester sur la plateforme."
+        )}`
+      );
+    }
 
-  if (containsFullName(content, senderProfile?.full_name)) {
-    redirect(
-      `/messages/${conversationId}?error=${encodeURIComponent(
-        "Merci de ne pas indiquer votre nom complet dans le message, les échanges doivent rester sur la plateforme."
-      )}`
-    );
+    if (containsFullName(content, senderProfile?.full_name)) {
+      redirect(
+        `/messages/${conversationId}?error=${encodeURIComponent(
+          "Merci de ne pas indiquer votre nom complet dans le message, les échanges doivent rester sur la plateforme."
+        )}`
+      );
+    }
   }
 
   await supabase.from("messages").insert({
@@ -101,12 +125,6 @@ export async function sendMessage(formData) {
   });
 
   // Détermine qui n'est pas l'expéditeur pour le notifier par SMS
-  const { data: conversation } = await supabase
-    .from("conversations")
-    .select("client_id, artisan_id")
-    .eq("id", conversationId)
-    .single();
-
   if (conversation) {
     const recipientId =
       conversation.client_id === user.id

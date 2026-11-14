@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import ProjectJourney from "@/components/ProjectJourney";
 import { CONSTRUCTION_SERVICES } from "@/lib/constants";
 
@@ -18,10 +19,14 @@ function statusOf(a) {
 // d'abord — un arrêt par intervenant (architecte, ingénieur, technicien,
 // chef de chantier...), dans l'ordre réel du chantier — puis vertical une
 // fois qu'on clique sur l'un d'eux, pour voir son détail (contrat,
-// étapes, paiements, rendez-vous, documents). Les intervenants pas encore
-// commencés restent visibles mais réduits à leur nom, pour qu'on voie le
-// chemin complet sans être noyé sous le détail de tout le monde à la fois.
-export default function ProjectRoadmap({ artisans, defaultOpenArtisanId }) {
+// étapes, paiements, rendez-vous, documents).
+//
+// Vu par un professionnel (isArtisanViewer), c'est différent : il voit
+// bien qui sont tous les intervenants du projet (nom + métier), mais il
+// n'a accès au détail (étapes, montants, paiements) que du sien. Cliquer
+// sur un AUTRE intervenant ne révèle jamais son échéancier — ça ouvre une
+// discussion directe avec lui à propos du projet.
+export default function ProjectRoadmap({ artisans, defaultOpenArtisanId, projectId, viewerId, isArtisanViewer }) {
   const ordered = [...(artisans || [])].sort((a, b) => {
     const ia = CONSTRUCTION_SERVICES.indexOf(a.trade);
     const ib = CONSTRUCTION_SERVICES.indexOf(b.trade);
@@ -45,35 +50,60 @@ export default function ProjectRoadmap({ artisans, defaultOpenArtisanId }) {
       <div className="flex items-start gap-0 overflow-x-auto pb-1">
         {ordered.map((a, i) => {
           const status = statuses[i];
+          const isSelf = a.artisanId === viewerId;
           const isOpen = i === openIndex;
           const isLast = i === ordered.length - 1;
+          // Un professionnel ne peut ouvrir que son propre détail ; cliquer
+          // sur un autre l'emmène discuter avec lui, pas voir son échéancier.
+          const linksToContact = isArtisanViewer && !isSelf;
+
+          const circle = (
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${
+                status === "done"
+                  ? "bg-forest text-white shadow-sm"
+                  : status === "active"
+                    ? `bg-brand text-white shadow-sm ${isOpen && !linksToContact ? "ring-4 ring-brand/20" : ""}`
+                    : "border-2 border-dashed border-gray-300 bg-white text-gray-400"
+              }`}
+              title={a.trade}
+            >
+              {status === "done" ? "✓" : (a.trade || "?").slice(0, 1).toUpperCase()}
+            </div>
+          );
+
+          const label = (
+            <span
+              className={`max-w-[76px] truncate text-center text-[10px] font-semibold leading-tight ${
+                isOpen && !linksToContact ? "text-ink" : status === "upcoming" ? "text-gray-300" : "text-gray-400"
+              }`}
+            >
+              {a.trade}
+              {linksToContact && <span className="ml-0.5" aria-hidden>💬</span>}
+            </span>
+          );
+
           return (
             <div key={a.artisanId} className="flex shrink-0 items-start">
-              <button
-                type="button"
-                onClick={() => setOpenIndex(i)}
-                className="flex flex-col items-center gap-1 px-1.5 pt-1"
-              >
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition ${
-                    status === "done"
-                      ? "bg-forest text-white shadow-sm"
-                      : status === "active"
-                        ? `bg-brand text-white shadow-sm ${isOpen ? "ring-4 ring-brand/20" : ""}`
-                        : "border-2 border-dashed border-gray-300 bg-white text-gray-400"
-                  }`}
-                  title={a.trade}
+              {linksToContact ? (
+                <Link
+                  href={`/projects/${projectId}/contact/${a.artisanId}`}
+                  className="flex flex-col items-center gap-1 px-1.5 pt-1"
+                  title={`Discuter avec ${a.trade || "ce professionnel"}`}
                 >
-                  {status === "done" ? "✓" : (a.trade || "?").slice(0, 1).toUpperCase()}
-                </div>
-                <span
-                  className={`max-w-[76px] truncate text-center text-[10px] font-semibold leading-tight ${
-                    isOpen ? "text-ink" : status === "upcoming" ? "text-gray-300" : "text-gray-400"
-                  }`}
+                  {circle}
+                  {label}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(i)}
+                  className="flex flex-col items-center gap-1 px-1.5 pt-1"
                 >
-                  {a.trade}
-                </span>
-              </button>
+                  {circle}
+                  {label}
+                </button>
+              )}
               {!isLast && (
                 <div
                   className={`mt-5 h-0.5 w-6 shrink-0 sm:w-12 ${
@@ -86,8 +116,9 @@ export default function ProjectRoadmap({ artisans, defaultOpenArtisanId }) {
         })}
       </div>
 
-      {/* Détail vertical de l'intervenant sélectionné */}
-      {ordered[openIndex] && (
+      {/* Détail vertical de l'intervenant sélectionné — jamais celui d'un
+          autre professionnel quand on est soi-même un professionnel. */}
+      {ordered[openIndex] && (!isArtisanViewer || ordered[openIndex].artisanId === viewerId) && (
         <div className="mt-4">
           <ProjectJourney key={ordered[openIndex].artisanId} {...ordered[openIndex].journeyProps} />
         </div>
