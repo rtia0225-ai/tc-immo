@@ -328,9 +328,12 @@ export default async function ProjectPage({ params, searchParams }) {
         >
           <span aria-hidden>📅</span> Rendez-vous
         </Link>
-        <span className="flex items-center gap-1.5 font-medium text-gray-400">
-          <span aria-hidden>📄</span> Documents
-        </span>
+        <Link
+          href={`/projects/${project.id}/espace`}
+          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
+        >
+          <span aria-hidden>📄</span> Espace projet
+        </Link>
         <Link
           href={`/projects/${project.id}/paiement`}
           className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
