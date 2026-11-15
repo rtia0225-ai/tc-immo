@@ -229,33 +229,61 @@ export default async function ProjectPage({ params, searchParams }) {
         </div>
 
         <div className="mt-3 flex flex-col gap-2">
-          {artisansOnProject.map((a) => (
-            <div key={a.artisanId} className="flex items-center justify-between">
+          {artisansOnProject.map((a) => {
+            const isSelf = a.artisanId === user.id;
+            const avatar = a.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={a.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-xs font-bold text-gray-300">
+                {a.fullName?.slice(0, 2).toUpperCase()}
+              </div>
+            );
+            const info = (
               <div className="flex items-center gap-3">
-                {a.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={a.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
-                ) : (
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-xs font-bold text-gray-300">
-                    {a.fullName?.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
+                {avatar}
                 <div>
-                  <p className="text-sm font-medium">{a.fullName}</p>
+                  <p className="text-sm font-medium">
+                    {a.fullName}
+                    {isSelf ? " (moi)" : ""}
+                  </p>
                   <p className="text-xs text-gray-500">{a.trade}{a.isPrimary ? " · Principal" : ""}</p>
                 </div>
               </div>
-              {!isArtisan && !a.isPrimary && (
-                <form action={removeParticipant}>
-                  <input type="hidden" name="projectId" value={project.id} />
-                  <input type="hidden" name="participantId" value={a.participantId} />
-                  <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
-                    Retirer
-                  </button>
-                </form>
-              )}
-            </div>
-          ))}
+            );
+
+            return (
+              <div key={a.artisanId} className="flex items-center justify-between">
+                {isSelf ? (
+                  info
+                ) : (
+                  <Link
+                    href={`/projects/${project.id}/contact/${a.artisanId}`}
+                    className="flex items-center gap-3 hover:opacity-70"
+                    title={`Discuter avec ${a.fullName || "ce professionnel"}`}
+                  >
+                    {avatar}
+                    <div>
+                      <p className="text-sm font-medium text-ink">{a.fullName}</p>
+                      <p className="text-xs text-gray-500">
+                        {a.trade}
+                        {a.isPrimary ? " · Principal" : ""} · <span className="text-brand">Discuter</span>
+                      </p>
+                    </div>
+                  </Link>
+                )}
+                {!isArtisan && !a.isPrimary && (
+                  <form action={removeParticipant}>
+                    <input type="hidden" name="projectId" value={project.id} />
+                    <input type="hidden" name="participantId" value={a.participantId} />
+                    <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
+                      Retirer
+                    </button>
+                  </form>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -302,7 +330,6 @@ export default async function ProjectPage({ params, searchParams }) {
             };
           })}
           defaultOpenArtisanId={isArtisan ? user.id : undefined}
-          projectId={project.id}
           viewerId={user.id}
           isArtisanViewer={isArtisan && !isAdmin}
         />

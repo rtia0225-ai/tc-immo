@@ -2,14 +2,18 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 // Pas de page à afficher : on retrouve (ou on crée) la conversation
-// directe entre deux professionnels du même projet, et on atterrit tout
-// de suite dans la messagerie — même principe que /messages/new, mais
-// entre collègues du chantier plutôt qu'entre client et artisan.
+// directe avec ce professionnel du projet (client → professionnel, ou
+// professionnel → professionnel), et on atterrit tout de suite dans la
+// messagerie — même principe que /messages/new.
 //
-// On range toujours les deux id dans un ordre fixe (le plus petit dans
-// client_id, le plus grand dans artisan_id) : ça évite de créer deux
-// conversations différentes selon qui clique le premier, et ça respecte
-// la contrainte d'unicité (client_id, artisan_id, project_id).
+// `artisan_id` a une contrainte de clé étrangère vers artisan_profiles :
+// seul un vrai professionnel peut s'y trouver. Le client (s'il clique
+// depuis la liste des participants) va donc toujours dans `client_id`.
+// Entre deux professionnels, aucun des deux n'est "le client" : on range
+// alors les deux id dans un ordre fixe (le plus petit dans client_id) pour
+// toujours retomber sur la même conversation, quel que soit qui clique le
+// premier, et respecter la contrainte d'unicité (client_id, artisan_id,
+// project_id).
 export default async function ProjectContactPage({ params }) {
   const { id: projectId, artisanId } = params;
   const supabase = createClient();
@@ -25,26 +29,31 @@ export default async function ProjectContactPage({ params }) {
     redirect(`/projects/${projectId}`);
   }
 
-  // Les deux doivent réellement intervenir sur ce projet (principal ou
-  // participant) — on ne crée pas de conversation "à l'aveugle".
-  const { data: project } = await supabase.from("projects").select("artisan_id").eq("id", projectId).single();
+  // Le professionnel ciblé, et l'utilisateur courant (client ou
+  // professionnel), doivent réellement être sur ce projet — on ne crée
+  // pas de conversation "à l'aveugle".
+  const { data: project } = await supabase.from("projects").select("artisan_id, client_id").eq("id", projectId).single();
   const { data: participants } = await supabase
     .from("project_participants")
     .select("artisan_id")
     .eq("project_id", projectId);
   const artisanIdsOnProject = new Set([project?.artisan_id, ...(participants || []).map((p) => p.artisan_id)]);
-  if (!artisanIdsOnProject.has(user.id) || !artisanIdsOnProject.has(artisanId)) {
+
+  const viewerIsClient = project?.client_id === user.id;
+  const viewerIsProfessionalHere = artisanIdsOnProject.has(user.id);
+
+  if (!artisanIdsOnProject.has(artisanId) || (!viewerIsClient && !viewerIsProfessionalHere)) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent("Ce professionnel n'intervient pas sur ce projet.")}`);
   }
 
-  const [a, b] = [user.id, artisanId].sort();
+  const [clientSlot, artisanSlot] = viewerIsClient ? [user.id, artisanId] : [user.id, artisanId].sort();
 
   const { data: existing } = await supabase
     .from("conversations")
     .select("id")
     .eq("project_id", projectId)
-    .eq("client_id", a)
-    .eq("artisan_id", b)
+    .eq("client_id", clientSlot)
+    .eq("artisan_id", artisanSlot)
     .maybeSingle();
 
   if (existing) {
@@ -53,7 +62,7 @@ export default async function ProjectContactPage({ params }) {
 
   const { data: created, error } = await supabase
     .from("conversations")
-    .insert({ client_id: a, artisan_id: b, project_id: projectId })
+    .insert({ client_id: clientSlot, artisan_id: artisanSlot, project_id: projectId })
     .select("id")
     .single();
 
