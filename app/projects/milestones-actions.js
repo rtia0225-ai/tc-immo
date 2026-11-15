@@ -250,17 +250,26 @@ export async function releasePayment(formData) {
     .select("title, amount")
     .single();
 
-  if (paidMilestone) {
-    await logTimelineEvent(supabase, {
-      projectId,
-      eventType: "payment_made",
-      title: `Paiement effectué : ${paidMilestone.title}`,
-      description: paidMilestone.amount ? `${paidMilestone.amount}` : null,
-      actorId: user.id,
-    });
-
-    await advanceProjectStatusFromPayment(supabase, projectId);
+  if (!paidMilestone) {
+    // Ne devrait plus arriver (droit client sur la table corrigé), mais
+    // on affiche une erreur au lieu de rediriger silencieusement comme
+    // avant, au cas où.
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "La confirmation du virement n'a pas pu être enregistrée. Réessaie, et contacte-nous si ça persiste."
+      )}`
+    );
   }
+
+  await logTimelineEvent(supabase, {
+    projectId,
+    eventType: "payment_made",
+    title: `Paiement effectué : ${paidMilestone.title}`,
+    description: paidMilestone.amount ? `${paidMilestone.amount}` : null,
+    actorId: user.id,
+  });
+
+  await advanceProjectStatusFromPayment(supabase, projectId);
 
   redirect(`/projects/${projectId}`);
 }
