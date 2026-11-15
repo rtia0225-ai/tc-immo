@@ -38,14 +38,15 @@ async function checkRequiredAppointments(supabase, milestoneId) {
   return null;
 }
 
-// Le client partage un document déposé par un professionnel vers le
-// parcours d'un autre (mini-dossier en bas de chaque timeline). Le
-// document apparaît ensuite chez le destinataire à la date du document
+// Le client partage le DOSSIER COMPLET d'un professionnel (tous ses
+// livrables, tous fichiers approuvés confondus, toutes étapes confondues)
+// vers le parcours d'un autre professionnel — pas un document à la fois.
+// Chaque document apparaît ensuite chez le destinataire à sa date
 // d'origine (document_date), pas à la date du partage.
-export async function shareDeliverable(formData) {
+export async function shareDossier(formData) {
   const supabase = createClient();
   const projectId = formData.get("projectId");
-  const deliverableId = formData.get("deliverableId");
+  const sourceArtisanId = formData.get("sourceArtisanId");
   const recipientArtisanId = formData.get("recipientArtisanId");
 
   const {
@@ -53,53 +54,67 @@ export async function shareDeliverable(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  if (recipientArtisanId === sourceArtisanId) {
+    redirect(`/projects/${projectId}`);
+  }
+
   const { data: project } = await supabase.from("projects").select("client_id").eq("id", projectId).single();
   if (project?.client_id !== user.id) {
     redirect(
       `/projects/${projectId}?error=${encodeURIComponent(
-        "Seul le client du projet peut partager un document — vérifie que tu es connecté sur le bon compte."
+        "Seul le client du projet peut partager un dossier — vérifie que tu es connecté sur le bon compte."
       )}`
     );
   }
 
-  // Un livrable peut contenir plusieurs fichiers : on partage tous ceux
-  // qui sont approuvés (visibles du client), pas un seul.
-  const { data: deliverable } = await supabase
-    .from("milestone_deliverables")
+  const { data: milestones } = await supabase
+    .from("project_milestones")
     .select(
-      "label, milestone:milestone_id ( project_id, artisan_id ), deliverable_files ( document_url, review_status, reviewed_at, created_at )"
+      "id, milestone_deliverables ( id, label, deliverable_files ( document_url, review_status, reviewed_at, created_at ) )"
     )
-    .eq("id", deliverableId)
-    .single();
+    .eq("project_id", projectId)
+    .eq("artisan_id", sourceArtisanId);
 
-  const approvedFiles = (deliverable?.deliverable_files || []).filter((f) => f.review_status === "approved");
-
-  if (!deliverable || deliverable.milestone?.project_id !== projectId || approvedFiles.length === 0) {
-    redirect(`/projects/${projectId}?error=${encodeURIComponent("Ce document ne peut pas être partagé.")}`);
-  }
-  if (recipientArtisanId === deliverable.milestone.artisan_id) {
-    redirect(`/projects/${projectId}`);
-  }
-
-  await supabase.from("shared_deliverables").insert(
-    approvedFiles.map((f) => ({
-      project_id: projectId,
-      source_deliverable_id: deliverableId,
-      source_artisan_id: deliverable.milestone.artisan_id,
-      recipient_artisan_id: recipientArtisanId,
-      shared_by: user.id,
-      label: deliverable.label,
-      document_url: f.document_url,
-      document_date: f.reviewed_at || f.created_at,
-    }))
+  const filesToShare = (milestones || []).flatMap((m) =>
+    (m.milestone_deliverables || []).flatMap((d) =>
+      (d.deliverable_files || [])
+        .filter((f) => f.review_status === "approved")
+        .map((f) => ({
+          project_id: projectId,
+          source_deliverable_id: d.id,
+          source_artisan_id: sourceArtisanId,
+          recipient_artisan_id: recipientArtisanId,
+          shared_by: user.id,
+          label: d.label,
+          document_url: f.document_url,
+          document_date: f.reviewed_at || f.created_at,
+        }))
+    )
   );
 
-  await sendPush(
-    recipientArtisanId,
-    "Document partagé",
-    `Le client a ajouté "${deliverable.label}" à ton dossier sur ce projet.`,
-    `/projects/${projectId}`
-  );
+  if (filesToShare.length === 0) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Ce dossier ne peut pas être partagé.")}`);
+  }
+
+  // Pas de doublon si on repartage un dossier déjà envoyé à ce même
+  // professionnel (ou double-clic rapide sur un nom).
+  const { data: alreadyShared } = await supabase
+    .from("shared_deliverables")
+    .select("document_url")
+    .eq("project_id", projectId)
+    .eq("recipient_artisan_id", recipientArtisanId);
+  const alreadySharedUrls = new Set((alreadyShared || []).map((s) => s.document_url));
+  const newFiles = filesToShare.filter((f) => !alreadySharedUrls.has(f.document_url));
+
+  if (newFiles.length > 0) {
+    await supabase.from("shared_deliverables").insert(newFiles);
+    await sendPush(
+      recipientArtisanId,
+      "Dossier partagé",
+      "Le client a partagé le dossier d'un autre professionnel avec toi sur ce projet.",
+      `/projects/${projectId}`
+    );
+  }
 
   redirect(`/projects/${projectId}`);
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { toggleMilestone, releasePayment, uploadDeliverable, shareDeliverable } from "@/app/projects/milestones-actions";
+import { toggleMilestone, releasePayment, uploadDeliverable, shareDossier } from "@/app/projects/milestones-actions";
 import { markAppointmentCompleted } from "@/app/appointments/actions";
 import { requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
@@ -115,10 +115,11 @@ function EducationBlock({ content }) {
   );
 }
 
-// Bouton de partage d'un document du mini-dossier vers un autre
-// professionnel du projet : un clic révèle la liste des autres
-// professionnels, un second clic envoie.
-function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
+// Bouton de partage du DOSSIER ENTIER d'un professionnel (pas un document
+// à la fois) vers un autre professionnel du projet : un clic révèle la
+// liste des autres professionnels, un clic sur un nom envoie tout le
+// dossier directement.
+function ShareDossierButton({ projectId, sourceArtisanId, otherArtisans }) {
   const [open, setOpen] = useState(false);
   if (!otherArtisans || otherArtisans.length === 0) return null;
   if (!open) {
@@ -126,7 +127,7 @@ function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        title="Partager ce document"
+        title="Partager ce dossier"
         className="flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs font-bold text-white hover:bg-brand-dark"
       >
         +
@@ -136,9 +137,9 @@ function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {otherArtisans.map((a) => (
-        <form key={a.artisanId} action={shareDeliverable}>
+        <form key={a.artisanId} action={shareDossier}>
           <input type="hidden" name="projectId" value={projectId} />
-          <input type="hidden" name="deliverableId" value={deliverableId} />
+          <input type="hidden" name="sourceArtisanId" value={sourceArtisanId} />
           <input type="hidden" name="recipientArtisanId" value={a.artisanId} />
           <SubmitButton className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-ink hover:bg-gray-200" pendingLabel="...">
             {a.fullName || a.trade}
@@ -571,29 +572,28 @@ export default function ProjectJourney({
       )}
 
       {/* Mini-dossier : tous les documents déjà déposés par ce
-          professionnel, pour que le client puisse en partager un vers un
-          autre professionnel du projet (ex : le plan de l'architecte
-          transmis au maçon). */}
+          professionnel. Le "+" partage le DOSSIER ENTIER d'un coup vers un
+          autre professionnel du projet (ex : tout le dossier de
+          l'architecte transmis à l'ingénieur) — pas document par
+          document. */}
       {isClient && myDeliverables.length > 0 && (
         <div className="ml-6 mt-2 rounded-lg border border-dashed border-gray-200 p-3">
-          <p className="text-xs font-bold text-ink">📁 Dossier de {artisanName}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-bold text-ink">📁 Dossier de {artisanName}</p>
+            <ShareDossierButton projectId={projectId} sourceArtisanId={artisanId} otherArtisans={otherArtisans} />
+          </div>
           <div className="mt-1.5 flex flex-col gap-1.5">
             {myDeliverables.map((d) => {
               const approvedFiles = (d.files || []).filter((f) => f.signedUrl);
               return (
-                <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-xs">
-                  <div>
-                    <span className="font-medium text-ink">{d.label}</span>
-                    <span className="ml-1 text-gray-400">({d.milestoneTitle})</span>
-                    {approvedFiles.map((f, idx) => (
-                      <a key={f.id} href={f.signedUrl} target="_blank" rel="noreferrer" className="ml-2 font-semibold text-brand underline">
-                        {approvedFiles.length > 1 ? `Voir ${idx + 1}` : "Voir"}
-                      </a>
-                    ))}
-                  </div>
-                  {approvedFiles.length > 0 && (
-                    <ShareDeliverableButton projectId={projectId} deliverableId={d.id} otherArtisans={otherArtisans} />
-                  )}
+                <div key={d.id} className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-xs">
+                  <span className="font-medium text-ink">{d.label}</span>
+                  <span className="text-gray-400">({d.milestoneTitle})</span>
+                  {approvedFiles.map((f, idx) => (
+                    <a key={f.id} href={f.signedUrl} target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
+                      {approvedFiles.length > 1 ? `Voir ${idx + 1}` : "Voir"}
+                    </a>
+                  ))}
                 </div>
               );
             })}
