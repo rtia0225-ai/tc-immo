@@ -368,8 +368,14 @@ export default async function ProjectPage({ params, searchParams }) {
           {allArtisansOnProjectForList.map((a) => {
             const isSelf = a.artisanId === user.id;
             const participantRecord = !a.isPrimary ? participants?.find((p) => p.id === a.participantId) : null;
-            const pendingLabel =
-              a.isPrimary && PENDING_STATUSES.includes(project.status)
+            // Où en est le démarrage d'un professionnel (échéancier,
+            // contrat...) ne regarde que le client, l'admin, et le
+            // professionnel lui-même — pas les autres professionnels du
+            // projet.
+            const canSeeStartupStatus = isClient || isAdmin || isSelf;
+            const pendingLabel = !canSeeStartupStatus
+              ? null
+              : a.isPrimary && PENDING_STATUSES.includes(project.status)
                 ? "En cours de démarrage"
                 : participantRecord && PARTICIPANT_PENDING_STATUSES.includes(participantRecord.status)
                   ? "En cours de démarrage"
@@ -439,8 +445,13 @@ export default async function ProjectPage({ params, searchParams }) {
       {/* Chaque participant suit le même pipeline de démarrage que
           l'artisan principal (demande → échéancier rempli par lui →
           validation client → contrat) avant de rejoindre le vrai parcours
-          — un point d'étape par participant encore en cours. */}
-      {pendingParticipants.map((p) => (
+          — un point d'étape par participant encore en cours. Ce qui
+          concerne un professionnel (son échéancier, son contrat...) ne
+          regarde que lui, le client et l'admin — pas les autres
+          professionnels du projet. */}
+      {pendingParticipants
+        .filter((p) => isClient || isAdmin || (isArtisan && user.id === p.artisan_id))
+        .map((p) => (
         <div key={p.id} className="mb-6 rounded-lg bg-white shadow-card p-5">
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
             {p.artisan?.profiles?.full_name} ({p.artisan?.trade})
@@ -539,8 +550,11 @@ export default async function ProjectPage({ params, searchParams }) {
       {/* Avant que l'échéancier (principal) ne soit rempli, validé et le
           contrat signé des deux côtés, on affiche le point d'étape du
           pipeline de démarrage à la place du vrai parcours — qui n'existe
-          pas encore. */}
+          pas encore. Ça ne concerne que le client, l'artisan principal
+          lui-même, et l'admin — un autre professionnel du projet n'a pas
+          à voir où en est le démarrage de quelqu'un d'autre. */}
       {PENDING_STATUSES.includes(project.status) ? (
+        (isClient || isAdmin || (isArtisan && user.id === project.artisan_id)) && (
         <div className="mb-6 rounded-lg bg-white shadow-card p-5">
           {project.status === "pending_schedule" && (
             isClient ? (
@@ -629,6 +643,7 @@ export default async function ProjectPage({ params, searchParams }) {
             </>
           )}
         </div>
+        )
       ) : (
         <>
           {/* Le parcours du projet : un seul fil horizontal, un arrêt par
