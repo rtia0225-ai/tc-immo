@@ -7,7 +7,7 @@ import { markAppointmentCompleted } from "@/app/appointments/actions";
 import { requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
 import SubmitButton from "@/components/SubmitButton";
-import { MANDATORY_CALL_TRADES, OPTIONAL_CALL_TRADES } from "@/lib/constants";
+import { MANDATORY_CALL_TRADES } from "@/lib/constants";
 
 function formatDate(d) {
   if (!d) return "";
@@ -396,8 +396,10 @@ export default function ProjectJourney({
       {sortedMilestones.map((m, i) => {
         const milestoneAppointments = appointmentsByMilestone[m.id] || [];
         const callIsMandatory = MANDATORY_CALL_TRADES.includes(trade);
-        const callIsOptional = OPTIONAL_CALL_TRADES.includes(trade);
-        const showCallBlock = callIsMandatory || callIsOptional;
+        // La possibilité de passer l'appel est toujours affichée, pour
+        // tous les métiers — seul Technicien BTP en fait une obligation
+        // qui bloque la validation de l'étape.
+        const showCallBlock = true;
         const hasCompletedCall = milestoneAppointments.some((a) => a.status === "completed");
         const hasBlockingRequirement = callIsMandatory && !hasCompletedCall;
         const status = m.is_completed ? "Validée" : m.paid_at ? "Payée, à valider" : "En cours";

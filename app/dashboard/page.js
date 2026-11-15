@@ -195,11 +195,25 @@ export default async function DashboardPage({ searchParams }) {
       .eq("project_id", activeProject.id)
       .order("order_index", { ascending: true });
 
-    // Un artisan ne voit ici que SES PROPRES étapes (pas celles des autres
-    // artisans du même projet) ; le client voit celles de l'artisan principal.
-    milestonesQuery = isArtisan
-      ? milestonesQuery.eq("artisan_id", user.id)
-      : milestonesQuery.eq("artisan_id", activeProject.artisan_id);
+    if (isArtisan) {
+      // Un artisan ne voit ici que SES PROPRES étapes (pas celles des
+      // autres professionnels du même projet).
+      milestonesQuery = milestonesQuery.eq("artisan_id", user.id);
+    } else {
+      // Le client voit l'avancement de TOUS les professionnels du projet
+      // (le principal + les participants ajoutés), pas seulement du
+      // principal — sinon le pourcentage affiché est faux dès qu'il y a
+      // plusieurs intervenants.
+      const { data: activeProjectParticipants } = await supabase
+        .from("project_participants")
+        .select("artisan_id")
+        .eq("project_id", activeProject.id);
+      const projectArtisanIds = [
+        activeProject.artisan_id,
+        ...(activeProjectParticipants || []).map((p) => p.artisan_id),
+      ];
+      milestonesQuery = milestonesQuery.in("artisan_id", projectArtisanIds);
+    }
 
     const { data } = await milestonesQuery;
     milestones = data || [];
