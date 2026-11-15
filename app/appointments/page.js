@@ -9,6 +9,8 @@ const STATUS_LABELS = {
   completed: "Terminé",
 };
 
+const CALL_TYPE_LABELS = { audio: "Appel audio", video: "Appel vidéo" };
+
 export default async function AppointmentsPage() {
   const supabase = createClient();
   const {
@@ -27,7 +29,7 @@ export default async function AppointmentsPage() {
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
-      `id, scheduled_at, status, meeting_link, notes, proposed_by,
+      `id, scheduled_at, status, meeting_link, notes, proposed_by, call_type,
        client:client_id ( full_name ),
        artisan:artisan_id ( trade, profiles ( full_name ) ),
        regarding:regarding_artisan_id ( profiles ( full_name ) )`
@@ -65,6 +67,7 @@ export default async function AppointmentsPage() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-600">
+                  {a.call_type ? `${CALL_TYPE_LABELS[a.call_type] || "Appel"} — ` : ""}
                   Avec{" "}
                   {isArtisan
                     ? a.client?.full_name

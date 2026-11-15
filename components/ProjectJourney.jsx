@@ -20,9 +20,13 @@ function formatDateTime(d) {
 // Formulaire compact pour planifier l'appel de validation d'une étape.
 // Toujours disponible, à n'importe quel moment — seule la VALIDATION de
 // l'étape dépend de son existence, pas la possibilité de la programmer.
-function ScheduleRequiredCall({ projectId, artisanId, milestoneId, mandatory, callType }) {
+// Audio ou vidéo : jamais imposé par métier, c'est celui qui propose le
+// créneau qui choisit selon l'urgence/l'importance du sujet. L'appel se
+// fait toujours via la plateforme — client et professionnel n'échangent
+// jamais leurs coordonnées.
+function ScheduleRequiredCall({ projectId, artisanId, milestoneId, mandatory }) {
   const [open, setOpen] = useState(false);
-  const label = mandatory ? `📅 Planifier l'${CALL_TYPE_LABELS[callType]} obligatoire` : "📅 Planifier un appel (facultatif)";
+  const label = mandatory ? "📅 Planifier l'appel obligatoire" : "📅 Planifier un appel (facultatif)";
   if (!open) {
     return (
       <button
@@ -50,6 +54,13 @@ function ScheduleRequiredCall({ projectId, artisanId, milestoneId, mandatory, ca
           required
           className="mt-0.5 rounded-md border border-gray-300 p-1.5 text-xs"
         />
+      </div>
+      <div>
+        <label className="block text-[11px] font-semibold text-gray-500">Audio ou vidéo</label>
+        <select name="callType" required className="mt-0.5 rounded-md border border-gray-300 p-1.5 text-xs">
+          <option value="audio">Audio</option>
+          <option value="video">Vidéo</option>
+        </select>
       </div>
       <button type="submit" className="rounded-lg bg-forest px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-dark">
         Proposer ce créneau
@@ -82,7 +93,8 @@ function RequiredCallStatus({ projectId, appointment }) {
     <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-white p-2.5 shadow-card">
       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${color}`}>{label}</span>
       <span className="text-xs text-gray-600">
-        Appel de validation — {formatDateTime(appointment.scheduled_at)}
+        {appointment.call_type ? CALL_TYPE_LABELS[appointment.call_type] || "Appel" : "Appel"} de validation —{" "}
+        {formatDateTime(appointment.scheduled_at)}
       </span>
       {appointment.status !== "completed" && appointment.status !== "cancelled" && (
         <form action={markAppointmentCompleted}>
@@ -414,11 +426,11 @@ export default function ProjectJourney({
 
       {sortedMilestones.map((m, i) => {
         const milestoneAppointments = appointmentsByMilestone[m.id] || [];
-        const mandatoryCallType = MANDATORY_CALL_TRADES[trade];
+        const callIsMandatory = MANDATORY_CALL_TRADES.includes(trade);
         const callIsOptional = OPTIONAL_CALL_TRADES.includes(trade);
-        const showCallBlock = !!mandatoryCallType || callIsOptional;
+        const showCallBlock = callIsMandatory || callIsOptional;
         const hasCompletedCall = milestoneAppointments.some((a) => a.status === "completed");
-        const hasBlockingRequirement = !!mandatoryCallType && !hasCompletedCall;
+        const hasBlockingRequirement = callIsMandatory && !hasCompletedCall;
         const status = m.is_completed ? "Validée" : m.paid_at ? "Payée, à valider" : "En cours";
         const education = educationByTitle?.[m.title];
         const isLast = i === sortedMilestones.length - 1;
@@ -462,8 +474,7 @@ export default function ProjectJourney({
                         projectId={projectId}
                         artisanId={artisanId}
                         milestoneId={m.id}
-                        mandatory={!!mandatoryCallType}
-                        callType={mandatoryCallType}
+                        mandatory={callIsMandatory}
                       />
                     )
                   ))}

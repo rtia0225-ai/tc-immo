@@ -5,13 +5,15 @@ import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 import { reviewDeliverableDocument } from "@/lib/documentReview";
 import { sendPush } from "@/lib/notifications";
-import { MANDATORY_CALL_TRADES, CALL_TYPE_LABELS } from "@/lib/constants";
+import { MANDATORY_CALL_TRADES } from "@/lib/constants";
 
 // Une étape ne peut être validée que si son appel de validation (quand le
 // métier du professionnel l'exige — Technicien BTP, Chef de chantier) a
 // bien eu lieu. Pour les autres métiers, l'appel reste facultatif et ne
-// bloque jamais. Renvoie un message d'erreur si ce n'est pas le cas,
-// sinon null.
+// bloque jamais. L'appel se fait toujours via la plateforme (jamais en
+// échangeant les coordonnées directement), en audio ou en vidéo selon ce
+// que choisissent client et professionnel — ce n'est jamais imposé par
+// métier. Renvoie un message d'erreur si ce n'est pas le cas, sinon null.
 async function checkRequiredAppointments(supabase, milestoneId) {
   const { data: milestone } = await supabase
     .from("project_milestones")
@@ -19,8 +21,8 @@ async function checkRequiredAppointments(supabase, milestoneId) {
     .eq("id", milestoneId)
     .single();
 
-  const callType = MANDATORY_CALL_TRADES[milestone?.artisan?.trade];
-  if (!callType) return null; // métier sans appel obligatoire
+  const isMandatory = MANDATORY_CALL_TRADES.includes(milestone?.artisan?.trade);
+  if (!isMandatory) return null; // métier sans appel obligatoire
 
   const { data: completedCall } = await supabase
     .from("appointments")
@@ -31,7 +33,7 @@ async function checkRequiredAppointments(supabase, milestoneId) {
     .maybeSingle();
 
   if (!completedCall) {
-    return `Un ${CALL_TYPE_LABELS[callType]} terminé avec le client est obligatoire pour ce métier avant de valider cette étape.`;
+    return "Un appel (audio ou vidéo, au choix) terminé avec le client est obligatoire pour ce métier avant de valider cette étape.";
   }
   return null;
 }

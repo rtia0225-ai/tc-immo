@@ -18,6 +18,9 @@ export async function requestAppointment(formData) {
   const isRequired = formData.get("isRequired") === "true";
   const scheduledAt = formData.get("scheduledAt"); // datetime-local
   const notes = formData.get("notes");
+  // Audio ou vidéo : toujours choisi par qui propose le créneau, jamais
+  // imposé — l'appel passe par la plateforme, sans échange de coordonnées.
+  const callType = formData.get("callType") || null;
 
   const { data: appointment, error } = await supabase
     .from("appointments")
@@ -28,6 +31,7 @@ export async function requestAppointment(formData) {
       milestone_id: milestoneId,
       is_required: isRequired,
       scheduled_at: new Date(scheduledAt).toISOString(),
+      call_type: callType,
       notes,
       status: "proposed",
       proposed_by: user.id,
