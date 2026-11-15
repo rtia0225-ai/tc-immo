@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { submitMilestoneSchedule } from "../../actions";
 import MilestoneBuilder from "@/components/MilestoneBuilder";
+import SubmitButton from "@/components/SubmitButton";
 
 // L'artisan principal remplit (ou corrige) l'échéancier de paiement de ce
 // projet : étapes, pourcentages, montant total. Pré-rempli avec l'exemple
@@ -38,12 +39,16 @@ export default async function ProjectSchedulePage({ params, searchParams }) {
   // on repart de ce qui a été rempli la dernière fois, pas de l'exemple.
   const { data: existingMilestones } = await supabase
     .from("project_milestones")
-    .select("title, payment_percentage")
+    .select("title, payment_percentage, deliverable_label")
     .eq("project_id", id)
     .eq("artisan_id", user.id)
     .order("order_index", { ascending: true });
 
-  const initialRows = (existingMilestones || []).map((m) => ({ title: m.title, percentage: String(m.payment_percentage ?? "") }));
+  const initialRows = (existingMilestones || []).map((m) => ({
+    title: m.title,
+    percentage: String(m.payment_percentage ?? ""),
+    deliverable: m.deliverable_label || "",
+  }));
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
@@ -87,12 +92,12 @@ export default async function ProjectSchedulePage({ params, searchParams }) {
 
         <MilestoneBuilder trade={artisan?.trade} initialRows={initialRows} />
 
-        <button
-          type="submit"
-          className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark"
+        <SubmitButton
+          pendingLabel="Envoi en cours…"
+          className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark disabled:opacity-60"
         >
           Envoyer au client pour validation
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

@@ -5,6 +5,7 @@ import { uploadIdDocument } from "@/lib/idDocumentActions";
 import { ID_DOCUMENT_TYPES } from "@/lib/constants";
 import FileInputButton from "@/components/FileInputButton";
 import GpsCaptureButton from "@/components/GpsCaptureButton";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function NewProjectPage({ searchParams }) {
   const artisanId = searchParams?.artisan;
@@ -185,12 +186,12 @@ export default async function NewProjectPage({ searchParams }) {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark"
+        <SubmitButton
+          pendingLabel="Envoi en cours…"
+          className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark disabled:opacity-60"
         >
           Envoyer la demande à {artisan?.profiles?.full_name || "l'artisan"}
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

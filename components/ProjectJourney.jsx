@@ -6,7 +6,6 @@ import { toggleMilestone, releasePayment, uploadDeliverable } from "@/app/projec
 import { requestAppointment, markAppointmentCompleted } from "@/app/appointments/actions";
 import { requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
-import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 
 function formatDate(d) {
   if (!d) return "";
@@ -263,12 +262,6 @@ export default function ProjectJourney({
   isArtisan,
   isClient,
 }) {
-  // Topographe (SINGLE_INSTALLMENT_TRADES) : son unique étape exige le
-  // document livré. Architecte/Ingénieur (FINAL_DOCUMENT_TRADES) : plusieurs
-  // étapes bien réelles, seule la DERNIÈRE (le document final) exige l'envoi
-  // d'un document — les précédentes se valident normalement.
-  const isSingleInstallmentTrade = !!SINGLE_INSTALLMENT_TRADES[trade];
-  const isFinalDocumentTrade = !!FINAL_DOCUMENT_TRADES[trade];
   const sortedMilestones = [...(milestones || [])].sort((a, b) => a.order_index - b.order_index);
   const appointmentsByMilestone = {};
   const looseAppointments = [];
@@ -337,10 +330,13 @@ export default function ProjectJourney({
       {sortedMilestones.map((m, i) => {
         const requiredAppointments = (appointmentsByMilestone[m.id] || []).filter((a) => a.is_required);
         const hasBlockingRequirement = requiredAppointments.length > 0 && !requiredAppointments.some((a) => a.status === "completed");
-        const status = m.paid_at ? "Payée" : m.is_completed ? "Validée" : "En cours";
+        const status = m.is_completed ? "Validée" : m.paid_at ? "Payée, à valider" : "En cours";
         const education = educationByTitle?.[m.title];
         const isLast = i === sortedMilestones.length - 1;
-        const requiresDeliverable = isSingleInstallmentTrade || (isFinalDocumentTrade && isLast);
+        // Le livrable est désormais attendu à CHAQUE étape (plus seulement
+        // pour les métiers à document unique/final) : c'est la base de la
+        // nouvelle règle "document déposé + client payé" avant de pouvoir
+        // valider l'étape.
 
         return (
           <div key={m.id}>
@@ -364,6 +360,9 @@ export default function ProjectJourney({
                     </span>
                   )}
                 </div>
+                {m.deliverable_label && (
+                  <p className="mt-0.5 text-xs text-gray-400">Livrable attendu : {m.deliverable_label}</p>
+                )}
 
                 {/* Rendez-vous de validation */}
                 {requiredAppointments.length > 0 ? (
@@ -400,28 +399,35 @@ export default function ProjectJourney({
                     <p className="mt-1 text-xs text-gray-400">
                       L'appel de validation doit être terminé avant de pouvoir valider cette étape.
                     </p>
-                  ) : requiresDeliverable ? (
+                  ) : !m.deliverable_document_url ? (
+                    // 1. Rien n'a encore été déposé : c'est la première chose à faire.
                     <form action={uploadDeliverable} className="mt-1 flex flex-col gap-2">
                       <input type="hidden" name="milestoneId" value={m.id} />
                       <input type="hidden" name="projectId" value={projectId} />
                       <FileInputButton name="document" accept=".pdf,image/*" required label="Choisir le document" />
                       <button type="submit" className="w-fit text-xs font-bold text-brand hover:underline">
-                        Envoyer et débloquer le paiement
+                        Envoyer le livrable
                       </button>
                     </form>
+                  ) : !m.paid_at ? (
+                    // 2. Déposé, en attente du virement du client.
+                    <p className="mt-1 text-xs text-gray-400">
+                      ⏳ Livrable envoyé — en attente du virement du client pour pouvoir valider l'étape.
+                    </p>
                   ) : (
+                    // 3. Livrable déposé ET client payé : l'étape peut être validée.
                     <form action={toggleMilestone} className="mt-1">
                       <input type="hidden" name="milestoneId" value={m.id} />
                       <input type="hidden" name="projectId" value={projectId} />
                       <input type="hidden" name="isCompleted" value="false" />
-                      <button type="submit" className="text-xs font-bold text-brand hover:underline">
-                        Marquer comme terminé
+                      <button type="submit" className="text-xs font-bold text-forest hover:underline">
+                        ✅ Valider l'étape
                       </button>
                     </form>
                   )
                 )}
 
-                {isClient && m.is_completed && !m.paid_at && (
+                {isClient && m.deliverableSignedUrl && !m.paid_at && (
                   <form action={releasePayment} className="mt-1">
                     <input type="hidden" name="milestoneId" value={m.id} />
                     <input type="hidden" name="projectId" value={projectId} />

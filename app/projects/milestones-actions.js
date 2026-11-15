@@ -44,7 +44,14 @@ export async function addMilestone(formData) {
   redirect(`/projects/${projectId}`);
 }
 
-// L'artisan coche/décoche une étape terminée
+// L'artisan clique sur "Valider l'étape" (ou la décoche, cas rare).
+// Pour VALIDER (passer à terminé), deux conditions sont obligatoires,
+// vérifiées ici côté serveur (pas seulement cachées côté UI) :
+//   1. le livrable attendu a été déposé (deliverable_document_url rempli)
+//   2. le client a confirmé avoir payé (paid_at rempli)
+// + l'éventuel rendez-vous obligatoire du métier (déjà vérifié avant).
+// Sans ça, le bouton ne doit même pas apparaître côté client, mais on
+// bloque aussi ici au cas où.
 export async function toggleMilestone(formData) {
   const supabase = createClient();
   const milestoneId = formData.get("milestoneId");
@@ -60,6 +67,23 @@ export async function toggleMilestone(formData) {
     const blockReason = await checkRequiredAppointments(supabase, milestoneId);
     if (blockReason) {
       redirect(`/projects/${projectId}?error=${encodeURIComponent(blockReason)}`);
+    }
+
+    const { data: milestoneToValidate } = await supabase
+      .from("project_milestones")
+      .select("deliverable_document_url, paid_at")
+      .eq("id", milestoneId)
+      .single();
+
+    if (!milestoneToValidate?.deliverable_document_url) {
+      redirect(
+        `/projects/${projectId}?error=${encodeURIComponent("Dépose d'abord le livrable attendu pour cette étape avant de la valider.")}`
+      );
+    }
+    if (!milestoneToValidate?.paid_at) {
+      redirect(
+        `/projects/${projectId}?error=${encodeURIComponent("Le client doit d'abord confirmer le virement avant que tu puisses valider cette étape.")}`
+      );
     }
   }
 
@@ -104,15 +128,26 @@ export async function releasePayment(formData) {
     .eq("id", projectId)
     .single();
 
-  // Seul le client du projet peut confirmer avoir payé, et uniquement
-  // pour une étape déjà validée par l'artisan.
+  // Seul le client du projet peut confirmer avoir payé, et uniquement une
+  // fois que le professionnel a déposé le livrable attendu — c'est ce
+  // paiement qui débloque ensuite, pour lui, le droit de cliquer sur
+  // "Valider l'étape" (voir toggleMilestone), pas l'inverse.
   if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
+
+  const { data: milestoneToPay } = await supabase
+    .from("project_milestones")
+    .select("deliverable_document_url")
+    .eq("id", milestoneId)
+    .single();
+
+  if (!milestoneToPay?.deliverable_document_url) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Le professionnel n'a pas encore déposé le livrable de cette étape.")}`);
+  }
 
   const { data: paidMilestone } = await supabase
     .from("project_milestones")
     .update({ paid_at: new Date().toISOString() })
     .eq("id", milestoneId)
-    .eq("is_completed", true)
     .select("title, amount")
     .single();
 
@@ -213,11 +248,12 @@ export async function uploadDeliverable(formData) {
   // attendu et donner le bon contexte à la vérification automatique.
   const { data: milestoneBefore } = await supabase
     .from("project_milestones")
-    .select("title, artisan_id, artisan:artisan_id ( trade )")
+    .select("title, deliverable_label, artisan_id, artisan:artisan_id ( trade )")
     .eq("id", milestoneId)
     .single();
   const trade = milestoneBefore?.artisan?.trade;
-  const documentLabel = SINGLE_INSTALLMENT_TRADES[trade] || FINAL_DOCUMENT_TRADES[trade] || "livrable";
+  const documentLabel =
+    milestoneBefore?.deliverable_label || SINGLE_INSTALLMENT_TRADES[trade] || FINAL_DOCUMENT_TRADES[trade] || "livrable";
 
   const review = await reviewDeliverableDocument({
     fileBuffer: arrayBuffer,
@@ -229,11 +265,14 @@ export async function uploadDeliverable(formData) {
 
   const approved = review.status === "approved";
 
+  // L'upload ne valide plus l'étape automatiquement : il rend seulement le
+  // document visible au client (s'il est approuvé) pour qu'il puisse
+  // payer. L'étape n'est marquée "terminée" qu'au clic explicite de
+  // l'artisan sur "Valider l'étape", une fois le virement confirmé
+  // (cf. toggleMilestone / releasePayment).
   const { data: deliveredMilestone } = await supabase
     .from("project_milestones")
     .update({
-      is_completed: approved,
-      completed_at: approved ? new Date().toISOString() : null,
       deliverable_document_url: path,
       deliverable_review_status: review.status,
       deliverable_review_note: review.note,

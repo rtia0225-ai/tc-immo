@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { addParticipant } from "../../actions";
 import { CONSTRUCTION_SERVICES } from "@/lib/constants";
-import MilestoneBuilder from "@/components/MilestoneBuilder";
+import SubmitButton from "@/components/SubmitButton";
 import Link from "next/link";
 
 export default async function AddParticipantPage({ params, searchParams }) {
@@ -38,7 +38,10 @@ export default async function AddParticipantPage({ params, searchParams }) {
         <h1 className="font-heading text-2xl font-bold">Prestation de {artisan?.profiles?.full_name}</h1>
         <p className="mt-1 text-sm text-gray-500">{artisan?.trade}, projet "{project.title}"</p>
         <p className="mt-3 text-sm text-gray-500">
-          Chaque artisan est indépendant : renseigne ici uniquement les termes convenus avec {artisan?.profiles?.full_name}, séparément du reste du projet.
+          Décris ce que tu attends de {artisan?.profiles?.full_name}.{" "}
+          <strong className="text-ink">C'est ensuite lui qui remplira l'échéancier de paiement</strong> de sa
+          propre prestation (étapes, montant, pourcentages) — tu le valideras avant que le contrat ne soit signé,
+          comme pour l'artisan principal.
         </p>
 
         {searchParams?.error && (
@@ -59,30 +62,12 @@ export default async function AddParticipantPage({ params, searchParams }) {
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Montant convenu avec cet artisan ({project.currency || "XOF"})
-            </label>
-            <input
-              type="number"
-              name="amount"
-              required
-              min="0"
-              step="0.01"
-              className="w-full rounded-lg border border-gray-300 p-2"
-            />
-          </div>
-
-          <div className="border-t border-gray-100 pt-4">
-            <MilestoneBuilder trade={artisan?.trade} />
-          </div>
-
-          <button
-            type="submit"
-            className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark"
+          <SubmitButton
+            pendingLabel="Envoi en cours…"
+            className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark disabled:opacity-60"
           >
-            Ajouter et créer son contrat
-          </button>
+            Envoyer la demande à {artisan?.profiles?.full_name || "ce professionnel"}
+          </SubmitButton>
         </form>
       </div>
     );

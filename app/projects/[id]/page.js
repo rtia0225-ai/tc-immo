@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
 import ProjectRoadmap from "@/components/ProjectRoadmap";
-import { removeParticipant, validateMilestoneSchedule, requestMilestoneChanges } from "../actions";
+import {
+  removeParticipant,
+  validateMilestoneSchedule,
+  requestMilestoneChanges,
+  validateParticipantMilestoneSchedule,
+  requestParticipantMilestoneChanges,
+} from "../actions";
 import { DEFAULT_MILESTONES_BY_TRADE, SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -97,23 +103,38 @@ export default async function ProjectPage({ params, searchParams }) {
 
   const { data: participants } = await supabase
     .from("project_participants")
-    .select("id, artisan_id, amount, description, currency, artisan:artisan_id ( trade, profiles ( full_name, avatar_url ) )")
+    .select(
+      "id, artisan_id, amount, description, currency, status, milestone_feedback_note, artisan:artisan_id ( trade, profiles ( full_name, avatar_url ) )"
+    )
     .eq("project_id", id);
 
-  // Tous les artisans du projet : le principal + chaque participant,
+  // Un participant suit le même pipeline que l'artisan principal (demande
+  // -> échéancier rempli par lui -> validation client -> contrat) avant
+  // de rejoindre le vrai parcours. Tant que ce n'est pas fait, on
+  // l'affiche à part (point d'étape), pas dans le fil horizontal.
+  const PARTICIPANT_PENDING_STATUSES = ["pending_schedule", "pending_client_review", "pending_contract_signature"];
+  const pendingParticipants = (participants || []).filter((p) => PARTICIPANT_PENDING_STATUSES.includes(p.status));
+  const activeParticipants = (participants || []).filter((p) => !PARTICIPANT_PENDING_STATUSES.includes(p.status));
+
+  // Tous les artisans ACTIFS du projet : le principal (une fois son propre
+  // pipeline terminé) + chaque participant déjà passé par le sien,
   // chacun avec sa propre prestation, son propre échéancier, son propre contrat.
   const artisansOnProject = [
-    {
-      artisanId: project.artisan_id,
-      isPrimary: true,
-      trade: project.artisan?.trade,
-      fullName: project.artisan?.profiles?.full_name,
-      avatarUrl: project.artisan?.profiles?.avatar_url,
-      amount: project.amount,
-      currency: project.currency,
-      description: project.description,
-    },
-    ...(participants || []).map((p) => ({
+    ...(!PENDING_STATUSES.includes(project.status)
+      ? [
+          {
+            artisanId: project.artisan_id,
+            isPrimary: true,
+            trade: project.artisan?.trade,
+            fullName: project.artisan?.profiles?.full_name,
+            avatarUrl: project.artisan?.profiles?.avatar_url,
+            amount: project.amount,
+            currency: project.currency,
+            description: project.description,
+          },
+        ]
+      : []),
+    ...activeParticipants.map((p) => ({
       artisanId: p.artisan_id,
       isPrimary: false,
       participantId: p.id,
@@ -126,7 +147,28 @@ export default async function ProjectPage({ params, searchParams }) {
     })),
   ];
 
-  const artisanIds = artisansOnProject.map((a) => a.artisanId);
+  // Pour l'affichage de la liste "Participants" (tout le monde, actifs ou
+  // pas) et le calcul des milestones/contrats, qui couvre aussi le
+  // principal même pendant son propre pipeline.
+  const allArtisansOnProjectForList = [
+    {
+      artisanId: project.artisan_id,
+      isPrimary: true,
+      trade: project.artisan?.trade,
+      fullName: project.artisan?.profiles?.full_name,
+      avatarUrl: project.artisan?.profiles?.avatar_url,
+    },
+    ...(participants || []).map((p) => ({
+      artisanId: p.artisan_id,
+      isPrimary: false,
+      participantId: p.id,
+      trade: p.artisan?.trade,
+      fullName: p.artisan?.profiles?.full_name,
+      avatarUrl: p.artisan?.profiles?.avatar_url,
+    })),
+  ];
+
+  const artisanIds = allArtisansOnProjectForList.map((a) => a.artisanId);
 
   const { data: allMilestones } = await supabase
     .from("project_milestones")
@@ -261,8 +303,15 @@ export default async function ProjectPage({ params, searchParams }) {
         </div>
 
         <div className="mt-3 flex flex-col gap-2">
-          {artisansOnProject.map((a) => {
+          {allArtisansOnProjectForList.map((a) => {
             const isSelf = a.artisanId === user.id;
+            const participantRecord = !a.isPrimary ? participants?.find((p) => p.id === a.participantId) : null;
+            const pendingLabel =
+              a.isPrimary && PENDING_STATUSES.includes(project.status)
+                ? "En cours de démarrage"
+                : participantRecord && PARTICIPANT_PENDING_STATUSES.includes(participantRecord.status)
+                  ? "En cours de démarrage"
+                  : null;
             const avatar = a.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={a.avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
@@ -279,7 +328,11 @@ export default async function ProjectPage({ params, searchParams }) {
                     {a.fullName}
                     {isSelf ? " (moi)" : ""}
                   </p>
-                  <p className="text-xs text-gray-500">{a.trade}{a.isPrimary ? " · Principal" : ""}</p>
+                  <p className="text-xs text-gray-500">
+                    {a.trade}
+                    {a.isPrimary ? " · Principal" : ""}
+                    {pendingLabel && <span className="ml-1 text-gold-dark">· {pendingLabel}</span>}
+                  </p>
                 </div>
               </div>
             );
@@ -299,7 +352,9 @@ export default async function ProjectPage({ params, searchParams }) {
                       <p className="text-sm font-medium text-ink">{a.fullName}</p>
                       <p className="text-xs text-gray-500">
                         {a.trade}
-                        {a.isPrimary ? " · Principal" : ""} · <span className="text-brand">Discuter</span>
+                        {a.isPrimary ? " · Principal" : ""}
+                        {pendingLabel && <span className="text-gold-dark"> · {pendingLabel}</span>} ·{" "}
+                        <span className="text-brand">Discuter</span>
                       </p>
                     </div>
                   </Link>
@@ -318,6 +373,106 @@ export default async function ProjectPage({ params, searchParams }) {
           })}
         </div>
       </div>
+
+      {/* Chaque participant suit le même pipeline de démarrage que
+          l'artisan principal (demande → échéancier rempli par lui →
+          validation client → contrat) avant de rejoindre le vrai parcours
+          — un point d'étape par participant encore en cours. */}
+      {pendingParticipants.map((p) => (
+        <div key={p.id} className="mb-6 rounded-lg bg-white shadow-card p-5">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
+            {p.artisan?.profiles?.full_name} ({p.artisan?.trade})
+          </p>
+
+          {p.status === "pending_schedule" && (
+            isClient ? (
+              <>
+                <p className="font-bold text-ink">
+                  ⏳ En attente que {p.artisan?.profiles?.full_name || "le professionnel"} remplisse l'échéancier de paiement.
+                </p>
+                {p.milestone_feedback_note && (
+                  <p className="mt-2 text-sm text-gray-500">Ta demande de correction lui a été envoyée.</p>
+                )}
+              </>
+            ) : isArtisan && user.id === p.artisan_id ? (
+              <>
+                <p className="font-bold text-ink">À faire : remplir l'échéancier de paiement de ta prestation.</p>
+                <Link
+                  href={`/projects/${project.id}/participant/${p.artisan_id}/schedule`}
+                  className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
+                >
+                  Remplir l'échéancier →
+                </Link>
+              </>
+            ) : null
+          )}
+
+          {p.status === "pending_client_review" && (
+            isClient ? (
+              <>
+                <p className="font-bold text-ink">
+                  À valider : échéancier proposé par {p.artisan?.profiles?.full_name || "le professionnel"}
+                </p>
+                <div className="mt-3 flex flex-col gap-1.5">
+                  {milestonesWithDeliverables
+                    .filter((m) => m.artisan_id === p.artisan_id)
+                    .map((m) => (
+                      <div key={m.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 text-sm">
+                        <span className="text-ink">{m.title}</span>
+                        <span className="text-gray-500">
+                          {m.payment_percentage}% — {Number(m.amount || 0).toLocaleString("fr-FR")} {p.currency}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+                <p className="mt-2 text-sm font-bold text-ink">
+                  Montant total : {Number(p.amount || 0).toLocaleString("fr-FR")} {p.currency}
+                </p>
+                <div className="mt-4 flex flex-wrap items-start gap-3">
+                  <form action={validateParticipantMilestoneSchedule}>
+                    <input type="hidden" name="projectId" value={project.id} />
+                    <input type="hidden" name="participantId" value={p.id} />
+                    <button type="submit" className="rounded-lg bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-dark">
+                      Valider
+                    </button>
+                  </form>
+                  <details className="text-sm">
+                    <summary className="cursor-pointer font-medium text-brand">Demander une modification</summary>
+                    <form action={requestParticipantMilestoneChanges} className="mt-2 flex flex-col gap-2">
+                      <input type="hidden" name="projectId" value={project.id} />
+                      <input type="hidden" name="participantId" value={p.id} />
+                      <textarea
+                        name="note"
+                        required
+                        rows={2}
+                        placeholder="Qu'est-ce qui doit être corrigé ?"
+                        className="w-64 rounded-lg border border-gray-300 p-2 text-sm"
+                      />
+                      <button type="submit" className="w-fit rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-ink shadow-card hover:bg-gray-50">
+                        Envoyer la demande
+                      </button>
+                    </form>
+                  </details>
+                </div>
+              </>
+            ) : (
+              <p className="font-bold text-ink">⏳ En attente de la validation du client sur l'échéancier envoyé.</p>
+            )
+          )}
+
+          {p.status === "pending_contract_signature" && (
+            <>
+              <p className="font-bold text-ink">📝 Échéancier validé — il ne reste plus qu'à signer le contrat.</p>
+              <Link
+                href={`/projects/${project.id}/contract/${p.artisan_id}`}
+                className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
+              >
+                Consulter et signer le contrat →
+              </Link>
+            </>
+          )}
+        </div>
+      ))}
 
       {/* Avant que l'échéancier (principal) ne soit rempli, validé et le
           contrat signé des deux côtés, on affiche le point d'étape du

@@ -18,19 +18,23 @@ export default function MilestoneBuilder({ trade, initialRows }) {
   // repart de ce qu'il avait déjà rempli, pas de l'exemple générique.
   const startingRows = initialRows && initialRows.length > 0 ? initialRows.map((r) => ({ ...r })) : null;
 
+  // Livrable par défaut = le titre de l'étape (ex: "Esquisse" → livrable
+  // attendu "Esquisse") — point de départ simple, toujours modifiable.
+  const withDeliverable = (list) => list.map((r) => ({ deliverable: r.title, ...r }));
+
   const [rows, setRows] = useState(
     isSingleInstallment
-      ? [{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100" }]
+      ? [{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100", deliverable: singleInstallmentDoc }]
       : startingRows
         ? startingRows
         : defaultSchedule
-          ? defaultSchedule.map((r) => ({ ...r }))
+          ? withDeliverable(defaultSchedule)
           : [
-              { title: "", percentage: "" },
-              { title: "", percentage: "" },
-              { title: "", percentage: "" },
-              { title: "", percentage: "" },
-              { title: "", percentage: "" },
+              { title: "", percentage: "", deliverable: "" },
+              { title: "", percentage: "", deliverable: "" },
+              { title: "", percentage: "", deliverable: "" },
+              { title: "", percentage: "", deliverable: "" },
+              { title: "", percentage: "", deliverable: "" },
             ]
   );
 
@@ -39,9 +43,9 @@ export default function MilestoneBuilder({ trade, initialRows }) {
   useEffect(() => {
     if (startingRows) return;
     if (isSingleInstallment) {
-      setRows([{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100" }]);
+      setRows([{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100", deliverable: singleInstallmentDoc }]);
     } else if (defaultSchedule) {
-      setRows(defaultSchedule.map((r) => ({ ...r })));
+      setRows(withDeliverable(defaultSchedule));
     }
   }, [trade]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,7 +53,7 @@ export default function MilestoneBuilder({ trade, initialRows }) {
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)));
   };
 
-  const addRow = () => setRows((r) => [...r, { title: "", percentage: "" }]);
+  const addRow = () => setRows((r) => [...r, { title: "", percentage: "", deliverable: "" }]);
   const canRemoveRow = (currentLength) =>
     !isSingleInstallment && (isFlexibleMinimum ? currentLength > 1 : currentLength > MIN_INSTALLMENTS_OTHER_TRADES);
   const removeRow = (i) => {
@@ -107,41 +111,56 @@ export default function MilestoneBuilder({ trade, initialRows }) {
         </>
       )}
 
+      <p className="mb-1 text-xs font-semibold text-gray-500">
+        Pour chaque étape, précisez le <strong>livrable attendu</strong> (le document/preuve à envoyer sur la
+        plateforme) : c'est ce qui débloquera le paiement du client, et ce qui vous permettra ensuite de valider
+        l'étape.
+      </p>
       <div className="flex flex-col gap-2">
         {rows.map((row, i) => (
-          <div key={i} className="flex gap-2">
+          <div key={i} className="flex flex-col gap-1.5 rounded-lg border border-gray-100 p-2">
+            <div className="flex gap-2">
+              <input
+                name="milestoneTitle"
+                value={row.title}
+                onChange={(e) => updateRow(i, "title", e.target.value)}
+                required
+                readOnly={isSingleInstallment}
+                placeholder="ex: Fondations terminées"
+                className={`flex-1 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
+              />
+              <input
+                name="milestonePercentage"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={row.percentage}
+                onChange={(e) => updateRow(i, "percentage", e.target.value)}
+                required
+                readOnly={isSingleInstallment}
+                placeholder="%"
+                className={`w-20 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
+              />
+              {canRemoveRow(rows.length) && (
+                <button
+                  type="button"
+                  onClick={() => removeRow(i)}
+                  aria-label="Supprimer cette étape"
+                  className="px-2 text-gray-400 hover:text-brand"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
             <input
-              name="milestoneTitle"
-              value={row.title}
-              onChange={(e) => updateRow(i, "title", e.target.value)}
+              name="milestoneDeliverable"
+              value={row.deliverable || ""}
+              onChange={(e) => updateRow(i, "deliverable", e.target.value)}
               required
-              readOnly={isSingleInstallment}
-              placeholder="ex: Fondations terminées"
-              className={`flex-1 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
+              placeholder="Livrable attendu à cette étape (ex: plan d'esquisse signé, photos du coffrage...)"
+              className="rounded-lg border border-gray-200 bg-gray-50 p-2 text-xs"
             />
-            <input
-              name="milestonePercentage"
-              type="number"
-              min="0"
-              max="100"
-              step="0.1"
-              value={row.percentage}
-              onChange={(e) => updateRow(i, "percentage", e.target.value)}
-              required
-              readOnly={isSingleInstallment}
-              placeholder="%"
-              className={`w-20 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
-            />
-            {canRemoveRow(rows.length) && (
-              <button
-                type="button"
-                onClick={() => removeRow(i)}
-                aria-label="Supprimer cette étape"
-                className="px-2 text-gray-400 hover:text-brand"
-              >
-                ✕
-              </button>
-            )}
           </div>
         ))}
       </div>
