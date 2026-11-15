@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 import { reviewDeliverableDocument } from "@/lib/documentReview";
 import { sendPush } from "@/lib/notifications";
-import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 
 // Une étape ne peut être validée que si tous ses rendez-vous obligatoires
 // (appel de validation) ont bien eu lieu — renvoie un message d'erreur si
@@ -44,10 +43,21 @@ export async function addMilestone(formData) {
   redirect(`/projects/${projectId}`);
 }
 
+// Une étape peut attendre plusieurs livrables : vrai seulement si TOUS
+// ont un fichier déposé (pas juste le premier).
+async function checkAllDeliverablesUploaded(supabase, milestoneId) {
+  const { data: deliverables } = await supabase
+    .from("milestone_deliverables")
+    .select("document_url")
+    .eq("milestone_id", milestoneId);
+  if (!deliverables || deliverables.length === 0) return true; // aucun livrable défini pour cette étape
+  return deliverables.every((d) => !!d.document_url);
+}
+
 // L'artisan clique sur "Valider l'étape" (ou la décoche, cas rare).
 // Pour VALIDER (passer à terminé), deux conditions sont obligatoires,
 // vérifiées ici côté serveur (pas seulement cachées côté UI) :
-//   1. le livrable attendu a été déposé (deliverable_document_url rempli)
+//   1. tous les livrables attendus ont été déposés
 //   2. le client a confirmé avoir payé (paid_at rempli)
 // + l'éventuel rendez-vous obligatoire du métier (déjà vérifié avant).
 // Sans ça, le bouton ne doit même pas apparaître côté client, mais on
@@ -69,17 +79,19 @@ export async function toggleMilestone(formData) {
       redirect(`/projects/${projectId}?error=${encodeURIComponent(blockReason)}`);
     }
 
+    const allDeliverablesUploaded = await checkAllDeliverablesUploaded(supabase, milestoneId);
+    if (!allDeliverablesUploaded) {
+      redirect(
+        `/projects/${projectId}?error=${encodeURIComponent("Dépose d'abord tous les livrables attendus pour cette étape avant de la valider.")}`
+      );
+    }
+
     const { data: milestoneToValidate } = await supabase
       .from("project_milestones")
-      .select("deliverable_document_url, paid_at")
+      .select("paid_at")
       .eq("id", milestoneId)
       .single();
 
-    if (!milestoneToValidate?.deliverable_document_url) {
-      redirect(
-        `/projects/${projectId}?error=${encodeURIComponent("Dépose d'abord le livrable attendu pour cette étape avant de la valider.")}`
-      );
-    }
     if (!milestoneToValidate?.paid_at) {
       redirect(
         `/projects/${projectId}?error=${encodeURIComponent("Le client doit d'abord confirmer le virement avant que tu puisses valider cette étape.")}`
@@ -129,19 +141,15 @@ export async function releasePayment(formData) {
     .single();
 
   // Seul le client du projet peut confirmer avoir payé, et uniquement une
-  // fois que le professionnel a déposé le livrable attendu — c'est ce
-  // paiement qui débloque ensuite, pour lui, le droit de cliquer sur
-  // "Valider l'étape" (voir toggleMilestone), pas l'inverse.
+  // fois que le professionnel a déposé TOUS les livrables attendus pour
+  // cette étape — c'est ce paiement qui débloque ensuite, pour lui, le
+  // droit de cliquer sur "Valider l'étape" (voir toggleMilestone), pas
+  // l'inverse.
   if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
 
-  const { data: milestoneToPay } = await supabase
-    .from("project_milestones")
-    .select("deliverable_document_url")
-    .eq("id", milestoneId)
-    .single();
-
-  if (!milestoneToPay?.deliverable_document_url) {
-    redirect(`/projects/${projectId}?error=${encodeURIComponent("Le professionnel n'a pas encore déposé le livrable de cette étape.")}`);
+  const allDeliverablesUploaded = await checkAllDeliverablesUploaded(supabase, milestoneId);
+  if (!allDeliverablesUploaded) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Le professionnel n'a pas encore déposé tous les livrables de cette étape.")}`);
   }
 
   const { data: paidMilestone } = await supabase
@@ -204,16 +212,15 @@ async function advanceProjectStatusFromPayment(supabase, projectId) {
 }
 
 
-// Pour les métiers à livrable unique (SINGLE_INSTALLMENT_TRADES —
-// Architecte/Topographe aujourd'hui, liste amenée à évoluer) : l'artisan
-// envoie le document livré (Permis de Construire / ACD). Avant de
-// débloquer le paiement et de rendre le document visible au client, une
-// IA vérifie que le fichier ressemble plausiblement au bon document
-// (lib/documentReview.js). Si elle n'est pas sûre, l'étape reste en
-// attente d'une vérification manuelle par un admin plutôt que d'être
-// débloquée automatiquement.
+// L'artisan envoie le fichier d'UN livrable précis d'une étape (une étape
+// peut en avoir plusieurs). Avant de rendre le document visible au
+// client, une IA vérifie que le fichier ressemble plausiblement au bon
+// document (lib/documentReview.js). Si elle n'est pas sûre, le livrable
+// reste en attente d'une vérification manuelle par un admin plutôt que
+// d'être débloqué automatiquement.
 export async function uploadDeliverable(formData) {
   const supabase = createClient();
+  const deliverableId = formData.get("deliverableId");
   const milestoneId = formData.get("milestoneId");
   const projectId = formData.get("projectId");
   const file = formData.get("document");
@@ -232,8 +239,24 @@ export async function uploadDeliverable(formData) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent(blockReason)}`);
   }
 
+  // Le métier du prestataire, pour donner le bon contexte à la
+  // vérification automatique.
+  const { data: milestoneBefore } = await supabase
+    .from("project_milestones")
+    .select("title, artisan_id, artisan:artisan_id ( trade )")
+    .eq("id", milestoneId)
+    .single();
+  const { data: deliverableBefore } = await supabase
+    .from("milestone_deliverables")
+    .select("label")
+    .eq("id", deliverableId)
+    .single();
+
+  const trade = milestoneBefore?.artisan?.trade;
+  const documentLabel = deliverableBefore?.label || "livrable";
+
   const ext = file.name.split(".").pop() || "pdf";
-  const path = `${projectId}/${user.id}/livrable.${ext}`;
+  const path = `${projectId}/${user.id}/${deliverableId}.${ext}`;
   const arrayBuffer = await file.arrayBuffer();
 
   const { error: uploadError } = await supabase.storage
@@ -243,17 +266,6 @@ export async function uploadDeliverable(formData) {
   if (uploadError) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent(uploadError.message)}`);
   }
-
-  // Métier du prestataire qui dépose, pour savoir quel document est
-  // attendu et donner le bon contexte à la vérification automatique.
-  const { data: milestoneBefore } = await supabase
-    .from("project_milestones")
-    .select("title, deliverable_label, artisan_id, artisan:artisan_id ( trade )")
-    .eq("id", milestoneId)
-    .single();
-  const trade = milestoneBefore?.artisan?.trade;
-  const documentLabel =
-    milestoneBefore?.deliverable_label || SINGLE_INSTALLMENT_TRADES[trade] || FINAL_DOCUMENT_TRADES[trade] || "livrable";
 
   const review = await reviewDeliverableDocument({
     fileBuffer: arrayBuffer,
@@ -268,28 +280,26 @@ export async function uploadDeliverable(formData) {
   // L'upload ne valide plus l'étape automatiquement : il rend seulement le
   // document visible au client (s'il est approuvé) pour qu'il puisse
   // payer. L'étape n'est marquée "terminée" qu'au clic explicite de
-  // l'artisan sur "Valider l'étape", une fois le virement confirmé
-  // (cf. toggleMilestone / releasePayment).
-  const { data: deliveredMilestone } = await supabase
-    .from("project_milestones")
+  // l'artisan sur "Valider l'étape", une fois tous les livrables déposés
+  // ET le virement confirmé (cf. toggleMilestone / releasePayment).
+  await supabase
+    .from("milestone_deliverables")
     .update({
-      deliverable_document_url: path,
-      deliverable_review_status: review.status,
-      deliverable_review_note: review.note,
-      deliverable_reviewed_at: new Date().toISOString(),
-      deliverable_reviewed_by: null, // null = vérification automatique
+      document_url: path,
+      review_status: review.status,
+      review_note: review.note,
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: null, // null = vérification automatique
     })
-    .eq("id", milestoneId)
-    .select("title")
-    .single();
+    .eq("id", deliverableId);
 
-  const milestoneTitle = deliveredMilestone?.title || milestoneBefore?.title || "";
+  const milestoneTitle = milestoneBefore?.title || "";
 
   if (approved) {
     await logTimelineEvent(supabase, {
       projectId,
       eventType: "document_added",
-      title: `Document livré : ${milestoneTitle}`,
+      title: `Document livré : ${documentLabel} (${milestoneTitle})`,
       mediaUrl: path,
       actorId: user.id,
     });
@@ -297,7 +307,7 @@ export async function uploadDeliverable(formData) {
     await logTimelineEvent(supabase, {
       projectId,
       eventType: "document_pending_review",
-      title: `Document déposé, en attente de vérification : ${milestoneTitle}`,
+      title: `Document déposé, en attente de vérification : ${documentLabel} (${milestoneTitle})`,
       description: review.note,
       mediaUrl: path,
       actorId: user.id,
@@ -311,7 +321,7 @@ export async function uploadDeliverable(formData) {
         sendPush(
           a.id,
           "Document à vérifier",
-          `${milestoneTitle} — vérification automatique incertaine, à vérifier manuellement.`,
+          `${documentLabel} (${milestoneTitle}) — vérification automatique incertaine, à vérifier manuellement.`,
           "/admin/documents"
         )
       )

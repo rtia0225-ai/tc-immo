@@ -360,10 +360,6 @@ export default function ProjectJourney({
                     </span>
                   )}
                 </div>
-                {m.deliverable_label && (
-                  <p className="mt-0.5 text-xs text-gray-400">Livrable attendu : {m.deliverable_label}</p>
-                )}
-
                 {/* Rendez-vous de validation */}
                 {requiredAppointments.length > 0 ? (
                   requiredAppointments.map((a) => (
@@ -375,47 +371,62 @@ export default function ProjectJourney({
                   )
                 )}
 
-                {/* Document / validation de l'étape */}
-                {m.deliverableSignedUrl && (
-                  <p className="mt-1 text-xs">
-                    <a href={m.deliverableSignedUrl} target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
-                      📎 Voir le document livré
-                    </a>
-                  </p>
-                )}
-                {m.deliverable_document_url && !m.deliverableSignedUrl && m.deliverable_review_status === "needs_manual_review" && (
-                  <p className="mt-1 text-xs text-gray-500">
-                    📎 Document déposé, en cours de vérification avant d'être rendu visible.
-                  </p>
-                )}
-                {m.deliverable_review_status === "rejected" && (
-                  <p className="mt-1 text-xs text-brand">
-                    Le document déposé n'a pas été validé{isArtisan ? " — merci d'en déposer un nouveau." : "."}
-                  </p>
+                {/* Une étape peut avoir plusieurs livrables : une ligne
+                    courte par livrable, chacun avec son propre statut. */}
+                {(m.deliverables || []).length > 0 && (
+                  <div className="mt-1.5 flex flex-col gap-1">
+                    {m.deliverables.map((d) => {
+                      const uploaded = !!d.document_url;
+                      const needsReview = uploaded && !d.signedUrl && d.review_status === "needs_manual_review";
+                      const rejected = d.review_status === "rejected";
+                      return (
+                        <div key={d.id} className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1 text-xs">
+                          <span className="font-medium text-ink">{d.label}</span>
+                          {d.signedUrl ? (
+                            <a href={d.signedUrl} target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
+                              📎 Voir le document
+                            </a>
+                          ) : needsReview ? (
+                            <span className="text-gray-500">en cours de vérification</span>
+                          ) : rejected ? (
+                            <span className="text-brand">non validé{isArtisan ? ", à redéposer" : ""}</span>
+                          ) : uploaded ? (
+                            <span className="text-gray-500">envoyé</span>
+                          ) : isArtisan ? (
+                            <form action={uploadDeliverable} className="flex items-center gap-1.5">
+                              <input type="hidden" name="deliverableId" value={d.id} />
+                              <input type="hidden" name="milestoneId" value={m.id} />
+                              <input type="hidden" name="projectId" value={projectId} />
+                              <FileInputButton name="document" accept=".pdf,image/*" required label="Envoyer" autoSubmit />
+                            </form>
+                          ) : (
+                            <span className="text-gray-400">pas encore envoyé</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
 
-                {isArtisan && !m.is_completed && (
-                  hasBlockingRequirement ? (
-                    <p className="mt-1 text-xs text-gray-400">
-                      L'appel de validation doit être terminé avant de pouvoir valider cette étape.
-                    </p>
-                  ) : !m.deliverable_document_url ? (
-                    // 1. Rien n'a encore été déposé : c'est la première chose à faire.
-                    <form action={uploadDeliverable} className="mt-1 flex flex-col gap-2">
-                      <input type="hidden" name="milestoneId" value={m.id} />
-                      <input type="hidden" name="projectId" value={projectId} />
-                      <FileInputButton name="document" accept=".pdf,image/*" required label="Choisir le document" />
-                      <button type="submit" className="w-fit text-xs font-bold text-brand hover:underline">
-                        Envoyer le livrable
-                      </button>
-                    </form>
-                  ) : !m.paid_at ? (
-                    // 2. Déposé, en attente du virement du client.
-                    <p className="mt-1 text-xs text-gray-400">
-                      ⏳ Livrable envoyé — en attente du virement du client pour pouvoir valider l'étape.
-                    </p>
-                  ) : (
-                    // 3. Livrable déposé ET client payé : l'étape peut être validée.
+                {isArtisan && !m.is_completed && (() => {
+                  const deliverables = m.deliverables || [];
+                  const allUploaded = deliverables.every((d) => !!d.document_url);
+                  if (hasBlockingRequirement) {
+                    return (
+                      <p className="mt-1 text-xs text-gray-400">
+                        L'appel de validation doit être terminé avant de pouvoir valider cette étape.
+                      </p>
+                    );
+                  }
+                  if (!allUploaded) return null; // le formulaire d'envoi est déjà affiché au-dessus, livrable par livrable
+                  if (!m.paid_at) {
+                    return (
+                      <p className="mt-1 text-xs text-gray-400">
+                        ⏳ Livrable(s) envoyé(s) — en attente du virement du client pour pouvoir valider l'étape.
+                      </p>
+                    );
+                  }
+                  return (
                     <form action={toggleMilestone} className="mt-1">
                       <input type="hidden" name="milestoneId" value={m.id} />
                       <input type="hidden" name="projectId" value={projectId} />
@@ -424,10 +435,10 @@ export default function ProjectJourney({
                         ✅ Valider l'étape
                       </button>
                     </form>
-                  )
-                )}
+                  );
+                })()}
 
-                {isClient && m.deliverableSignedUrl && !m.paid_at && (
+                {isClient && !m.paid_at && (m.deliverables || []).length > 0 && (m.deliverables || []).every((d) => !!d.signedUrl) && (
                   <form action={releasePayment} className="mt-1">
                     <input type="hidden" name="milestoneId" value={m.id} />
                     <input type="hidden" name="projectId" value={projectId} />

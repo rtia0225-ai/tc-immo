@@ -172,25 +172,30 @@ export default async function ProjectPage({ params, searchParams }) {
 
   const { data: allMilestones } = await supabase
     .from("project_milestones")
-    .select("*")
+    .select("*, milestone_deliverables ( id, label, order_index, document_url, review_status, review_note )")
     .eq("project_id", id)
     .in("artisan_id", artisanIds)
     .order("order_index", { ascending: true });
 
-  // Liens signés temporaires pour les documents livrés (Permis/ACD),
-  // le bucket est privé. Le client ne voit le document que si la
-  // vérification (automatique ou admin) l'a approuvé — tant que c'est
-  // "en attente", seuls l'artisan qui l'a déposé et les admins y ont
-  // accès (lib/documentReview.js).
+  // Liens signés temporaires pour les documents livrés, le bucket est
+  // privé. Le client ne voit un livrable que si la vérification
+  // (automatique ou admin) l'a approuvé — tant que c'est "en attente",
+  // seuls l'artisan qui l'a déposé et les admins y ont accès
+  // (lib/documentReview.js). Une étape peut avoir plusieurs livrables.
   const milestonesWithDeliverables = await Promise.all(
     (allMilestones || []).map(async (m) => {
-      if (!m.deliverable_document_url) return m;
-      const canSeeDeliverable = isAdmin || isArtisan || m.deliverable_review_status === "approved";
-      if (!canSeeDeliverable) return { ...m, deliverableSignedUrl: null };
-      const { data } = await supabase.storage
-        .from("project-deliverables")
-        .createSignedUrl(m.deliverable_document_url, 3600);
-      return { ...m, deliverableSignedUrl: data?.signedUrl || null };
+      const deliverables = await Promise.all(
+        [...(m.milestone_deliverables || [])]
+          .sort((a, b) => a.order_index - b.order_index)
+          .map(async (d) => {
+            if (!d.document_url) return d;
+            const canSee = isAdmin || isArtisan || d.review_status === "approved";
+            if (!canSee) return { ...d, signedUrl: null };
+            const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(d.document_url, 3600);
+            return { ...d, signedUrl: data?.signedUrl || null };
+          })
+      );
+      return { ...m, deliverables };
     })
   );
 

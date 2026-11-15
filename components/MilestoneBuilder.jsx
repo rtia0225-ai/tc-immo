@@ -85,7 +85,9 @@ export default function MilestoneBuilder({ trade, initialRows }) {
           </button>
         )}
       </div>
-      <p className="mb-3 text-xs text-gray-500">{ruleText} Modifiez librement ci-dessous.</p>
+      <p className="mb-3 text-xs text-gray-500">
+        {ruleText} Modifiez librement ci-dessous. Plusieurs livrables pour une même étape ? Séparez-les par une virgule.
+      </p>
 
       {/* Tableau : une ligne = une étape, 3 colonnes bien visibles. */}
       <div className="overflow-x-auto rounded-lg border border-gray-200">
@@ -94,7 +96,7 @@ export default function MilestoneBuilder({ trade, initialRows }) {
             <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-500">
               <th className="px-2 py-2">Étape</th>
               <th className="w-16 px-2 py-2">%</th>
-              <th className="px-2 py-2">Livrable attendu</th>
+              <th className="px-2 py-2">Livrable(s) attendu(s)</th>
               <th className="w-6 px-1 py-2" />
             </tr>
           </thead>
@@ -133,7 +135,8 @@ export default function MilestoneBuilder({ trade, initialRows }) {
                     value={row.deliverable || ""}
                     onChange={(e) => updateRow(i, "deliverable", e.target.value)}
                     required
-                    placeholder="ex: plan d'esquisse signé"
+                    placeholder="ex: plan d'esquisse signé, photos du terrain"
+                    title="Plusieurs livrables ? Séparez-les par une virgule."
                     className="w-full rounded-md border border-gray-300 p-1.5 text-sm"
                   />
                 </td>

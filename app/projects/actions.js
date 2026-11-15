@@ -29,6 +29,27 @@ function validateInstallmentRule(trade, milestoneTitles) {
   return null;
 }
 
+// Une étape peut attendre plusieurs livrables (le professionnel les
+// sépare par une virgule dans le formulaire) : on éclate ça en plusieurs
+// lignes dans milestone_deliverables, une par livrable attendu.
+async function insertMilestoneDeliverables(supabase, insertedMilestones, rawDeliverablesByIndex) {
+  const rows = (insertedMilestones || []).flatMap((milestone, i) => {
+    const labels = (rawDeliverablesByIndex[i] || "")
+      .split(",")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    return labels.map((label, labelIndex) => ({
+      milestone_id: milestone.id,
+      label,
+      order_index: labelIndex + 1,
+    }));
+  });
+
+  if (rows.length > 0) {
+    await supabase.from("milestone_deliverables").insert(rows);
+  }
+}
+
 // Génère le texte d'un contrat de prestation pour UN artisan précis
 // (principal ou participant), avec son propre échéancier de paiement.
 function buildContractContent({ clientName, artisanName, trade, title, description, amount, currency, milestoneRows }) {
@@ -228,15 +249,19 @@ export async function submitMilestoneSchedule(formData) {
       order_index: i + 1,
       payment_percentage: pct,
       amount: Math.round((totalAmount * pct) / 100),
-      deliverable_label: milestoneDeliverables[i] || null,
     };
   });
 
   if (milestoneRows.length > 0) {
-    const { error: milestonesError } = await supabase.from("project_milestones").insert(milestoneRows);
+    const { data: insertedMilestones, error: milestonesError } = await supabase
+      .from("project_milestones")
+      .insert(milestoneRows)
+      .select("id, order_index");
     if (milestonesError) {
       redirect(`/projects/${projectId}/schedule?error=${encodeURIComponent(milestonesError.message)}`);
     }
+    const sortedInserted = (insertedMilestones || []).sort((a, b) => a.order_index - b.order_index);
+    await insertMilestoneDeliverables(supabase, sortedInserted, milestoneDeliverables);
   }
 
   await supabase
@@ -581,15 +606,19 @@ export async function submitParticipantMilestoneSchedule(formData) {
       order_index: i + 1,
       payment_percentage: pct,
       amount: Math.round((totalAmount * pct) / 100),
-      deliverable_label: milestoneDeliverables[i] || null,
     };
   });
 
   if (milestoneRows.length > 0) {
-    const { error: milestonesError } = await supabase.from("project_milestones").insert(milestoneRows);
+    const { data: insertedMilestones, error: milestonesError } = await supabase
+      .from("project_milestones")
+      .insert(milestoneRows)
+      .select("id, order_index");
     if (milestonesError) {
       redirect(`/projects/${projectId}/participant/${user.id}/schedule?error=${encodeURIComponent(milestonesError.message)}`);
     }
+    const sortedInserted = (insertedMilestones || []).sort((a, b) => a.order_index - b.order_index);
+    await insertMilestoneDeliverables(supabase, sortedInserted, milestoneDeliverables);
   }
 
   await supabase

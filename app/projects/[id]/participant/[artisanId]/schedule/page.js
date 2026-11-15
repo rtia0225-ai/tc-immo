@@ -43,7 +43,7 @@ export default async function ParticipantSchedulePage({ params, searchParams }) 
 
   const { data: existingMilestones } = await supabase
     .from("project_milestones")
-    .select("title, payment_percentage, deliverable_label")
+    .select("id, title, payment_percentage, milestone_deliverables ( label, order_index )")
     .eq("project_id", id)
     .eq("artisan_id", user.id)
     .order("order_index", { ascending: true });
@@ -51,7 +51,10 @@ export default async function ParticipantSchedulePage({ params, searchParams }) 
   const initialRows = (existingMilestones || []).map((m) => ({
     title: m.title,
     percentage: String(m.payment_percentage ?? ""),
-    deliverable: m.deliverable_label || "",
+    deliverable: (m.milestone_deliverables || [])
+      .sort((a, b) => a.order_index - b.order_index)
+      .map((d) => d.label)
+      .join(", "),
   }));
 
   return (
