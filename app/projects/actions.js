@@ -530,6 +530,29 @@ export async function addParticipant(formData) {
   redirect(`/projects/${projectId}/contract/${artisanId}`);
 }
 
+// Suppression complète d'un projet — réservée à l'admin (phase de test,
+// pour nettoyer les projets créés pendant les essais). La plupart des
+// tables liées (étapes, contrats, participants, journal, rapports...)
+// sont déjà en CASCADE côté base ; seuls les rendez-vous et conversations
+// restent (juste détachés du projet, pas supprimés, pour ne rien casser
+// côté historique de messagerie/calendrier).
+export async function deleteProject(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
+  if (!profile?.is_admin) redirect(`/projects/${projectId}`);
+
+  await supabase.from("projects").delete().eq("id", projectId);
+
+  redirect("/dashboard");
+}
+
 // Le client retire un participant ajouté (pas l'artisan principal). Un
 // admin peut aussi le faire, sur n'importe quel projet, sans restriction
 // (même si des paiements ne sont pas finalisés) — son espace sert à

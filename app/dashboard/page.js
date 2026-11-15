@@ -5,6 +5,7 @@ import { logout } from "../auth/actions";
 import { translateStatus } from "@/lib/statusLabels";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import { bookInterviewSlot } from "../admin/interviewActions";
+import DeleteProjectButton from "@/components/DeleteProjectButton";
 
 const CLIENT_TABS = [
   { key: "projets", label: "Mes projets" },
@@ -24,10 +25,11 @@ export default async function DashboardPage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, created_at, approval_status")
+    .select("full_name, role, created_at, approval_status, is_admin")
     .eq("id", user.id)
     .single();
   const isArtisan = profile?.role === "artisan";
+  const isAdmin = !!profile?.is_admin;
 
   // La validation manuelle ne concerne que les professionnels (artisans).
   // Le client accède directement à son espace ; il devra simplement
@@ -364,10 +366,13 @@ export default async function DashboardPage({ searchParams }) {
             {allProjects && allProjects.length > 0 && (
               <div className="mt-4 flex flex-col gap-2">
                 {allProjects.map((p) => (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
-                    <span>{p.title}</span>
-                    <span className="text-gray-500">{translateStatus(p.status)}</span>
-                  </Link>
+                  <div key={p.id} className="flex items-center gap-1 rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
+                    <Link href={`/projects/${p.id}`} className="flex flex-1 items-center justify-between">
+                      <span>{p.title}</span>
+                      <span className="text-gray-500">{translateStatus(p.status)}</span>
+                    </Link>
+                    {isAdmin && <DeleteProjectButton projectId={p.id} projectTitle={p.title} />}
+                  </div>
                 ))}
               </div>
             )}
@@ -398,17 +403,16 @@ export default async function DashboardPage({ searchParams }) {
                 ) : (
                   <div className="flex flex-col gap-3">
                     {projects.map((p) => (
-                      <Link
-                        key={p.id}
-                        href={`/projects/${p.id}`}
-                        className="flex items-center justify-between rounded-lg bg-white p-4 shadow-card hover:shadow-md"
-                      >
-                        <div>
-                          <p className="font-heading font-bold text-ink">{p.title}</p>
-                          <p className="mt-0.5 text-xs text-gray-500">{translateStatus(p.status)}</p>
-                        </div>
-                        <span className="text-brand">→</span>
-                      </Link>
+                      <div key={p.id} className="flex items-center gap-1 rounded-lg bg-white p-4 shadow-card hover:shadow-md">
+                        <Link href={`/projects/${p.id}`} className="flex flex-1 items-center justify-between">
+                          <div>
+                            <p className="font-heading font-bold text-ink">{p.title}</p>
+                            <p className="mt-0.5 text-xs text-gray-500">{translateStatus(p.status)}</p>
+                          </div>
+                          <span className="text-brand">→</span>
+                        </Link>
+                        {isAdmin && <DeleteProjectButton projectId={p.id} projectTitle={p.title} />}
+                      </div>
                     ))}
                   </div>
                 )}
