@@ -20,6 +20,17 @@ export async function requestAppointment(formData) {
   const notes = formData.get("notes");
   const callType = formData.get("callType") || null;
 
+  // Un professionnel ne peut pas prendre rendez-vous avec lui-même (cf.
+  // bookAvailabilitySlot — souvent dû à une session partagée entre deux
+  // onglets d'un même navigateur).
+  if (user.id === artisanId) {
+    redirect(
+      `${projectId ? `/projects/${projectId}` : "/appointments"}?error=${encodeURIComponent(
+        "Impossible de prendre rendez-vous avec soi-même — vérifie que tu es bien connecté sur le bon compte (client ou professionnel)."
+      )}`
+    );
+  }
+
   // Même garde-fou qu'ailleurs sur le site : pas de doublon si un
   // rendez-vous pour cette même étape existe déjà (pas annulé), ou en cas
   // de double-clic rapide sur "proposer ce créneau".

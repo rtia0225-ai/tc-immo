@@ -70,6 +70,18 @@ export async function bookAvailabilitySlot(formData) {
   const milestoneId = formData.get("milestoneId") || null;
   const isRequired = formData.get("isRequired") === "true";
 
+  // Un professionnel ne peut pas prendre rendez-vous avec lui-même — si ça
+  // arrive, c'est qu'on est connecté sur le mauvais compte (fréquent en
+  // testant client et professionnel dans les deux onglets d'un même
+  // navigateur : la session de connexion est partagée entre les onglets).
+  if (user.id === artisanId) {
+    redirect(
+      `/appointments/new?artisan=${artisanId}&error=${encodeURIComponent(
+        "Impossible de prendre rendez-vous avec soi-même — vérifie que tu es bien connecté sur le bon compte (client ou professionnel)."
+      )}`
+    );
+  }
+
   // Tant qu'un appel pour cette étape n'est pas annulé, pas de doublon
   // possible — et un double-clic rapide sur le même créneau ne crée pas
   // deux rendez-vous (même logique que pour "démarrer un projet").

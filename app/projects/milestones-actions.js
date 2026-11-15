@@ -54,7 +54,13 @@ export async function shareDeliverable(formData) {
   if (!user) redirect("/auth/login");
 
   const { data: project } = await supabase.from("projects").select("client_id").eq("id", projectId).single();
-  if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
+  if (project?.client_id !== user.id) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "Seul le client du projet peut partager un document — vérifie que tu es connecté sur le bon compte."
+      )}`
+    );
+  }
 
   const { data: deliverable } = await supabase
     .from("milestone_deliverables")
@@ -139,6 +145,19 @@ export async function toggleMilestone(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  const { data: milestoneOwner } = await supabase
+    .from("project_milestones")
+    .select("artisan_id")
+    .eq("id", milestoneId)
+    .single();
+  if (milestoneOwner?.artisan_id !== user.id) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "Seul le professionnel de cette étape peut la valider — vérifie que tu es connecté sur le bon compte."
+      )}`
+    );
+  }
+
   if (!isCompleted) {
     const blockReason = await checkRequiredAppointments(supabase, milestoneId);
     if (blockReason) {
@@ -211,7 +230,13 @@ export async function releasePayment(formData) {
   // cette étape — c'est ce paiement qui débloque ensuite, pour lui, le
   // droit de cliquer sur "Valider l'étape" (voir toggleMilestone), pas
   // l'inverse.
-  if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
+  if (project?.client_id !== user.id) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "Seul le client du projet peut confirmer un virement — vérifie que tu es connecté sur le bon compte."
+      )}`
+    );
+  }
 
   const allDeliverablesUploaded = await checkAllDeliverablesUploaded(supabase, milestoneId);
   if (!allDeliverablesUploaded) {
