@@ -64,121 +64,107 @@ export default function MilestoneBuilder({ trade, initialRows }) {
 
   const total = rows.reduce((sum, r) => sum + (parseFloat(r.percentage) || 0), 0);
 
+  // Une seule ligne de règle, selon le métier — pas de pavé de texte.
+  const ruleText = isSingleInstallment
+    ? `Paiement unique, à la livraison du ${singleInstallmentDoc}.`
+    : isFlexibleMinimum
+      ? `Plusieurs étapes réelles, la dernière étant le ${finalDocumentLabel}. Nombre d'étapes libre.`
+      : `Au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes requises pour ce métier.`;
+
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium">
-        Échéancier de paiement
-      </label>
+      <div className="mb-2 flex items-baseline justify-between">
+        <label className="block text-sm font-medium">Échéancier de paiement</label>
+        {defaultSchedule && !isSingleInstallment && (
+          <button
+            type="button"
+            onClick={() => setRows(withDeliverable(defaultSchedule))}
+            className="text-xs font-medium text-forest hover:underline"
+          >
+            Revenir à l'exemple
+          </button>
+        )}
+      </div>
+      <p className="mb-3 text-xs text-gray-500">{ruleText} Modifiez librement ci-dessous.</p>
 
-      {isSingleInstallment ? (
-        <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-          La main d'œuvre de ce professionnel se paie en <strong>une seule fois</strong>, uniquement à la livraison du {singleInstallmentDoc} sur la plateforme, l'artisan doit envoyer le document pour débloquer le virement. Les frais administratifs du dossier, eux, se règlent séparément au fur et à mesure de l'avancement réel des démarches.
-        </p>
-      ) : (
-        <>
-          <p className="mb-3 rounded-lg bg-brand-light p-3 text-xs text-brand-dark">
-            {isFlexibleMinimum ? (
-              <>
-                Pour ce métier, l'échéancier comporte <strong>plusieurs étapes bien réelles</strong> (pas un paiement unique) — la dernière étant la livraison du {finalDocumentLabel}, vérifiée automatiquement avant de débloquer son paiement. Le nombre de versements (1, 2, 3...) et leur répartition se négocient librement avec le professionnel, il n'y a pas de minimum imposé.
-              </>
-            ) : (
-              <>
-                Pour ce métier, vous devez prévoir <strong>au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes</strong>, un échéancier de paiement en plusieurs étapes est requis. Discutez de ce découpage avec l'artisan avant de valider.
-              </>
-            )}
-          </p>
-
-          <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
-            {defaultSchedule ? (
-              <>
-                <p className="font-semibold text-ink">
-                  Les étapes pré-remplies ci-dessous sont un point de départ pour ce métier — modifiez les titres, les pourcentages, ajoutez ou supprimez une ligne selon les vraies étapes de ce projet précis.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setRows(defaultSchedule.map((r) => ({ ...r })))}
-                  className="mt-2 font-medium text-forest hover:underline"
-                >
-                  Revenir aux étapes suggérées
-                </button>
-              </>
-            ) : (
-              <p>Découpe l'échéancier selon les vraies étapes de <strong>ce métier précis</strong>, ne mélange pas avec le travail d'un autre artisan du projet.</p>
-            )}
-            <p className="mt-2 font-semibold text-ink">Autre façon de faire :</p>
-            <p className="mt-1">Un paiement régulier (chaque semaine ou chaque mois) selon les jours réellement travaillés par l'artisan, à adapter avec lui selon la durée prévue du chantier.</p>
-          </div>
-        </>
-      )}
-
-      <p className="mb-1 text-xs font-semibold text-gray-500">
-        Pour chaque étape, précisez le <strong>livrable attendu</strong> (le document/preuve à envoyer sur la
-        plateforme) : c'est ce qui débloquera le paiement du client, et ce qui vous permettra ensuite de valider
-        l'étape.
-      </p>
-      <div className="flex flex-col gap-2">
-        {rows.map((row, i) => (
-          <div key={i} className="flex flex-col gap-1.5 rounded-lg border border-gray-100 p-2">
-            <div className="flex gap-2">
-              <input
-                name="milestoneTitle"
-                value={row.title}
-                onChange={(e) => updateRow(i, "title", e.target.value)}
-                required
-                readOnly={isSingleInstallment}
-                placeholder="ex: Fondations terminées"
-                className={`flex-1 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
-              />
-              <input
-                name="milestonePercentage"
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                value={row.percentage}
-                onChange={(e) => updateRow(i, "percentage", e.target.value)}
-                required
-                readOnly={isSingleInstallment}
-                placeholder="%"
-                className={`w-20 rounded-lg border border-gray-300 p-2 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
-              />
-              {canRemoveRow(rows.length) && (
-                <button
-                  type="button"
-                  onClick={() => removeRow(i)}
-                  aria-label="Supprimer cette étape"
-                  className="px-2 text-gray-400 hover:text-brand"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-            <input
-              name="milestoneDeliverable"
-              value={row.deliverable || ""}
-              onChange={(e) => updateRow(i, "deliverable", e.target.value)}
-              required
-              placeholder="Livrable attendu à cette étape (ex: plan d'esquisse signé, photos du coffrage...)"
-              className="rounded-lg border border-gray-200 bg-gray-50 p-2 text-xs"
-            />
-          </div>
-        ))}
+      {/* Tableau : une ligne = une étape, 3 colonnes bien visibles. */}
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-500">
+              <th className="px-2 py-2">Étape</th>
+              <th className="w-16 px-2 py-2">%</th>
+              <th className="px-2 py-2">Livrable attendu</th>
+              <th className="w-6 px-1 py-2" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className="border-t border-gray-100">
+                <td className="p-1.5">
+                  <input
+                    name="milestoneTitle"
+                    value={row.title}
+                    onChange={(e) => updateRow(i, "title", e.target.value)}
+                    required
+                    readOnly={isSingleInstallment}
+                    placeholder="ex: Fondations terminées"
+                    className={`w-full rounded-md border border-gray-300 p-1.5 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
+                  />
+                </td>
+                <td className="p-1.5">
+                  <input
+                    name="milestonePercentage"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={row.percentage}
+                    onChange={(e) => updateRow(i, "percentage", e.target.value)}
+                    required
+                    readOnly={isSingleInstallment}
+                    placeholder="%"
+                    className={`w-full rounded-md border border-gray-300 p-1.5 text-sm ${isSingleInstallment ? "bg-gray-50" : ""}`}
+                  />
+                </td>
+                <td className="p-1.5">
+                  <input
+                    name="milestoneDeliverable"
+                    value={row.deliverable || ""}
+                    onChange={(e) => updateRow(i, "deliverable", e.target.value)}
+                    required
+                    placeholder="ex: plan d'esquisse signé"
+                    className="w-full rounded-md border border-gray-300 p-1.5 text-sm"
+                  />
+                </td>
+                <td className="p-1.5 text-center">
+                  {canRemoveRow(rows.length) && (
+                    <button
+                      type="button"
+                      onClick={() => removeRow(i)}
+                      aria-label="Supprimer cette étape"
+                      className="text-gray-400 hover:text-brand"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {!isSingleInstallment && (
-        <button
-          type="button"
-          onClick={addRow}
-          className="mt-2 text-sm font-medium text-forest hover:underline"
-        >
+        <button type="button" onClick={addRow} className="mt-2 text-sm font-medium text-forest hover:underline">
           + Ajouter une étape
         </button>
       )}
 
       <p className={`mt-2 text-xs ${total === 100 ? "text-forest" : "text-brand"}`}>
-        Total : {total}% {total !== 100 && ", doit être égal à 100% pour valider"}
+        Total : {total}% {total !== 100 && ", doit être égal à 100%"}
         {!isSingleInstallment && !isFlexibleMinimum && rows.length < MIN_INSTALLMENTS_OTHER_TRADES && (
-          <span className="ml-2">, minimum {MIN_INSTALLMENTS_OTHER_TRADES} étapes requises</span>
+          <span className="ml-2">, minimum {MIN_INSTALLMENTS_OTHER_TRADES} étapes</span>
         )}
       </p>
     </div>
