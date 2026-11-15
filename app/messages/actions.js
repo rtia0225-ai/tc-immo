@@ -201,28 +201,28 @@ export async function addConversationParticipant(formData) {
   redirect(`/messages/${conversationId}`);
 }
 
-// Appel vidéo entre tous les participants de l'espace : pas d'infra
-// dédiée côté plateforme, on génère une salle Jitsi (gratuit, pas de
-// compte requis) et on la partage comme un message spécial — tout le
-// monde dans la conversation la voit et est notifié, grâce à la RLS déjà
-// basée sur conversation_participants.
-function videoRoomUrl(conversationId) {
-  return `https://meet.jit.si/tcimmo-${conversationId}`;
-}
-
+// Appel vidéo entre tous les participants de l'espace : aucun prestataire
+// branché côté plateforme — c'est la personne qui lance l'appel qui crée
+// elle-même son lien (Google Meet, ou autre) et le colle ici. On se
+// contente de le partager comme un message spécial : tout le monde dans
+// la conversation le voit et est notifié, grâce à la RLS déjà basée sur
+// conversation_participants.
 export async function startVideoCall(formData) {
   const supabase = createClient();
   const conversationId = formData.get("conversationId");
+  const videoLink = formData.get("videoLink")?.trim();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  if (!videoLink) redirect(`/messages/${conversationId}`);
+
   await supabase.from("messages").insert({
     conversation_id: conversationId,
     sender_id: user.id,
-    video_link: videoRoomUrl(conversationId),
+    video_link: videoLink,
   });
 
   const { data: participantRows } = await supabase
@@ -240,18 +240,19 @@ export async function scheduleVideoMeeting(formData) {
   const supabase = createClient();
   const conversationId = formData.get("conversationId");
   const scheduledAt = formData.get("scheduledAt");
+  const videoLink = formData.get("videoLink")?.trim();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  if (!scheduledAt) redirect(`/messages/${conversationId}`);
+  if (!scheduledAt || !videoLink) redirect(`/messages/${conversationId}`);
 
   await supabase.from("messages").insert({
     conversation_id: conversationId,
     sender_id: user.id,
-    video_link: videoRoomUrl(conversationId),
+    video_link: videoLink,
     video_scheduled_at: new Date(scheduledAt).toISOString(),
   });
 

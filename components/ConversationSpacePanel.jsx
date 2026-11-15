@@ -11,6 +11,7 @@ import { addConversationParticipant, startVideoCall, scheduleVideoMeeting } from
 export default function ConversationSpacePanel({ conversationId, professionals }) {
   const [revealedId, setRevealedId] = useState(null);
   const [showSchedule, setShowSchedule] = useState(false);
+  const [showCallLink, setShowCallLink] = useState(false);
 
   return (
     <div className="mb-4 flex flex-col gap-4">
@@ -83,27 +84,61 @@ export default function ConversationSpacePanel({ conversationId, professionals }
           <span className="text-2xl" aria-hidden>📅</span>
           <span className="text-xs font-semibold text-ink">Rendez-vous</span>
         </button>
-        <form action={startVideoCall} className="flex-1">
-          <input type="hidden" name="conversationId" value={conversationId} />
-          <button type="submit" className="flex w-full flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100">
-            <span className="text-2xl" aria-hidden>📹</span>
-            <span className="text-xs font-semibold text-ink">Appel vidéo</span>
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={() => setShowCallLink((s) => !s)}
+          className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100"
+        >
+          <span className="text-2xl" aria-hidden>📹</span>
+          <span className="text-xs font-semibold text-ink">Appel vidéo</span>
+        </button>
       </div>
 
+      {showCallLink && (
+        <form action={startVideoCall} className="flex flex-col gap-1 rounded-xl bg-gray-50 p-3">
+          <input type="hidden" name="conversationId" value={conversationId} />
+          <div className="flex items-center gap-2">
+            <input
+              type="url"
+              name="videoLink"
+              required
+              placeholder="Colle ton lien Google Meet (meet.google.com/...)"
+              className="flex-1 rounded-lg border border-gray-300 p-2 text-sm"
+            />
+            <button type="submit" className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white hover:bg-brand-dark">
+              Lancer
+            </button>
+          </div>
+          <p className="text-[11px] text-gray-400">
+            Crée d'abord ton lien sur meet.google.com, puis colle-le ici.
+          </p>
+        </form>
+      )}
+
       {showSchedule && (
-        <form action={scheduleVideoMeeting} className="flex items-center gap-2 rounded-xl bg-gray-50 p-3">
+        <form action={scheduleVideoMeeting} className="flex flex-col gap-1 rounded-xl bg-gray-50 p-3">
           <input type="hidden" name="conversationId" value={conversationId} />
           <input
-            type="datetime-local"
-            name="scheduledAt"
+            type="url"
+            name="videoLink"
             required
-            className="flex-1 rounded-lg border border-gray-300 p-2 text-sm"
+            placeholder="Colle ton lien Google Meet (meet.google.com/...)"
+            className="rounded-lg border border-gray-300 p-2 text-sm"
           />
-          <button type="submit" className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white hover:bg-brand-dark">
-            Inviter
-          </button>
+          <div className="flex items-center gap-2">
+            <input
+              type="datetime-local"
+              name="scheduledAt"
+              required
+              className="flex-1 rounded-lg border border-gray-300 p-2 text-sm"
+            />
+            <button type="submit" className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white hover:bg-brand-dark">
+              Inviter
+            </button>
+          </div>
+          <p className="text-[11px] text-gray-400">
+            Crée d'abord ton lien sur meet.google.com, puis colle-le ici.
+          </p>
         </form>
       )}
     </div>
