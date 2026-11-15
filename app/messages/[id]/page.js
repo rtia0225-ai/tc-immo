@@ -81,9 +81,18 @@ export default async function ConversationPage({ params, searchParams }) {
         : []),
     ];
 
+    // Le numéro de téléphone ne doit jamais atteindre le navigateur sauf
+    // dans le seul cas où il peut légitimement être révélé (un
+    // professionnel qui affiche celui d'un autre professionnel, jamais
+    // celui du client) — sinon il resterait inspectable (devtools, payload
+    // React) même si le bouton "📞" ne s'affiche pas pour ce viewer.
     professionals = everyone
       .filter((p) => p.id !== user.id)
-      .map((p) => ({ ...p, inConversation: participantIds.has(p.id) }));
+      .map((p) => ({
+        ...p,
+        phone: !isClientViewer && !p.isClient ? p.phone : null,
+        inConversation: participantIds.has(p.id),
+      }));
   }
 
   const { data: messages } = await supabase
