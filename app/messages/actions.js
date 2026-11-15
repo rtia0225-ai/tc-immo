@@ -165,17 +165,18 @@ export async function addConversationParticipant(formData) {
     redirect(`/messages/${conversationId}?error=${encodeURIComponent("On ne peut ajouter quelqu'un que dans une discussion liée à un projet.")}`);
   }
 
-  // La personne ajoutée doit être un professionnel de ce projet (principal
-  // ou participant) — jamais le client, qui ne doit pas se retrouver dans
-  // une discussion entre professionnels sans l'avoir demandé.
-  const { data: project } = await supabase.from("projects").select("artisan_id").eq("id", conversation.project_id).single();
+  // La personne ajoutée doit faire partie du projet : un des professionnels
+  // (principal ou participant), ou le client — dans les deux sens : un
+  // professionnel peut ajouter le client à l'espace, et le client peut
+  // ajouter un professionnel (cf. demande du 2026-11).
+  const { data: project } = await supabase.from("projects").select("artisan_id, client_id").eq("id", conversation.project_id).single();
   const { data: projectParticipants } = await supabase
     .from("project_participants")
     .select("artisan_id")
     .eq("project_id", conversation.project_id);
-  const professionalIds = new Set([project?.artisan_id, ...(projectParticipants || []).map((p) => p.artisan_id)]);
+  const allowedIds = new Set([project?.artisan_id, project?.client_id, ...(projectParticipants || []).map((p) => p.artisan_id)]);
 
-  if (!professionalIds.has(newUserId)) {
+  if (!allowedIds.has(newUserId)) {
     redirect(`/messages/${conversationId}?error=${encodeURIComponent("Cette personne n'intervient pas sur ce projet.")}`);
   }
 

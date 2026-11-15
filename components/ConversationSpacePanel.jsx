@@ -8,7 +8,7 @@ import { addConversationParticipant, removeConversationParticipant, startVideoCa
 // son contact s'il y est déjà), puis trois grosses actions — converser,
 // prendre rendez-vous en visio, appeler en visio — qui concernent tout
 // le monde présent dans l'espace, pas juste une personne.
-export default function ConversationSpacePanel({ conversationId, professionals }) {
+export default function ConversationSpacePanel({ conversationId, professionals, isClientViewer }) {
   const [revealedId, setRevealedId] = useState(null);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showCallLink, setShowCallLink] = useState(false);
@@ -30,14 +30,20 @@ export default function ConversationSpacePanel({ conversationId, professionals }
                 )}
                 {p.inConversation ? (
                   <>
-                    <button
-                      type="button"
-                      onClick={() => setRevealedId(revealedId === p.id ? null : p.id)}
-                      title="Afficher le contact"
-                      className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm shadow"
-                    >
-                      📞
-                    </button>
+                    {/* Ni le client (son numéro ne doit jamais être exposé par ce
+                        bouton — même logique que le filtre anti-coordonnées dans
+                        les messages), ni un viewer client (il n'a pas droit à
+                        cette fonctionnalité) ne voient le 📞. */}
+                    {!isClientViewer && !p.isClient && (
+                      <button
+                        type="button"
+                        onClick={() => setRevealedId(revealedId === p.id ? null : p.id)}
+                        title="Afficher le contact"
+                        className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm shadow"
+                      >
+                        📞
+                      </button>
+                    )}
                     <form action={removeConversationParticipant} className="absolute -top-1 -right-1">
                       <input type="hidden" name="conversationId" value={conversationId} />
                       <input type="hidden" name="userId" value={p.id} />

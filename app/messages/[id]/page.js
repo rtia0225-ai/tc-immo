@@ -30,14 +30,19 @@ export default async function ConversationPage({ params, searchParams }) {
     .eq("conversation_id", id);
   const participantIds = new Set((participantRows || []).map((p) => p.user_id));
 
-  // Tous les professionnels du projet (principal + participants), pour
-  // afficher aussi bien ceux déjà dans l'espace (📞 contact) que ceux
-  // qu'on peut y ajouter d'un coup (+).
+  // Tous les professionnels du projet (principal + participants) ainsi que
+  // le client, pour afficher aussi bien ceux déjà dans l'espace (📞
+  // contact) que ceux qu'on peut y ajouter d'un coup (+) — dans les deux
+  // sens : un professionnel peut ajouter le client, le client peut ajouter
+  // un professionnel (cf. demande du 2026-11).
   let professionals = [];
+  let isClientViewer = false;
   if (conversation?.project_id) {
     const { data: project } = await supabase
       .from("projects")
-      .select("artisan_id, artisan:artisan_id ( trade, profiles ( full_name, avatar_url, phone ) )")
+      .select(
+        "artisan_id, client_id, artisan:artisan_id ( trade, profiles ( full_name, avatar_url, phone ) ), client:client_id ( full_name, avatar_url, phone )"
+      )
       .eq("id", conversation.project_id)
       .single();
     const { data: projectParticipants } = await supabase
@@ -45,7 +50,9 @@ export default async function ConversationPage({ params, searchParams }) {
       .select("artisan_id, artisan:artisan_id ( trade, profiles ( full_name, avatar_url, phone ) )")
       .eq("project_id", conversation.project_id);
 
-    const everyProfessional = [
+    isClientViewer = project?.client_id === user.id;
+
+    const everyone = [
       ...(project?.artisan_id
         ? [{
             id: project.artisan_id,
@@ -62,9 +69,19 @@ export default async function ConversationPage({ params, searchParams }) {
         avatarUrl: p.artisan?.profiles?.avatar_url,
         phone: p.artisan?.profiles?.phone,
       })),
+      ...(project?.client_id
+        ? [{
+            id: project.client_id,
+            name: project.client?.full_name,
+            trade: "Client",
+            avatarUrl: project.client?.avatar_url,
+            phone: project.client?.phone,
+            isClient: true,
+          }]
+        : []),
     ];
 
-    professionals = everyProfessional
+    professionals = everyone
       .filter((p) => p.id !== user.id)
       .map((p) => ({ ...p, inConversation: participantIds.has(p.id) }));
   }
@@ -91,7 +108,7 @@ export default async function ConversationPage({ params, searchParams }) {
         </p>
       )}
 
-      <ConversationSpacePanel conversationId={id} professionals={professionals} />
+      <ConversationSpacePanel conversationId={id} professionals={professionals} isClientViewer={isClientViewer} />
 
       {searchParams?.error && (
         <p className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">
