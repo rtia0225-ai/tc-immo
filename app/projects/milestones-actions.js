@@ -5,23 +5,87 @@ import { redirect } from "next/navigation";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 import { reviewDeliverableDocument } from "@/lib/documentReview";
 import { sendPush } from "@/lib/notifications";
+import { MANDATORY_CALL_TRADES, CALL_TYPE_LABELS } from "@/lib/constants";
 
-// Une étape ne peut être validée que si tous ses rendez-vous obligatoires
-// (appel de validation) ont bien eu lieu — renvoie un message d'erreur si
-// ce n'est pas le cas, sinon null.
+// Une étape ne peut être validée que si son appel de validation (quand le
+// métier du professionnel l'exige — Technicien BTP, Chef de chantier) a
+// bien eu lieu. Pour les autres métiers, l'appel reste facultatif et ne
+// bloque jamais. Renvoie un message d'erreur si ce n'est pas le cas,
+// sinon null.
 async function checkRequiredAppointments(supabase, milestoneId) {
-  const { data: pending } = await supabase
+  const { data: milestone } = await supabase
+    .from("project_milestones")
+    .select("artisan:artisan_id ( trade )")
+    .eq("id", milestoneId)
+    .single();
+
+  const callType = MANDATORY_CALL_TRADES[milestone?.artisan?.trade];
+  if (!callType) return null; // métier sans appel obligatoire
+
+  const { data: completedCall } = await supabase
     .from("appointments")
     .select("id")
     .eq("milestone_id", milestoneId)
-    .eq("is_required", true)
-    .neq("status", "completed")
-    .neq("status", "cancelled");
+    .eq("status", "completed")
+    .limit(1)
+    .maybeSingle();
 
-  if (pending && pending.length > 0) {
-    return "L'appel de validation de cette étape doit d'abord être marqué comme terminé.";
+  if (!completedCall) {
+    return `Un ${CALL_TYPE_LABELS[callType]} terminé avec le client est obligatoire pour ce métier avant de valider cette étape.`;
   }
   return null;
+}
+
+// Le client partage un document déposé par un professionnel vers le
+// parcours d'un autre (mini-dossier en bas de chaque timeline). Le
+// document apparaît ensuite chez le destinataire à la date du document
+// d'origine (document_date), pas à la date du partage.
+export async function shareDeliverable(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+  const deliverableId = formData.get("deliverableId");
+  const recipientArtisanId = formData.get("recipientArtisanId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: project } = await supabase.from("projects").select("client_id").eq("id", projectId).single();
+  if (project?.client_id !== user.id) redirect(`/projects/${projectId}`);
+
+  const { data: deliverable } = await supabase
+    .from("milestone_deliverables")
+    .select("label, document_url, reviewed_at, created_at, milestone:milestone_id ( project_id, artisan_id )")
+    .eq("id", deliverableId)
+    .single();
+
+  if (!deliverable?.document_url || deliverable.milestone?.project_id !== projectId) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Ce document ne peut pas être partagé.")}`);
+  }
+  if (recipientArtisanId === deliverable.milestone.artisan_id) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  await supabase.from("shared_deliverables").insert({
+    project_id: projectId,
+    source_deliverable_id: deliverableId,
+    source_artisan_id: deliverable.milestone.artisan_id,
+    recipient_artisan_id: recipientArtisanId,
+    shared_by: user.id,
+    label: deliverable.label,
+    document_url: deliverable.document_url,
+    document_date: deliverable.reviewed_at || deliverable.created_at,
+  });
+
+  await sendPush(
+    recipientArtisanId,
+    "Document partagé",
+    `Le client a ajouté "${deliverable.label}" à ton dossier sur ce projet.`,
+    `/projects/${projectId}`
+  );
+
+  redirect(`/projects/${projectId}`);
 }
 
 export async function addMilestone(formData) {

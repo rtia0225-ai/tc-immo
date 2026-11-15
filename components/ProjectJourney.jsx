@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { toggleMilestone, releasePayment, uploadDeliverable } from "@/app/projects/milestones-actions";
+import { toggleMilestone, releasePayment, uploadDeliverable, shareDeliverable } from "@/app/projects/milestones-actions";
 import { requestAppointment, markAppointmentCompleted } from "@/app/appointments/actions";
 import { requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
+import { MANDATORY_CALL_TRADES, OPTIONAL_CALL_TRADES, CALL_TYPE_LABELS } from "@/lib/constants";
 
 function formatDate(d) {
   if (!d) return "";
@@ -19,16 +20,19 @@ function formatDateTime(d) {
 // Formulaire compact pour planifier l'appel de validation d'une étape.
 // Toujours disponible, à n'importe quel moment — seule la VALIDATION de
 // l'étape dépend de son existence, pas la possibilité de la programmer.
-function ScheduleRequiredCall({ projectId, artisanId, milestoneId }) {
+function ScheduleRequiredCall({ projectId, artisanId, milestoneId, mandatory, callType }) {
   const [open, setOpen] = useState(false);
+  const label = mandatory ? `📅 Planifier l'${CALL_TYPE_LABELS[callType]} obligatoire` : "📅 Planifier un appel (facultatif)";
   if (!open) {
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-2 w-fit rounded-lg bg-forest px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-dark"
+        className={`mt-2 w-fit rounded-lg px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 ${
+          mandatory ? "bg-brand" : "bg-forest"
+        }`}
       >
-        📅 Planifier l'appel de validation
+        {label}
       </button>
     );
   }
@@ -37,7 +41,7 @@ function ScheduleRequiredCall({ projectId, artisanId, milestoneId }) {
       <input type="hidden" name="projectId" value={projectId} />
       <input type="hidden" name="artisanId" value={artisanId} />
       <input type="hidden" name="milestoneId" value={milestoneId} />
-      <input type="hidden" name="isRequired" value="true" />
+      <input type="hidden" name="isRequired" value={mandatory ? "true" : "false"} />
       <div>
         <label className="block text-[11px] font-semibold text-gray-500">Date et heure</label>
         <input
@@ -136,6 +140,38 @@ function EducationBlock({ content }) {
   );
 }
 
+// Bouton de partage d'un document du mini-dossier vers un autre
+// professionnel du projet : un clic révèle la liste des autres
+// professionnels, un second clic envoie.
+function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
+  const [open, setOpen] = useState(false);
+  if (!otherArtisans || otherArtisans.length === 0) return null;
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="text-[11px] font-semibold text-brand hover:underline">
+        Partager
+      </button>
+    );
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {otherArtisans.map((a) => (
+        <form key={a.artisanId} action={shareDeliverable}>
+          <input type="hidden" name="projectId" value={projectId} />
+          <input type="hidden" name="deliverableId" value={deliverableId} />
+          <input type="hidden" name="recipientArtisanId" value={a.artisanId} />
+          <button type="submit" className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-ink hover:bg-gray-200">
+            → {a.fullName || a.trade}
+          </button>
+        </form>
+      ))}
+      <button type="button" onClick={() => setOpen(false)} className="text-[11px] text-gray-400 hover:text-gray-600">
+        Annuler
+      </button>
+    </div>
+  );
+}
+
 const ADDITION_TYPE_LABEL = { payment: "Paiement", document: "Document", other: "Autre" };
 
 // Une ligne d'ajout déjà existante à cet endroit précis du parcours
@@ -177,12 +213,30 @@ function AdditionItem({ projectId, item, isClient }) {
   );
 }
 
+// Un document reçu du dossier d'un autre professionnel du projet, inséré
+// dans le parcours à sa date réelle (pas la date de partage).
+function SharedDocumentItem({ doc }) {
+  return (
+    <div className="mt-1 rounded-lg bg-forest-light/50 p-2.5 text-xs">
+      <p className="font-bold text-ink">📎 {doc.label}</p>
+      <p className="mt-0.5 text-[11px] text-gray-500">
+        Reçu de {doc.sourceArtisanName || "un autre professionnel"} — {formatDate(doc.document_date)}
+      </p>
+      {doc.signedUrl && (
+        <a href={doc.signedUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block font-semibold text-brand underline">
+          Voir le document
+        </a>
+      )}
+    </div>
+  );
+}
+
 // Le "+" sur la ligne verticale, entre deux étapes (ou juste après le
 // contrat) : permet d'insérer un paiement, un document, un rendez-vous ou
 // autre chose à cet endroit précis — garde l'ouverture nécessaire pour
 // tout ce qui n'était pas prévu au départ, sans passer par une section à
 // part. Remplace l'ancienne "Mise à jour des demandes".
-function GapInsertion({ projectId, artisanId, afterMilestoneId, items, isClient, canAdd, hasLineBelow }) {
+function GapInsertion({ projectId, artisanId, afterMilestoneId, items, sharedDocs, isClient, canAdd, hasLineBelow }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex gap-3">
@@ -202,6 +256,9 @@ function GapInsertion({ projectId, artisanId, afterMilestoneId, items, isClient,
         {hasLineBelow && <div className="mt-1 w-px flex-1 border-l border-dashed border-gray-200" />}
       </div>
       <div className="flex-1 pb-6">
+        {(sharedDocs || []).map((d) => (
+          <SharedDocumentItem key={d.id} doc={d} />
+        ))}
         {(items || []).map((r) => (
           <AdditionItem key={r.id} projectId={projectId} item={r} isClient={isClient} />
         ))}
@@ -261,6 +318,8 @@ export default function ProjectJourney({
   educationByTitle,
   isArtisan,
   isClient,
+  sharedDocuments,
+  otherArtisans,
 }) {
   const sortedMilestones = [...(milestones || [])].sort((a, b) => a.order_index - b.order_index);
   const appointmentsByMilestone = {};
@@ -286,6 +345,31 @@ export default function ProjectJourney({
   // endroit — seule la validation diffère (automatique pour le client,
   // soumise à son accord pour l'artisan).
   const canAdd = isClient || isArtisan;
+
+  // Documents reçus du dossier d'un autre professionnel : insérés à leur
+  // date réelle (document_date), pas à la date du partage — entre le
+  // contrat et la première étape, entre deux étapes, ou après la dernière.
+  const sharedDocsByGap = {};
+  (sharedDocuments || []).forEach((doc) => {
+    const docTime = new Date(doc.document_date).getTime();
+    const idx = sortedMilestones.findIndex((m) => new Date(m.paid_at || m.created_at || contractSignedAt || 0).getTime() > docTime);
+    const key =
+      idx === -1
+        ? sortedMilestones.length > 0
+          ? sortedMilestones[sortedMilestones.length - 1].id
+          : "contract"
+        : idx === 0
+          ? "contract"
+          : sortedMilestones[idx - 1].id;
+    sharedDocsByGap[key] = [...(sharedDocsByGap[key] || []), doc];
+  });
+
+  // Mini-dossier : tous les documents déjà uploadés par CE professionnel,
+  // tous livrables confondus — point d'entrée pour les partager vers un
+  // autre professionnel du projet (le contrat lui-même n'y figure pas).
+  const myDeliverables = sortedMilestones.flatMap((m) =>
+    (m.deliverables || []).filter((d) => !!d.document_url).map((d) => ({ ...d, milestoneTitle: m.title }))
+  );
 
   return (
     <div className="flex flex-col">
@@ -322,14 +406,19 @@ export default function ProjectJourney({
         artisanId={artisanId}
         afterMilestoneId={null}
         items={additionsByGap["contract"]}
+        sharedDocs={sharedDocsByGap["contract"]}
         isClient={isClient}
         canAdd={canAdd}
         hasLineBelow={sortedMilestones.length > 0}
       />
 
       {sortedMilestones.map((m, i) => {
-        const requiredAppointments = (appointmentsByMilestone[m.id] || []).filter((a) => a.is_required);
-        const hasBlockingRequirement = requiredAppointments.length > 0 && !requiredAppointments.some((a) => a.status === "completed");
+        const milestoneAppointments = appointmentsByMilestone[m.id] || [];
+        const mandatoryCallType = MANDATORY_CALL_TRADES[trade];
+        const callIsOptional = OPTIONAL_CALL_TRADES.includes(trade);
+        const showCallBlock = !!mandatoryCallType || callIsOptional;
+        const hasCompletedCall = milestoneAppointments.some((a) => a.status === "completed");
+        const hasBlockingRequirement = !!mandatoryCallType && !hasCompletedCall;
         const status = m.is_completed ? "Validée" : m.paid_at ? "Payée, à valider" : "En cours";
         const education = educationByTitle?.[m.title];
         const isLast = i === sortedMilestones.length - 1;
@@ -360,16 +449,24 @@ export default function ProjectJourney({
                     </span>
                   )}
                 </div>
-                {/* Rendez-vous de validation */}
-                {requiredAppointments.length > 0 ? (
-                  requiredAppointments.map((a) => (
-                    <RequiredCallStatus key={a.id} projectId={projectId} appointment={a} />
-                  ))
-                ) : (
-                  !m.is_completed && (
-                    <ScheduleRequiredCall projectId={projectId} artisanId={artisanId} milestoneId={m.id} />
-                  )
-                )}
+                {/* Rendez-vous de validation : affiché seulement pour les
+                    métiers concernés (absent pour maçon, plombier...),
+                    obligatoire pour Technicien BTP/Chef de chantier,
+                    facultatif pour Architecte/Ingénieur. */}
+                {showCallBlock &&
+                  (milestoneAppointments.length > 0 ? (
+                    milestoneAppointments.map((a) => <RequiredCallStatus key={a.id} projectId={projectId} appointment={a} />)
+                  ) : (
+                    !m.is_completed && (
+                      <ScheduleRequiredCall
+                        projectId={projectId}
+                        artisanId={artisanId}
+                        milestoneId={m.id}
+                        mandatory={!!mandatoryCallType}
+                        callType={mandatoryCallType}
+                      />
+                    )
+                  ))}
 
                 {/* Une étape peut avoir plusieurs livrables : une ligne
                     courte par livrable, chacun avec son propre statut. */}
@@ -458,6 +555,7 @@ export default function ProjectJourney({
               artisanId={artisanId}
               afterMilestoneId={m.id}
               items={additionsByGap[m.id]}
+              sharedDocs={sharedDocsByGap[m.id]}
               isClient={isClient}
               canAdd={canAdd}
               hasLineBelow={!isLast}
@@ -474,6 +572,34 @@ export default function ProjectJourney({
               <p key={a.id} className="text-xs text-gray-500">
                 {formatDateTime(a.scheduled_at)} — {a.status}
               </p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mini-dossier : tous les documents déjà déposés par ce
+          professionnel, pour que le client puisse en partager un vers un
+          autre professionnel du projet (ex : le plan de l'architecte
+          transmis au maçon). */}
+      {isClient && myDeliverables.length > 0 && (
+        <div className="ml-6 mt-2 rounded-lg border border-dashed border-gray-200 p-3">
+          <p className="text-xs font-bold text-ink">📁 Dossier de {artisanName}</p>
+          <div className="mt-1.5 flex flex-col gap-1.5">
+            {myDeliverables.map((d) => (
+              <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-xs">
+                <div>
+                  <span className="font-medium text-ink">{d.label}</span>
+                  <span className="ml-1 text-gray-400">({d.milestoneTitle})</span>
+                  {d.signedUrl && (
+                    <a href={d.signedUrl} target="_blank" rel="noreferrer" className="ml-2 font-semibold text-brand underline">
+                      Voir
+                    </a>
+                  )}
+                </div>
+                {d.signedUrl && (
+                  <ShareDeliverableButton projectId={projectId} deliverableId={d.id} otherArtisans={otherArtisans} />
+                )}
+              </div>
             ))}
           </div>
         </div>

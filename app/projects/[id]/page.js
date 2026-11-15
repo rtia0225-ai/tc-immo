@@ -205,6 +205,23 @@ export default async function ProjectPage({ params, searchParams }) {
     .eq("project_id", id)
     .in("artisan_id", artisanIds);
 
+  // Documents qu'un professionnel a reçus (partagés par le client depuis le
+  // dossier d'un autre professionnel du même projet) — on génère un lien
+  // signé pour chacun, comme pour les livrables classiques.
+  const { data: rawSharedDeliverables } = await supabase
+    .from("shared_deliverables")
+    .select("id, recipient_artisan_id, source_artisan_id, label, document_url, document_date")
+    .eq("project_id", id)
+    .in("recipient_artisan_id", artisanIds);
+
+  const sharedDeliverables = await Promise.all(
+    (rawSharedDeliverables || []).map(async (s) => {
+      const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(s.document_url, 3600);
+      const sourceArtisan = allArtisansOnProjectForList.find((a) => a.artisanId === s.source_artisan_id);
+      return { ...s, signedUrl: data?.signedUrl || null, sourceArtisanName: sourceArtisan?.fullName || null };
+    })
+  );
+
   // Il peut désormais exister plusieurs conversations sur un même projet
   // (client ↔ artisan principal, mais aussi professionnel ↔ professionnel) :
   // on prend celle qui concerne l'utilisateur courant, pas "la" conversation
@@ -592,6 +609,13 @@ export default async function ProjectPage({ params, searchParams }) {
                 const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
                 const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
                 const artisanAdditionRequests = (additionRequests || []).filter((r) => r.artisan_id === a.artisanId);
+                // Les documents que CE professionnel a reçus d'un autre,
+                // et les autres professionnels du projet avec qui le client
+                // peut partager un document DEPUIS le dossier de celui-ci.
+                const artisanSharedDocuments = sharedDeliverables.filter((s) => s.recipient_artisan_id === a.artisanId);
+                const otherArtisans = artisansOnProject
+                  .filter((other) => other.artisanId !== a.artisanId)
+                  .map((other) => ({ artisanId: other.artisanId, fullName: other.fullName, trade: other.trade }));
 
                 return {
                   artisanId: a.artisanId,
@@ -613,6 +637,8 @@ export default async function ProjectPage({ params, searchParams }) {
                     educationByTitle,
                     isArtisan: isArtisan && user.id === a.artisanId,
                     isClient,
+                    sharedDocuments: artisanSharedDocuments,
+                    otherArtisans,
                   },
                 };
               })}
