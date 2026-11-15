@@ -44,41 +44,44 @@ export async function startConversation(formData) {
 export async function sendMessage(formData) {
   const supabase = createClient();
   const conversationId = formData.get("conversationId");
-  const content = formData.get("content");
+  const content = formData.get("content")?.trim() || null;
+  const documentUrl = formData.get("documentUrl") || null;
+  const documentType = formData.get("documentType") || null;
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !content?.trim()) return;
+  if (!user || (!content && !documentUrl)) return;
 
   const { data: conversation } = await supabase
     .from("conversations")
-    .select("client_id, artisan_id, project_id")
+    .select("project_id")
     .eq("id", conversationId)
     .single();
 
+  const { data: participantRows } = await supabase
+    .from("conversation_participants")
+    .select("user_id, profile:user_id ( role )")
+    .eq("conversation_id", conversationId);
+  const participants = participantRows || [];
+
   // Le filtre anti-coordonnées ne s'applique qu'entre un client et un
-  // professionnel : entre deux professionnels d'un même projet, ils ont le
+  // professionnel : entre professionnels d'un même projet, ils ont le
   // droit de s'échanger leurs contacts si ça les arrange (cf. demande du
-  // 2026-11). On ne lève cette interdiction que si AUCUN des deux
-  // participants n'est un client (les deux sont artisans).
-  let isBetweenProfessionals = false;
-  if (conversation?.project_id) {
-    const { data: partiesProfiles } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .in("id", [conversation.client_id, conversation.artisan_id]);
-    isBetweenProfessionals =
-      (partiesProfiles || []).length === 2 && partiesProfiles.every((p) => p.role === "artisan");
-  }
+  // 2026-11). On ne lève cette interdiction que si AUCUN participant
+  // n'est un client (tous sont artisans).
+  const isBetweenProfessionals =
+    !!conversation?.project_id &&
+    participants.length > 0 &&
+    participants.every((p) => p.profile?.role === "artisan");
 
   // Interdiction d'échanger des coordonnées dans les messages : numéro de
   // téléphone, réseau social externe (Facebook, WhatsApp...), ou son
   // propre nom complet (souvent utilisé pour être retrouvé ailleurs).
   // Les échanges doivent rester sur la plateforme — sauf entre
   // professionnels d'un même projet (voir plus haut).
-  if (!isBetweenProfessionals) {
+  if (content && !isBetweenProfessionals) {
     const { data: senderProfile } = await supabase
       .from("profiles")
       .select("full_name")
@@ -121,17 +124,79 @@ export async function sendMessage(formData) {
   await supabase.from("messages").insert({
     conversation_id: conversationId,
     sender_id: user.id,
-    content: content.trim(),
+    content,
+    document_url: documentUrl,
+    document_type: documentType,
   });
 
-  // Détermine qui n'est pas l'expéditeur pour le notifier par SMS
-  if (conversation) {
-    const recipientId =
-      conversation.client_id === user.id
-        ? conversation.artisan_id
-        : conversation.client_id;
-    await notifyNewMessage(recipientId);
+  // Notifie tous les autres participants (plus seulement "l'autre partie" :
+  // une conversation peut désormais en compter plus de deux).
+  for (const p of participants) {
+    if (p.user_id !== user.id) await notifyNewMessage(p.user_id);
   }
+
+  redirect(`/messages/${conversationId}`);
+}
+
+// Ajoute quelqu'un à une conversation en cours — uniquement entre
+// professionnels d'un même projet (cf. demande du 2026-11) : celui qui
+// ajoute doit déjà être dans la conversation, et la personne ajoutée doit
+// réellement intervenir sur ce projet. Elle voit alors tout l'historique,
+// la RLS n'étant plus limitée aux deux participants d'origine.
+export async function addConversationParticipant(formData) {
+  const supabase = createClient();
+  const conversationId = formData.get("conversationId");
+  const newUserId = formData.get("userId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  if (!newUserId) redirect(`/messages/${conversationId}`);
+
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .select("project_id")
+    .eq("id", conversationId)
+    .single();
+
+  if (!conversation?.project_id) {
+    redirect(`/messages/${conversationId}?error=${encodeURIComponent("On ne peut ajouter quelqu'un que dans une discussion liée à un projet.")}`);
+  }
+
+  // La personne ajoutée doit être un professionnel de ce projet (principal
+  // ou participant) — jamais le client, qui ne doit pas se retrouver dans
+  // une discussion entre professionnels sans l'avoir demandé.
+  const { data: project } = await supabase.from("projects").select("artisan_id").eq("id", conversation.project_id).single();
+  const { data: projectParticipants } = await supabase
+    .from("project_participants")
+    .select("artisan_id")
+    .eq("project_id", conversation.project_id);
+  const professionalIds = new Set([project?.artisan_id, ...(projectParticipants || []).map((p) => p.artisan_id)]);
+
+  if (!professionalIds.has(newUserId)) {
+    redirect(`/messages/${conversationId}?error=${encodeURIComponent("Cette personne n'intervient pas sur ce projet.")}`);
+  }
+
+  const { error } = await supabase.from("conversation_participants").insert({
+    conversation_id: conversationId,
+    user_id: newUserId,
+    added_by: user.id,
+  });
+
+  if (error && error.code !== "23505") {
+    redirect(`/messages/${conversationId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  const { data: addedProfile } = await supabase.from("profiles").select("full_name").eq("id", newUserId).single();
+  await supabase.from("messages").insert({
+    conversation_id: conversationId,
+    sender_id: user.id,
+    content: `${addedProfile?.full_name || "Un participant"} a été ajouté à la discussion.`,
+  });
+
+  await notifyNewMessage(newUserId);
 
   redirect(`/messages/${conversationId}`);
 }
@@ -174,18 +239,13 @@ export async function sendVoiceMessage(formData) {
     audio_url: publicUrlData.publicUrl,
   });
 
-  const { data: conversation } = await supabase
-    .from("conversations")
-    .select("client_id, artisan_id")
-    .eq("id", conversationId)
-    .single();
+  const { data: participantRows } = await supabase
+    .from("conversation_participants")
+    .select("user_id")
+    .eq("conversation_id", conversationId);
 
-  if (conversation) {
-    const recipientId =
-      conversation.client_id === user.id
-        ? conversation.artisan_id
-        : conversation.client_id;
-    await notifyNewMessage(recipientId);
+  for (const p of participantRows || []) {
+    if (p.user_id !== user.id) await notifyNewMessage(p.user_id);
   }
 
   return { success: true };
