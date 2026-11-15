@@ -123,8 +123,13 @@ function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
   if (!otherArtisans || otherArtisans.length === 0) return null;
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-[11px] font-semibold text-brand hover:underline">
-        Partager
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Partager ce document"
+        className="flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs font-bold text-white hover:bg-brand-dark"
+      >
+        +
       </button>
     );
   }
@@ -136,7 +141,7 @@ function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
           <input type="hidden" name="deliverableId" value={deliverableId} />
           <input type="hidden" name="recipientArtisanId" value={a.artisanId} />
           <SubmitButton className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-ink hover:bg-gray-200" pendingLabel="...">
-            → {a.fullName || a.trade}
+            {a.fullName || a.trade}
           </SubmitButton>
         </form>
       ))}

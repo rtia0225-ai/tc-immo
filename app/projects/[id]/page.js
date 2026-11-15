@@ -254,6 +254,39 @@ export default async function ProjectPage({ params, searchParams }) {
         </div>
       )}
 
+      {/* Raccourcis en haut, bien en couleur — même traitement que
+          l'espace professionnel (ConversationSpacePanel). */}
+      <div className="mb-6 flex gap-3">
+        <Link
+          href={conversation ? `/messages/${conversation.id}` : "/messages"}
+          className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100"
+        >
+          <span className="text-2xl" aria-hidden>💬</span>
+          <span className="text-xs font-semibold text-ink">Messagerie</span>
+        </Link>
+        <Link
+          href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
+          className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100"
+        >
+          <span className="text-2xl" aria-hidden>📅</span>
+          <span className="text-xs font-semibold text-ink">Rendez-vous</span>
+        </Link>
+        <Link
+          href={`/projects/${project.id}/documents`}
+          className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100"
+        >
+          <span className="text-2xl" aria-hidden>📄</span>
+          <span className="text-xs font-semibold text-ink">Documents</span>
+        </Link>
+        <Link
+          href={`/projects/${project.id}/paiement`}
+          className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100"
+        >
+          <span className="text-2xl" aria-hidden>💳</span>
+          <span className="text-xs font-semibold text-ink">Paiement</span>
+        </Link>
+      </div>
+
       {(project.terrain_location || project.terrain_reference_number || project.terrain_document_type || project.terrain_area || project.terrain_notes || project.terrain_latitude) && (
         <div className="mb-6 rounded-lg bg-white shadow-card p-5">
           <p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
@@ -663,35 +696,6 @@ export default async function ProjectPage({ params, searchParams }) {
         </>
       )}
 
-      {/* Raccourcis : messagerie, rendez-vous, documents, paiement — une
-          seule ligne compacte avec icône + libellé, plus de carrés de
-          couleur. */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg bg-white px-4 py-3 text-sm shadow-card">
-        <Link
-          href={conversation ? `/messages/${conversation.id}` : "/messages"}
-          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
-        >
-          <span aria-hidden>💬</span> Messagerie
-        </Link>
-        <Link
-          href={`/appointments/new?artisan=${project.artisan_id}&project=${project.id}`}
-          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
-        >
-          <span aria-hidden>📅</span> Rendez-vous
-        </Link>
-        <Link
-          href={`/projects/${project.id}/documents`}
-          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
-        >
-          <span aria-hidden>📄</span> Documents
-        </Link>
-        <Link
-          href={`/projects/${project.id}/paiement`}
-          className="flex items-center gap-1.5 font-medium text-ink hover:text-brand"
-        >
-          <span aria-hidden>💳</span> Paiement
-        </Link>
-      </div>
     </div>
   );
 }
