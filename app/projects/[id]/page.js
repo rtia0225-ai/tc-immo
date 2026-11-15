@@ -172,27 +172,34 @@ export default async function ProjectPage({ params, searchParams }) {
 
   const { data: allMilestones } = await supabase
     .from("project_milestones")
-    .select("*, milestone_deliverables ( id, label, order_index, document_url, review_status, review_note )")
+    .select(
+      "*, milestone_deliverables ( id, label, order_index, deliverable_files ( id, document_url, review_status, review_note, created_at, reviewed_at ) )"
+    )
     .eq("project_id", id)
     .in("artisan_id", artisanIds)
     .order("order_index", { ascending: true });
 
   // Liens signés temporaires pour les documents livrés, le bucket est
-  // privé. Le client ne voit un livrable que si la vérification
+  // privé. Le client ne voit un fichier que si la vérification
   // (automatique ou admin) l'a approuvé — tant que c'est "en attente",
   // seuls l'artisan qui l'a déposé et les admins y ont accès
-  // (lib/documentReview.js). Une étape peut avoir plusieurs livrables.
+  // (lib/documentReview.js). Une étape peut avoir plusieurs livrables, et
+  // chaque livrable peut désormais contenir plusieurs fichiers.
   const milestonesWithDeliverables = await Promise.all(
     (allMilestones || []).map(async (m) => {
       const deliverables = await Promise.all(
         [...(m.milestone_deliverables || [])]
           .sort((a, b) => a.order_index - b.order_index)
           .map(async (d) => {
-            if (!d.document_url) return d;
-            const canSee = isAdmin || isArtisan || d.review_status === "approved";
-            if (!canSee) return { ...d, signedUrl: null };
-            const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(d.document_url, 3600);
-            return { ...d, signedUrl: data?.signedUrl || null };
+            const files = await Promise.all(
+              (d.deliverable_files || []).map(async (f) => {
+                const canSee = isAdmin || isArtisan || f.review_status === "approved";
+                if (!canSee) return { ...f, signedUrl: null };
+                const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(f.document_url, 3600);
+                return { ...f, signedUrl: data?.signedUrl || null };
+              })
+            );
+            return { ...d, files };
           })
       );
       return { ...m, deliverables };

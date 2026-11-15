@@ -32,10 +32,10 @@ export default async function ProjectDocumentsPage({ params }) {
 
   const { data: milestones } = await supabase
     .from("project_milestones")
-    .select("id, title, deliverable_document_url, deliverable_review_status, deliverable_reviewed_at, artisan:artisan_id ( trade, profiles ( full_name ) )")
-    .eq("project_id", projectId)
-    .not("deliverable_document_url", "is", null)
-    .order("deliverable_reviewed_at", { ascending: false });
+    .select(
+      "id, title, artisan:artisan_id ( trade, profiles ( full_name ) ), milestone_deliverables ( label, deliverable_files ( document_url, review_status, created_at, reviewed_at ) )"
+    )
+    .eq("project_id", projectId);
 
   const { data: reports } = await supabase
     .from("technician_progress_reports")
@@ -43,23 +43,30 @@ export default async function ProjectDocumentsPage({ params }) {
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 
-  // Le client ne voit un livrable d'étape que s'il a été validé ; un
-  // professionnel ou un admin les voit tous.
-  const milestoneDocs = await Promise.all(
-    (milestones || []).map(async (m) => {
-      const canSee = isAdmin || isArtisan || m.deliverable_review_status === "approved";
-      if (!canSee) return null;
-      const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(m.deliverable_document_url, 3600);
-      return {
-        id: `milestone-${m.id}`,
-        label: m.title,
-        who: m.artisan?.profiles?.full_name,
-        trade: m.artisan?.trade,
-        date: m.deliverable_reviewed_at,
-        url: data?.signedUrl || null,
-      };
-    })
-  );
+  // Le client ne voit un fichier que s'il a été validé ; un professionnel
+  // ou un admin les voit tous. Un livrable peut contenir plusieurs
+  // fichiers, chacun listé séparément ici.
+  const milestoneDocs = (
+    await Promise.all(
+      (milestones || []).flatMap((m) =>
+        (m.milestone_deliverables || []).flatMap((deliv) =>
+          (deliv.deliverable_files || []).map(async (f) => {
+            const canSee = isAdmin || isArtisan || f.review_status === "approved";
+            if (!canSee) return null;
+            const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(f.document_url, 3600);
+            return {
+              id: `file-${f.document_url}`,
+              label: `${deliv.label} — ${m.title}`,
+              who: m.artisan?.profiles?.full_name,
+              trade: m.artisan?.trade,
+              date: f.reviewed_at || f.created_at,
+              url: data?.signedUrl || null,
+            };
+          })
+        )
+      )
+    )
+  ).filter(Boolean);
 
   const reportDocs = (
     await Promise.all(

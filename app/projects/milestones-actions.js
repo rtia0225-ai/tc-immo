@@ -62,29 +62,37 @@ export async function shareDeliverable(formData) {
     );
   }
 
+  // Un livrable peut contenir plusieurs fichiers : on partage tous ceux
+  // qui sont approuvés (visibles du client), pas un seul.
   const { data: deliverable } = await supabase
     .from("milestone_deliverables")
-    .select("label, document_url, reviewed_at, created_at, milestone:milestone_id ( project_id, artisan_id )")
+    .select(
+      "label, milestone:milestone_id ( project_id, artisan_id ), deliverable_files ( document_url, review_status, reviewed_at, created_at )"
+    )
     .eq("id", deliverableId)
     .single();
 
-  if (!deliverable?.document_url || deliverable.milestone?.project_id !== projectId) {
+  const approvedFiles = (deliverable?.deliverable_files || []).filter((f) => f.review_status === "approved");
+
+  if (!deliverable || deliverable.milestone?.project_id !== projectId || approvedFiles.length === 0) {
     redirect(`/projects/${projectId}?error=${encodeURIComponent("Ce document ne peut pas être partagé.")}`);
   }
   if (recipientArtisanId === deliverable.milestone.artisan_id) {
     redirect(`/projects/${projectId}`);
   }
 
-  await supabase.from("shared_deliverables").insert({
-    project_id: projectId,
-    source_deliverable_id: deliverableId,
-    source_artisan_id: deliverable.milestone.artisan_id,
-    recipient_artisan_id: recipientArtisanId,
-    shared_by: user.id,
-    label: deliverable.label,
-    document_url: deliverable.document_url,
-    document_date: deliverable.reviewed_at || deliverable.created_at,
-  });
+  await supabase.from("shared_deliverables").insert(
+    approvedFiles.map((f) => ({
+      project_id: projectId,
+      source_deliverable_id: deliverableId,
+      source_artisan_id: deliverable.milestone.artisan_id,
+      recipient_artisan_id: recipientArtisanId,
+      shared_by: user.id,
+      label: deliverable.label,
+      document_url: f.document_url,
+      document_date: f.reviewed_at || f.created_at,
+    }))
+  );
 
   await sendPush(
     recipientArtisanId,
@@ -120,10 +128,10 @@ export async function addMilestone(formData) {
 async function checkAllDeliverablesUploaded(supabase, milestoneId) {
   const { data: deliverables } = await supabase
     .from("milestone_deliverables")
-    .select("document_url")
+    .select("deliverable_files ( id )")
     .eq("milestone_id", milestoneId);
   if (!deliverables || deliverables.length === 0) return true; // aucun livrable défini pour cette étape
-  return deliverables.every((d) => !!d.document_url);
+  return deliverables.every((d) => (d.deliverable_files || []).length > 0);
 }
 
 // L'artisan clique sur "Valider l'étape" (ou la décoche, cas rare).
@@ -312,25 +320,27 @@ async function advanceProjectStatusFromPayment(supabase, projectId) {
 }
 
 
-// L'artisan envoie le fichier d'UN livrable précis d'une étape (une étape
-// peut en avoir plusieurs). Avant de rendre le document visible au
-// client, une IA vérifie que le fichier ressemble plausiblement au bon
-// document (lib/documentReview.js). Si elle n'est pas sûre, le livrable
+// L'artisan envoie un ou plusieurs fichiers pour UN livrable précis d'une
+// étape (une étape peut avoir plusieurs livrables, et un livrable peut
+// désormais contenir plusieurs fichiers — ex : une "esquisse" en
+// plusieurs planches). Chaque fichier est vérifié séparément par l'IA
+// (lib/documentReview.js) ; si elle n'est pas sûre pour l'un d'eux, celui-ci
 // reste en attente d'une vérification manuelle par un admin plutôt que
-// d'être débloqué automatiquement.
+// d'être débloqué automatiquement — les autres fichiers ne sont pas
+// bloqués pour autant.
 export async function uploadDeliverable(formData) {
   const supabase = createClient();
   const deliverableId = formData.get("deliverableId");
   const milestoneId = formData.get("milestoneId");
   const projectId = formData.get("projectId");
-  const file = formData.get("document");
+  const files = formData.getAll("document").filter((f) => f && typeof f !== "string" && f.size > 0);
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  if (!file || typeof file === "string" || file.size === 0) {
+  if (files.length === 0) {
     redirect(`/projects/${projectId}?error=Aucun+fichier+sélectionné`);
   }
 
@@ -354,67 +364,74 @@ export async function uploadDeliverable(formData) {
 
   const trade = milestoneBefore?.artisan?.trade;
   const documentLabel = deliverableBefore?.label || "livrable";
+  const milestoneTitle = milestoneBefore?.title || "";
 
-  const ext = file.name.split(".").pop() || "pdf";
-  const path = `${projectId}/${user.id}/${deliverableId}.${ext}`;
-  const arrayBuffer = await file.arrayBuffer();
+  let approvedCount = 0;
+  let pendingCount = 0;
 
-  const { error: uploadError } = await supabase.storage
-    .from("project-deliverables")
-    .upload(path, arrayBuffer, { contentType: file.type, upsert: true });
+  for (const file of files) {
+    const ext = file.name.split(".").pop() || "pdf";
+    const path = `${projectId}/${user.id}/${deliverableId}-${crypto.randomUUID()}.${ext}`;
+    const arrayBuffer = await file.arrayBuffer();
 
-  if (uploadError) {
-    redirect(`/projects/${projectId}?error=${encodeURIComponent(uploadError.message)}`);
-  }
+    const { error: uploadError } = await supabase.storage
+      .from("project-deliverables")
+      .upload(path, arrayBuffer, { contentType: file.type, upsert: true });
 
-  const review = await reviewDeliverableDocument({
-    fileBuffer: arrayBuffer,
-    contentType: file.type,
-    fileName: file.name,
-    trade,
-    documentLabel,
-  });
+    if (uploadError) {
+      redirect(`/projects/${projectId}?error=${encodeURIComponent(uploadError.message)}`);
+    }
 
-  const approved = review.status === "approved";
+    const review = await reviewDeliverableDocument({
+      fileBuffer: arrayBuffer,
+      contentType: file.type,
+      fileName: file.name,
+      trade,
+      documentLabel,
+    });
 
-  // L'upload ne valide plus l'étape automatiquement : il rend seulement le
-  // document visible au client (s'il est approuvé) pour qu'il puisse
-  // payer. L'étape n'est marquée "terminée" qu'au clic explicite de
-  // l'artisan sur "Valider l'étape", une fois tous les livrables déposés
-  // ET le virement confirmé (cf. toggleMilestone / releasePayment).
-  await supabase
-    .from("milestone_deliverables")
-    .update({
+    const approved = review.status === "approved";
+
+    // L'upload ne valide plus l'étape automatiquement : il rend seulement
+    // le fichier visible au client (s'il est approuvé) pour qu'il puisse
+    // payer. L'étape n'est marquée "terminée" qu'au clic explicite de
+    // l'artisan sur "Valider l'étape", une fois tous les livrables déposés
+    // ET le virement confirmé (cf. toggleMilestone / releasePayment).
+    await supabase.from("deliverable_files").insert({
+      deliverable_id: deliverableId,
       document_url: path,
       review_status: review.status,
       review_note: review.note,
       reviewed_at: new Date().toISOString(),
       reviewed_by: null, // null = vérification automatique
-    })
-    .eq("id", deliverableId);
-
-  const milestoneTitle = milestoneBefore?.title || "";
-
-  if (approved) {
-    await logTimelineEvent(supabase, {
-      projectId,
-      eventType: "document_added",
-      title: `Document livré : ${documentLabel} (${milestoneTitle})`,
-      mediaUrl: path,
-      actorId: user.id,
-    });
-  } else {
-    await logTimelineEvent(supabase, {
-      projectId,
-      eventType: "document_pending_review",
-      title: `Document déposé, en attente de vérification : ${documentLabel} (${milestoneTitle})`,
-      description: review.note,
-      mediaUrl: path,
-      actorId: user.id,
     });
 
-    // Notifie les admins (pas le client) : le document n'est pas encore
-    // visible pour lui, inutile de l'avertir avant que ce soit tranché.
+    if (approved) {
+      approvedCount += 1;
+      await logTimelineEvent(supabase, {
+        projectId,
+        eventType: "document_added",
+        title: `Document livré : ${documentLabel} (${milestoneTitle})`,
+        mediaUrl: path,
+        actorId: user.id,
+      });
+    } else {
+      pendingCount += 1;
+      await logTimelineEvent(supabase, {
+        projectId,
+        eventType: "document_pending_review",
+        title: `Document déposé, en attente de vérification : ${documentLabel} (${milestoneTitle})`,
+        description: review.note,
+        mediaUrl: path,
+        actorId: user.id,
+      });
+    }
+  }
+
+  if (pendingCount > 0) {
+    // Notifie les admins (pas le client) : le(s) document(s) ne sont pas
+    // encore visibles pour lui, inutile de l'avertir avant que ce soit
+    // tranché.
     const { data: admins } = await supabase.from("profiles").select("id").eq("is_admin", true);
     await Promise.all(
       (admins || []).map((a) =>

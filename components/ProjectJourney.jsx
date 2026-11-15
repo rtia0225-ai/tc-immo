@@ -348,7 +348,7 @@ export default function ProjectJourney({
   // tous livrables confondus — point d'entrée pour les partager vers un
   // autre professionnel du projet (le contrat lui-même n'y figure pas).
   const myDeliverables = sortedMilestones.flatMap((m) =>
-    (m.deliverables || []).filter((d) => !!d.document_url).map((d) => ({ ...d, milestoneTitle: m.title }))
+    (m.deliverables || []).filter((d) => (d.files || []).length > 0).map((d) => ({ ...d, milestoneTitle: m.title }))
   );
 
   return (
@@ -447,37 +447,50 @@ export default function ProjectJourney({
                     )
                   ))}
 
-                {/* Une étape peut avoir plusieurs livrables : une ligne
-                    courte par livrable, chacun avec son propre statut. */}
+                {/* Une étape peut avoir plusieurs livrables, et chaque
+                    livrable peut désormais contenir plusieurs fichiers
+                    (ex : une esquisse en plusieurs planches) — chacun
+                    vérifié séparément. */}
                 {(m.deliverables || []).length > 0 && (
                   <div className="mt-1.5 flex flex-col gap-1">
                     {m.deliverables.map((d) => {
-                      const uploaded = !!d.document_url;
-                      const needsReview = uploaded && !d.signedUrl && d.review_status === "needs_manual_review";
-                      const wasRejected = d.review_status === "rejected";
+                      const files = d.files || [];
+                      const approvedFiles = files.filter((f) => f.signedUrl);
+                      const pendingCount = files.filter((f) => !f.signedUrl && f.review_status === "needs_manual_review").length;
+                      const rejectedCount = files.filter((f) => f.review_status === "rejected").length;
                       return (
                         <div key={d.id} className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1 text-xs">
                           <span className="font-medium text-ink">{d.label}</span>
-                          {d.signedUrl ? (
-                            <a href={d.signedUrl} target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
-                              📎 Voir le document
+                          {approvedFiles.map((f, idx) => (
+                            <a key={f.id} href={f.signedUrl} target="_blank" rel="noreferrer" className="font-semibold text-brand underline">
+                              📎 {approvedFiles.length > 1 ? `Document ${idx + 1}` : "Voir le document"}
                             </a>
-                          ) : needsReview ? (
-                            <span className="text-gray-500">en cours de vérification</span>
-                          ) : uploaded ? (
-                            <span className="text-gray-500">envoyé</span>
-                          ) : isArtisan ? (
-                            <>
-                              {wasRejected && <span className="text-brand">non validé —</span>}
-                              <form action={uploadDeliverable} className="flex items-center gap-1.5">
-                                <input type="hidden" name="deliverableId" value={d.id} />
-                                <input type="hidden" name="milestoneId" value={m.id} />
-                                <input type="hidden" name="projectId" value={projectId} />
-                                <FileInputButton name="document" accept=".pdf,image/*" required label="Envoyer" autoSubmit />
-                              </form>
-                            </>
-                          ) : (
-                            <span className="text-gray-400">{wasRejected ? "non validé, en attente d'un nouveau document" : "pas encore envoyé"}</span>
+                          ))}
+                          {pendingCount > 0 && (
+                            <span className="text-gray-500">
+                              {pendingCount > 1 ? `${pendingCount} fichiers en cours de vérification` : "en cours de vérification"}
+                            </span>
+                          )}
+                          {rejectedCount > 0 && (
+                            <span className="text-brand">
+                              {rejectedCount > 1 ? `${rejectedCount} fichiers non validés` : "1 fichier non validé"}
+                            </span>
+                          )}
+                          {files.length === 0 && !isArtisan && <span className="text-gray-400">pas encore envoyé</span>}
+                          {isArtisan && (
+                            <form action={uploadDeliverable} className="flex items-center gap-1.5">
+                              <input type="hidden" name="deliverableId" value={d.id} />
+                              <input type="hidden" name="milestoneId" value={m.id} />
+                              <input type="hidden" name="projectId" value={projectId} />
+                              <FileInputButton
+                                name="document"
+                                accept=".pdf,image/*"
+                                required={files.length === 0}
+                                multiple
+                                label={files.length > 0 ? "Ajouter un fichier" : "Envoyer"}
+                                autoSubmit
+                              />
+                            </form>
                           )}
                         </div>
                       );
@@ -487,7 +500,7 @@ export default function ProjectJourney({
 
                 {isArtisan && !m.is_completed && (() => {
                   const deliverables = m.deliverables || [];
-                  const allUploaded = deliverables.every((d) => !!d.document_url);
+                  const allUploaded = deliverables.every((d) => (d.files || []).length > 0);
                   if (hasBlockingRequirement) {
                     return (
                       <p className="mt-1 text-xs text-gray-400">
@@ -515,7 +528,7 @@ export default function ProjectJourney({
                   );
                 })()}
 
-                {isClient && !m.paid_at && (m.deliverables || []).length > 0 && (m.deliverables || []).every((d) => !!d.signedUrl) && (
+                {isClient && !m.paid_at && (m.deliverables || []).length > 0 && (m.deliverables || []).every((d) => (d.files || []).some((f) => f.signedUrl)) && (
                   <form action={releasePayment} className="mt-1">
                     <input type="hidden" name="milestoneId" value={m.id} />
                     <input type="hidden" name="projectId" value={projectId} />
@@ -565,22 +578,25 @@ export default function ProjectJourney({
         <div className="ml-6 mt-2 rounded-lg border border-dashed border-gray-200 p-3">
           <p className="text-xs font-bold text-ink">📁 Dossier de {artisanName}</p>
           <div className="mt-1.5 flex flex-col gap-1.5">
-            {myDeliverables.map((d) => (
-              <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-xs">
-                <div>
-                  <span className="font-medium text-ink">{d.label}</span>
-                  <span className="ml-1 text-gray-400">({d.milestoneTitle})</span>
-                  {d.signedUrl && (
-                    <a href={d.signedUrl} target="_blank" rel="noreferrer" className="ml-2 font-semibold text-brand underline">
-                      Voir
-                    </a>
+            {myDeliverables.map((d) => {
+              const approvedFiles = (d.files || []).filter((f) => f.signedUrl);
+              return (
+                <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-1.5 text-xs">
+                  <div>
+                    <span className="font-medium text-ink">{d.label}</span>
+                    <span className="ml-1 text-gray-400">({d.milestoneTitle})</span>
+                    {approvedFiles.map((f, idx) => (
+                      <a key={f.id} href={f.signedUrl} target="_blank" rel="noreferrer" className="ml-2 font-semibold text-brand underline">
+                        {approvedFiles.length > 1 ? `Voir ${idx + 1}` : "Voir"}
+                      </a>
+                    ))}
+                  </div>
+                  {approvedFiles.length > 0 && (
+                    <ShareDeliverableButton projectId={projectId} deliverableId={d.id} otherArtisans={otherArtisans} />
                   )}
                 </div>
-                {d.signedUrl && (
-                  <ShareDeliverableButton projectId={projectId} deliverableId={d.id} otherArtisans={otherArtisans} />
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

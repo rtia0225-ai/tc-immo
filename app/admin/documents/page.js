@@ -15,17 +15,15 @@ export default async function AdminDocumentsPage() {
   if (!myProfile?.is_admin) redirect("/dashboard");
 
   const { data: pending } = await supabase
-    .from("milestone_deliverables")
+    .from("deliverable_files")
     .select(
-      "id, label, document_url, review_note, reviewed_at, milestone:milestone_id ( title, project_id, project:project_id ( title, client:client_id ( full_name ) ), artisan:artisan_id ( trade, profiles ( full_name ) ) )"
+      "id, document_url, review_note, reviewed_at, deliverable:deliverable_id ( label, milestone:milestone_id ( title, project_id, project:project_id ( title, client:client_id ( full_name ) ), artisan:artisan_id ( trade, profiles ( full_name ) ) ) )"
     )
     .eq("review_status", "needs_manual_review")
-    .not("document_url", "is", null)
     .order("reviewed_at", { ascending: true });
 
   const withUrls = await Promise.all(
     (pending || []).map(async (d) => {
-      if (!d.document_url) return d;
       const { data } = await supabase.storage
         .from("project-deliverables")
         .createSignedUrl(d.document_url, 3600);
@@ -48,9 +46,9 @@ export default async function AdminDocumentsPage() {
           {withUrls.length === 0 && <p className="text-sm text-gray-500">Rien en attente pour le moment.</p>}
           {withUrls.map((d) => (
             <div key={d.id} className="rounded-lg bg-white shadow-card p-4">
-              <p className="text-sm font-bold text-ink">{d.label} <span className="font-normal text-gray-400">({d.milestone?.title})</span></p>
+              <p className="text-sm font-bold text-ink">{d.deliverable?.label} <span className="font-normal text-gray-400">({d.deliverable?.milestone?.title})</span></p>
               <p className="text-xs text-gray-500">
-                {d.milestone?.project?.title} — {d.milestone?.artisan?.profiles?.full_name} ({d.milestone?.artisan?.trade}) — client : {d.milestone?.project?.client?.full_name}
+                {d.deliverable?.milestone?.project?.title} — {d.deliverable?.milestone?.artisan?.profiles?.full_name} ({d.deliverable?.milestone?.artisan?.trade}) — client : {d.deliverable?.milestone?.project?.client?.full_name}
               </p>
               {d.review_note && (
                 <p className="mt-1 text-xs italic text-gray-400">Raison de l'IA : {d.review_note}</p>
@@ -62,13 +60,13 @@ export default async function AdminDocumentsPage() {
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <form action={approveDeliverable}>
-                  <input type="hidden" name="deliverableId" value={d.id} />
+                  <input type="hidden" name="fileId" value={d.id} />
                   <SubmitButton className="rounded-md bg-forest px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-dark" pendingLabel="...">
                     Approuver
                   </SubmitButton>
                 </form>
                 <form action={rejectDeliverable} className="flex items-center gap-2">
-                  <input type="hidden" name="deliverableId" value={d.id} />
+                  <input type="hidden" name="fileId" value={d.id} />
                   <input
                     type="text"
                     name="reason"
