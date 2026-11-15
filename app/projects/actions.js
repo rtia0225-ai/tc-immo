@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
 import { logClientActivity } from "@/lib/activityLog";
 import { logTimelineEvent } from "@/lib/projectTimeline";
+import { sendPush } from "@/lib/notifications";
 
 // Vérifie que l'échéancier respecte la règle du métier : une seule
 // échéance (100%) pour le Topographe ; pas de minimum imposé pour
@@ -53,9 +54,13 @@ Chaque prestataire du projet est indépendant : ce contrat ne concerne que sa pr
 En signant ce contrat, les deux parties reconnaissent avoir convenu de ces termes et acceptent de débuter les travaux dans ce cadre.`;
 }
 
-// Étape "Sécurisez vos travaux" : le client valide un devis avec l'artisan
-// principal, ce qui crée le projet. Seul le client peut initier cette
-// action (vérifié aussi au niveau de la page /projects/new).
+// Étape "Sécurisez vos travaux" : le client envoie une DEMANDE à l'artisan
+// principal — ça ne crée pas encore un projet actif. C'est l'artisan qui
+// remplit ensuite l'échéancier (submitMilestoneSchedule, ci-dessous), que
+// le client valide ou renvoie pour correction (validateMilestoneSchedule /
+// requestMilestoneChanges), avant que le contrat ne soit généré et signé.
+// Seul le client peut initier cette action (vérifié aussi au niveau de la
+// page /projects/new).
 export async function createProject(formData) {
   const supabase = createClient();
 
@@ -78,7 +83,6 @@ export async function createProject(formData) {
   const artisanId = formData.get("artisanId");
   const title = formData.get("title");
   const description = formData.get("description");
-  const amount = formData.get("amount");
   const currency = formData.get("currency") || "XOF";
 
   const terrainLocation = formData.get("terrainLocation");
@@ -89,20 +93,6 @@ export async function createProject(formData) {
   const terrainArea = formData.get("terrainArea");
   const terrainNotes = formData.get("terrainNotes");
 
-  const milestoneTitles = formData.getAll("milestoneTitle");
-  const milestonePercentages = formData.getAll("milestonePercentage");
-
-  const { data: artisanForRule } = await supabase
-    .from("artisan_profiles")
-    .select("trade")
-    .eq("id", artisanId)
-    .single();
-
-  const ruleError = validateInstallmentRule(artisanForRule?.trade, milestoneTitles);
-  if (ruleError) {
-    redirect(`/projects/new?artisan=${artisanId}&error=${encodeURIComponent(ruleError)}`);
-  }
-
   const { data: project, error } = await supabase
     .from("projects")
     .insert({
@@ -110,9 +100,9 @@ export async function createProject(formData) {
       artisan_id: artisanId,
       title,
       description,
-      amount,
+      amount: 0,
       currency,
-      status: "awaiting_payment",
+      status: "pending_schedule",
       terrain_location: terrainLocation || null,
       terrain_latitude: terrainLatitude,
       terrain_longitude: terrainLongitude,
@@ -130,28 +120,6 @@ export async function createProject(formData) {
     );
   }
 
-  const totalAmount = Number(amount) || 0;
-  const milestoneRows = milestoneTitles.map((t, i) => {
-    const pct = Number(milestonePercentages[i]) || 0;
-    return {
-      project_id: project.id,
-      artisan_id: artisanId,
-      title: t,
-      order_index: i + 1,
-      payment_percentage: pct,
-      amount: Math.round((totalAmount * pct) / 100),
-    };
-  });
-
-  if (milestoneRows.length > 0) {
-    const { error: milestonesError } = await supabase
-      .from("project_milestones")
-      .insert(milestoneRows);
-    if (milestonesError) {
-      console.error("Échec de création de l'échéancier :", milestonesError.message);
-    }
-  }
-
   await supabase
     .from("conversations")
     .update({ project_id: project.id })
@@ -164,48 +132,239 @@ export async function createProject(formData) {
     .select("full_name")
     .eq("id", user.id)
     .single();
+
+  await logClientActivity(user.id, "project_started", artisanId, {
+    project_id: project.id,
+  });
+
+  await logTimelineEvent(supabase, {
+    projectId: project.id,
+    eventType: "addition_requested",
+    title: `Demande envoyée : ${title}`,
+    description: `${clientProfile?.full_name || "Le client"} attend que tu remplisses l'échéancier de paiement.`,
+    actorId: user.id,
+  });
+
+  await sendPush(
+    artisanId,
+    "Nouvelle demande de projet",
+    `${clientProfile?.full_name || "Un client"} souhaite démarrer "${title}" — remplis l'échéancier de paiement pour continuer.`,
+    `/projects/${project.id}/schedule`
+  );
+
+  redirect(`/projects/${project.id}`);
+}
+
+// L'artisan remplit (ou corrige, après une demande de modification du
+// client) l'échéancier de paiement : étapes, pourcentages, montant total.
+// Remplace entièrement les étapes déjà proposées pour ce projet/cet
+// artisan (une resoumission écrase la précédente), puis envoie au client
+// pour validation.
+export async function submitMilestoneSchedule(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+  const amount = formData.get("amount");
+  const milestoneTitles = formData.getAll("milestoneTitle");
+  const milestonePercentages = formData.getAll("milestonePercentage");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("client_id, artisan_id, title")
+    .eq("id", projectId)
+    .single();
+
+  if (!project || project.artisan_id !== user.id) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  const { data: artisanForRule } = await supabase
+    .from("artisan_profiles")
+    .select("trade")
+    .eq("id", user.id)
+    .single();
+
+  const ruleError = validateInstallmentRule(artisanForRule?.trade, milestoneTitles);
+  if (ruleError) {
+    redirect(`/projects/${projectId}/schedule?error=${encodeURIComponent(ruleError)}`);
+  }
+
+  // Resoumission : on repart propre, pas d'accumulation des anciennes lignes.
+  await supabase.from("project_milestones").delete().eq("project_id", projectId).eq("artisan_id", user.id);
+
+  const totalAmount = Number(amount) || 0;
+  const milestoneRows = milestoneTitles.map((t, i) => {
+    const pct = Number(milestonePercentages[i]) || 0;
+    return {
+      project_id: projectId,
+      artisan_id: user.id,
+      title: t,
+      order_index: i + 1,
+      payment_percentage: pct,
+      amount: Math.round((totalAmount * pct) / 100),
+    };
+  });
+
+  if (milestoneRows.length > 0) {
+    const { error: milestonesError } = await supabase.from("project_milestones").insert(milestoneRows);
+    if (milestonesError) {
+      redirect(`/projects/${projectId}/schedule?error=${encodeURIComponent(milestonesError.message)}`);
+    }
+  }
+
+  await supabase
+    .from("projects")
+    .update({ amount: totalAmount, status: "pending_client_review", milestone_feedback_note: null })
+    .eq("id", projectId);
+
+  await logTimelineEvent(supabase, {
+    projectId,
+    eventType: "addition_requested",
+    title: "Échéancier envoyé pour validation",
+    actorId: user.id,
+  });
+
+  await sendPush(
+    project.client_id,
+    "Échéancier à valider",
+    `L'échéancier de paiement pour "${project.title}" est prêt — vérifie qu'il correspond bien à ce que vous avez convenu.`,
+    `/projects/${projectId}`
+  );
+
+  redirect(`/projects/${projectId}`);
+}
+
+// Le client valide l'échéancier proposé : le contrat est généré à partir
+// des étapes déjà enregistrées, prêt à être signé (client d'abord, puis
+// artisan — cf. signContract).
+export async function validateMilestoneSchedule(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("client_id, artisan_id, title, description, amount, currency")
+    .eq("id", projectId)
+    .single();
+
+  if (!project || project.client_id !== user.id) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  const { data: milestoneRows } = await supabase
+    .from("project_milestones")
+    .select("title, payment_percentage, amount")
+    .eq("project_id", projectId)
+    .eq("artisan_id", project.artisan_id)
+    .order("order_index", { ascending: true });
+
+  const { data: clientProfile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
   const { data: artisanData } = await supabase
     .from("artisan_profiles")
     .select("trade, profiles ( full_name )")
-    .eq("id", artisanId)
+    .eq("id", project.artisan_id)
     .single();
 
   const contractContent = buildContractContent({
     clientName: clientProfile?.full_name,
     artisanName: artisanData?.profiles?.full_name,
     trade: artisanData?.trade,
-    title,
-    description,
-    amount,
-    currency,
-    milestoneRows,
+    title: project.title,
+    description: project.description,
+    amount: project.amount,
+    currency: project.currency,
+    milestoneRows: milestoneRows || [],
   });
 
   await supabase.from("contracts").insert({
-    project_id: project.id,
-    artisan_id: artisanId,
+    project_id: projectId,
+    artisan_id: project.artisan_id,
     content: contractContent,
   });
 
-  await logClientActivity(user.id, "project_started", artisanId, {
-    project_id: project.id,
-    amount,
-    currency,
-  });
+  await supabase.from("projects").update({ status: "pending_contract_signature" }).eq("id", projectId);
 
   await logTimelineEvent(supabase, {
-    projectId: project.id,
-    eventType: "contract_signed",
-    title: `Début du contrat : ${title}`,
-    description: `Avec ${artisanData?.profiles?.full_name || "le professionnel"}`,
+    projectId,
+    eventType: "addition_approved",
+    title: "Échéancier validé par le client",
     actorId: user.id,
   });
 
-  redirect(`/projects/${project.id}/contract/${artisanId}`);
+  await sendPush(
+    project.artisan_id,
+    "Échéancier validé",
+    `${clientProfile?.full_name || "Le client"} a validé l'échéancier — le contrat est prêt à être signé.`,
+    `/projects/${projectId}/contract/${project.artisan_id}`
+  );
+
+  redirect(`/projects/${projectId}/contract/${project.artisan_id}`);
+}
+
+// Le client renvoie l'échéancier à l'artisan avec une note explicative —
+// n'empêche pas de discuter par message en parallèle pour s'entendre sur
+// la bonne version.
+export async function requestMilestoneChanges(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+  const note = formData.get("note");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("client_id, artisan_id, title")
+    .eq("id", projectId)
+    .single();
+
+  if (!project || project.client_id !== user.id) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  if (!note?.trim()) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Merci de préciser ce qui doit être corrigé.")}`);
+  }
+
+  await supabase
+    .from("projects")
+    .update({ status: "pending_schedule", milestone_feedback_note: note.trim() })
+    .eq("id", projectId);
+
+  await logTimelineEvent(supabase, {
+    projectId,
+    eventType: "addition_rejected",
+    title: "Modification demandée sur l'échéancier",
+    description: note.trim(),
+    actorId: user.id,
+  });
+
+  await sendPush(
+    project.artisan_id,
+    "Modification demandée",
+    `Le client a demandé une correction sur l'échéancier de "${project.title}".`,
+    `/projects/${projectId}/schedule`
+  );
+
+  redirect(`/projects/${projectId}`);
 }
 
 // Signature de consentement (horodatée), pas une signature électronique
-// légale certifiée, juste une trace de l'accord de chaque partie.
+// légale certifiée, juste une trace de l'accord de chaque partie. Ordre
+// imposé : le client signe d'abord, l'artisan ne peut signer qu'une fois
+// que c'est fait (cf. demande du 2026-11) — vérifié ici en plus de
+// l'affichage côté page (qui ne montre déjà pas le bouton à l'artisan).
 export async function signContract(formData) {
   const supabase = createClient();
   const contractId = formData.get("contractId");
@@ -223,11 +382,35 @@ export async function signContract(formData) {
     .eq("id", projectId)
     .single();
 
+  const { data: contract } = await supabase
+    .from("contracts")
+    .select("client_signed_at, artisan_signed_at")
+    .eq("id", contractId)
+    .single();
+
   const updates = {};
   if (project?.client_id === user.id) updates.client_signed_at = new Date().toISOString();
-  if (artisanId === user.id) updates.artisan_signed_at = new Date().toISOString();
+  if (artisanId === user.id) {
+    if (!contract?.client_signed_at) {
+      redirect(
+        `/projects/${projectId}/contract/${artisanId}?error=${encodeURIComponent("Le client doit signer en premier.")}`
+      );
+    }
+    updates.artisan_signed_at = new Date().toISOString();
+  }
 
-  await supabase.from("contracts").update(updates).eq("id", contractId);
+  const { data: updatedContract } = await supabase
+    .from("contracts")
+    .update(updates)
+    .eq("id", contractId)
+    .select("client_signed_at, artisan_signed_at")
+    .single();
+
+  // Une fois les deux signatures réunies, le vrai parcours (étapes,
+  // paiements, rendez-vous) remplace l'échéancier indicatif.
+  if (updatedContract?.client_signed_at && updatedContract?.artisan_signed_at) {
+    await supabase.from("projects").update({ status: "awaiting_payment" }).eq("id", projectId).eq("artisan_id", artisanId);
+  }
 
   redirect(`/projects/${projectId}/contract/${artisanId}`);
 }

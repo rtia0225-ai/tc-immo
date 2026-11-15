@@ -1,9 +1,41 @@
 import { createClient } from "@/lib/supabase/server";
 import ProjectActivityLog from "@/components/ProjectActivityLog";
 import ProjectRoadmap from "@/components/ProjectRoadmap";
-import { removeParticipant } from "../actions";
+import { removeParticipant, validateMilestoneSchedule, requestMilestoneChanges } from "../actions";
+import { DEFAULT_MILESTONES_BY_TRADE, SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
+const PENDING_STATUSES = ["pending_schedule", "pending_client_review", "pending_contract_signature"];
+
+// Échéancier à titre d'exemple (pas encore réel), affiché au client pour
+// qu'il ait quand même une idée du déroulé pendant qu'il attend que le
+// professionnel remplisse le vrai — remplacé dès que le contrat est signé.
+function IndicativeSchedule({ trade }) {
+  const singleDoc = SINGLE_INSTALLMENT_TRADES[trade];
+  const finalDoc = FINAL_DOCUMENT_TRADES[trade];
+  const rows = singleDoc
+    ? [{ title: `Livraison du ${singleDoc}`, percentage: "100" }]
+    : DEFAULT_MILESTONES_BY_TRADE[trade];
+
+  if (!rows) return null;
+
+  return (
+    <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-3">
+      <p className="text-xs font-bold uppercase tracking-wide text-gray-400">
+        Exemple de déroulé pour ce métier{finalDoc ? ` (se termine par : ${finalDoc})` : ""} — à titre indicatif
+      </p>
+      <div className="mt-2 flex flex-col gap-1">
+        {rows.map((r) => (
+          <div key={r.title} className="flex items-center justify-between text-xs text-gray-500">
+            <span>{r.title}</span>
+            <span>{r.percentage}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default async function ProjectPage({ params, searchParams }) {
   const supabase = createClient();
@@ -287,66 +319,163 @@ export default async function ProjectPage({ params, searchParams }) {
         </div>
       </div>
 
-      {/* Le parcours du projet : un seul fil horizontal, un arrêt par
-          intervenant (architecte, ingénieur, technicien, chef de
-          chantier...), dans l'ordre réel du chantier. On clique sur un
-          arrêt pour voir son détail (contrat, étapes, paiements,
-          rendez-vous, documents) ; les autres restent visibles mais
-          réduits à leur nom, pour qu'on voie le chemin complet sans être
-          noyé sous le détail de tout le monde à la fois. */}
-      <div className="mb-6 rounded-lg bg-white shadow-card p-4">
-        <ProjectRoadmap
-          artisans={artisansOnProject.map((a) => {
-            const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
-            const contractSignedAt =
-              contract?.client_signed_at && contract?.artisan_signed_at
-                ? [contract.client_signed_at, contract.artisan_signed_at].sort().pop()
-                : null;
-            const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
-            const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
-            const artisanAdditionRequests = (additionRequests || []).filter((r) => r.artisan_id === a.artisanId);
+      {/* Avant que l'échéancier (principal) ne soit rempli, validé et le
+          contrat signé des deux côtés, on affiche le point d'étape du
+          pipeline de démarrage à la place du vrai parcours — qui n'existe
+          pas encore. */}
+      {PENDING_STATUSES.includes(project.status) ? (
+        <div className="mb-6 rounded-lg bg-white shadow-card p-5">
+          {project.status === "pending_schedule" && (
+            isClient ? (
+              <>
+                <p className="font-bold text-ink">
+                  ⏳ En attente que {project.artisan?.profiles?.full_name || "le professionnel"} remplisse l'échéancier de paiement.
+                </p>
+                {project.milestone_feedback_note && (
+                  <p className="mt-2 text-sm text-gray-500">Ta demande de correction lui a été envoyée.</p>
+                )}
+                <IndicativeSchedule trade={project.artisan?.trade} />
+              </>
+            ) : isArtisan && user.id === project.artisan_id ? (
+              <>
+                <p className="font-bold text-ink">À faire : remplir l'échéancier de paiement de ce projet.</p>
+                <Link
+                  href={`/projects/${project.id}/schedule`}
+                  className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
+                >
+                  Remplir l'échéancier →
+                </Link>
+              </>
+            ) : null
+          )}
 
-            return {
-              artisanId: a.artisanId,
-              trade: a.trade,
-              contractSignedAt,
-              milestones: artisanMilestones,
-              journeyProps: {
-                projectId: project.id,
-                artisanId: a.artisanId,
-                artisanName: a.fullName,
-                trade: a.trade,
-                totalAmount: a.amount,
-                currency: a.currency,
-                contractSignedAt,
-                contractHref: `/projects/${project.id}/contract/${a.artisanId}`,
-                milestones: artisanMilestones,
-                appointments: artisanAppointments,
-                additionRequests: artisanAdditionRequests,
-                educationByTitle,
-                isArtisan: isArtisan && user.id === a.artisanId,
-                isClient,
-              },
-            };
-          })}
-          defaultOpenArtisanId={isArtisan ? user.id : undefined}
-          viewerId={user.id}
-          isArtisanViewer={isArtisan && !isAdmin}
-        />
-      </div>
+          {project.status === "pending_client_review" && (
+            isClient ? (
+              <>
+                <p className="font-bold text-ink">
+                  À valider : échéancier proposé par {project.artisan?.profiles?.full_name || "le professionnel"}
+                </p>
+                <div className="mt-3 flex flex-col gap-1.5">
+                  {milestonesWithDeliverables
+                    .filter((m) => m.artisan_id === project.artisan_id)
+                    .map((m) => (
+                      <div key={m.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 text-sm">
+                        <span className="text-ink">{m.title}</span>
+                        <span className="text-gray-500">
+                          {m.payment_percentage}% — {Number(m.amount || 0).toLocaleString("fr-FR")} {project.currency}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+                <p className="mt-2 text-sm font-bold text-ink">
+                  Montant total : {Number(project.amount || 0).toLocaleString("fr-FR")} {project.currency}
+                </p>
+                <div className="mt-4 flex flex-wrap items-start gap-3">
+                  <form action={validateMilestoneSchedule}>
+                    <input type="hidden" name="projectId" value={project.id} />
+                    <button type="submit" className="rounded-lg bg-forest px-4 py-2 text-sm font-bold text-white hover:bg-forest-dark">
+                      Valider
+                    </button>
+                  </form>
+                  <details className="text-sm">
+                    <summary className="cursor-pointer font-medium text-brand">Demander une modification</summary>
+                    <form action={requestMilestoneChanges} className="mt-2 flex flex-col gap-2">
+                      <input type="hidden" name="projectId" value={project.id} />
+                      <textarea
+                        name="note"
+                        required
+                        rows={2}
+                        placeholder="Qu'est-ce qui doit être corrigé ?"
+                        className="w-64 rounded-lg border border-gray-300 p-2 text-sm"
+                      />
+                      <button type="submit" className="w-fit rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-ink shadow-card hover:bg-gray-50">
+                        Envoyer la demande
+                      </button>
+                    </form>
+                  </details>
+                </div>
+              </>
+            ) : (
+              <p className="font-bold text-ink">⏳ En attente de la validation du client sur l'échéancier envoyé.</p>
+            )
+          )}
 
-      {/* Rapports d'avancement libres (photos/vidéos) envoyés par le
-          technicien — les ajouts imprévus (paiement, document, autre) se
-          font désormais directement sur la ligne du parcours ci-dessus,
-          au "+" entre deux étapes. */}
-      <div className="mb-6">
-        <ProjectActivityLog
-          projectId={project.id}
-          progressReports={progressReports}
-          isArtisan={isArtisan}
-          currentUserId={user.id}
-        />
-      </div>
+          {project.status === "pending_contract_signature" && (
+            <>
+              <p className="font-bold text-ink">📝 Échéancier validé — il ne reste plus qu'à signer le contrat.</p>
+              <Link
+                href={`/projects/${project.id}/contract/${project.artisan_id}`}
+                className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
+              >
+                Consulter et signer le contrat →
+              </Link>
+            </>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Le parcours du projet : un seul fil horizontal, un arrêt par
+              intervenant (architecte, ingénieur, technicien, chef de
+              chantier...), dans l'ordre réel du chantier. On clique sur un
+              arrêt pour voir son détail (contrat, étapes, paiements,
+              rendez-vous, documents) ; les autres restent visibles mais
+              réduits à leur nom, pour qu'on voie le chemin complet sans être
+              noyé sous le détail de tout le monde à la fois. */}
+          <div className="mb-6 rounded-lg bg-white shadow-card p-4">
+            <ProjectRoadmap
+              artisans={artisansOnProject.map((a) => {
+                const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
+                const contractSignedAt =
+                  contract?.client_signed_at && contract?.artisan_signed_at
+                    ? [contract.client_signed_at, contract.artisan_signed_at].sort().pop()
+                    : null;
+                const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
+                const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
+                const artisanAdditionRequests = (additionRequests || []).filter((r) => r.artisan_id === a.artisanId);
+
+                return {
+                  artisanId: a.artisanId,
+                  trade: a.trade,
+                  contractSignedAt,
+                  milestones: artisanMilestones,
+                  journeyProps: {
+                    projectId: project.id,
+                    artisanId: a.artisanId,
+                    artisanName: a.fullName,
+                    trade: a.trade,
+                    totalAmount: a.amount,
+                    currency: a.currency,
+                    contractSignedAt,
+                    contractHref: `/projects/${project.id}/contract/${a.artisanId}`,
+                    milestones: artisanMilestones,
+                    appointments: artisanAppointments,
+                    additionRequests: artisanAdditionRequests,
+                    educationByTitle,
+                    isArtisan: isArtisan && user.id === a.artisanId,
+                    isClient,
+                  },
+                };
+              })}
+              defaultOpenArtisanId={isArtisan ? user.id : undefined}
+              viewerId={user.id}
+              isArtisanViewer={isArtisan && !isAdmin}
+            />
+          </div>
+
+          {/* Rapports d'avancement libres (photos/vidéos) envoyés par le
+              technicien — les ajouts imprévus (paiement, document, autre) se
+              font désormais directement sur la ligne du parcours ci-dessus,
+              au "+" entre deux étapes. */}
+          <div className="mb-6">
+            <ProjectActivityLog
+              projectId={project.id}
+              progressReports={progressReports}
+              isArtisan={isArtisan}
+              currentUserId={user.id}
+            />
+          </div>
+        </>
+      )}
 
       {/* Raccourcis : messagerie, rendez-vous, documents, paiement — une
           seule ligne compacte avec icône + libellé, plus de carrés de

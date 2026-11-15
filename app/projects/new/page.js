@@ -2,7 +2,6 @@ import { createProject } from "../actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { uploadIdDocument } from "@/lib/idDocumentActions";
-import MilestoneBuilder from "@/components/MilestoneBuilder";
 import { ID_DOCUMENT_TYPES } from "@/lib/constants";
 import FileInputButton from "@/components/FileInputButton";
 import GpsCaptureButton from "@/components/GpsCaptureButton";
@@ -93,9 +92,7 @@ export default async function NewProjectPage({ searchParams }) {
         </p>
       )}
       <p className="mt-3 text-sm text-gray-500">
-        Renseigne les termes convenus avec l'artisan (après devis), y compris
-        l'échéancier de paiement par étape. Le paiement reste séquestré et
-        n'est libéré, étape par étape, qu'après validation par l'artisan.
+        Décris le projet et le terrain. <strong className="text-ink">C'est ensuite {artisan?.profiles?.full_name || "le professionnel"} qui remplira l'échéancier de paiement</strong> (étapes, montants, pourcentages) selon son métier — tu le valideras avant que le contrat ne soit signé.
       </p>
 
       {searchParams?.error && (
@@ -121,21 +118,7 @@ export default async function NewProjectPage({ searchParams }) {
           <textarea
             name="description"
             rows={3}
-            placeholder="Détails convenus dans le devis"
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            Montant total convenu ({artisan?.currency || "XOF"})
-          </label>
-          <input
-            type="number"
-            name="amount"
-            required
-            min="0"
-            step="0.01"
+            placeholder="Ce que vous souhaitez, ce qui a été discuté avec l'artisan"
             className="w-full rounded-lg border border-gray-300 p-2"
           />
         </div>
@@ -202,15 +185,11 @@ export default async function NewProjectPage({ searchParams }) {
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4">
-          <MilestoneBuilder trade={artisan?.trade} />
-        </div>
-
         <button
           type="submit"
           className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark"
         >
-          Valider et créer le projet
+          Envoyer la demande à {artisan?.profiles?.full_name || "l'artisan"}
         </button>
       </form>
     </div>

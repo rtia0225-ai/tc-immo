@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES, DEFAULT_MILESTONES_BY_TRADE } from "@/lib/constants";
 
-export default function MilestoneBuilder({ trade }) {
+export default function MilestoneBuilder({ trade, initialRows }) {
   const singleInstallmentDoc = SINGLE_INSTALLMENT_TRADES[trade]; // ex: "ACD" (Topographe)
   const isSingleInstallment = !!singleInstallmentDoc;
   // Architecture / Ingénieur génie civil : plusieurs étapes bien réelles,
@@ -13,22 +13,31 @@ export default function MilestoneBuilder({ trade }) {
   const isFlexibleMinimum = !!finalDocumentLabel;
   const defaultSchedule = DEFAULT_MILESTONES_BY_TRADE[trade]; // point de départ, toujours modifiable
 
+  // initialRows : utilisé quand le professionnel corrige une proposition
+  // déjà envoyée (après une demande de modification du client) — on
+  // repart de ce qu'il avait déjà rempli, pas de l'exemple générique.
+  const startingRows = initialRows && initialRows.length > 0 ? initialRows.map((r) => ({ ...r })) : null;
+
   const [rows, setRows] = useState(
     isSingleInstallment
       ? [{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100" }]
-      : defaultSchedule
-        ? defaultSchedule.map((r) => ({ ...r }))
-        : [
-            { title: "", percentage: "" },
-            { title: "", percentage: "" },
-            { title: "", percentage: "" },
-            { title: "", percentage: "" },
-            { title: "", percentage: "" },
-          ]
+      : startingRows
+        ? startingRows
+        : defaultSchedule
+          ? defaultSchedule.map((r) => ({ ...r }))
+          : [
+              { title: "", percentage: "" },
+              { title: "", percentage: "" },
+              { title: "", percentage: "" },
+              { title: "", percentage: "" },
+              { title: "", percentage: "" },
+            ]
   );
 
-  // Si le métier change après coup (rare, mais par sécurité)
+  // Si le métier change après coup (rare, mais par sécurité) — ne
+  // s'applique pas quand on repart d'une proposition déjà remplie.
   useEffect(() => {
+    if (startingRows) return;
     if (isSingleInstallment) {
       setRows([{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100" }]);
     } else if (defaultSchedule) {

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { signContract } from "../../../actions";
 import Link from "next/link";
 
-export default async function ContractPage({ params }) {
+export default async function ContractPage({ params, searchParams }) {
   const supabase = createClient();
   const { id, artisanId } = params;
 
@@ -51,10 +51,18 @@ export default async function ContractPage({ params }) {
         <p className="mt-3 rounded-lg bg-forest-light p-3 text-sm text-forest">
           Contrat signé par les deux parties. Les travaux peuvent démarrer.
         </p>
+      ) : contract.client_signed_at ? (
+        <p className="mt-3 rounded-lg bg-brand-light p-3 text-sm text-brand-dark">
+          Le client a signé — en attente de la signature de l'artisan.
+        </p>
       ) : (
         <p className="mt-3 rounded-lg bg-brand-light p-3 text-sm text-brand-dark">
-          Ce contrat doit être signé par le client et cet artisan avant le démarrage des travaux.
+          Le client doit signer en premier, puis l'artisan, avant le démarrage des travaux.
         </p>
+      )}
+
+      {searchParams?.error && (
+        <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
       )}
 
       <div className="mt-6 whitespace-pre-line rounded-lg bg-white shadow-card p-6 text-sm leading-relaxed text-ink">
@@ -80,7 +88,9 @@ export default async function ContractPage({ params }) {
         </div>
       </div>
 
-      {!hasSigned && (isClient || isThisArtisan) && (
+      {!hasSigned && isThisArtisan && !contract.client_signed_at ? (
+        <p className="mt-6 text-sm text-gray-400">En attente de la signature du client avant de pouvoir signer.</p>
+      ) : !hasSigned && (isClient || isThisArtisan) && (
         <form action={signContract} className="mt-6">
           <input type="hidden" name="contractId" value={contract.id} />
           <input type="hidden" name="projectId" value={project.id} />
