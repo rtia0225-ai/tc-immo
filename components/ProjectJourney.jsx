@@ -23,15 +23,12 @@ function formatDateTime(d) {
 // réservé, pas de date à taper ni de type d'appel à choisir — audio ou
 // vidéo, c'est eux qui en décident une fois en ligne).
 function CallButton({ projectId, artisanId, milestoneId, mandatory }) {
-  const label = mandatory ? "📞 Appeler (obligatoire)" : "📞 Appeler (facultatif)";
   return (
     <Link
       href={`/appointments/new?artisan=${artisanId}&project=${projectId}&milestone=${milestoneId}&required=${mandatory ? "true" : "false"}`}
-      className={`mt-2 inline-block w-fit rounded-lg px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 ${
-        mandatory ? "bg-brand" : "bg-forest"
-      }`}
+      className="mt-2 inline-block w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white hover:opacity-90"
     >
-      {label}
+      📞 Appeler pour faire le point
     </Link>
   );
 }
