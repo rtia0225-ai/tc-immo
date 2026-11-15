@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { addConversationParticipant, startVideoCall, scheduleVideoMeeting } from "@/app/messages/actions";
+import { addConversationParticipant, removeConversationParticipant, startVideoCall, scheduleVideoMeeting } from "@/app/messages/actions";
 
 // Le haut de l'espace : qui est là (avec un + direct pour ajouter un
 // professionnel du projet qui n'y est pas encore, ou un 📞 pour afficher
@@ -29,14 +29,27 @@ export default function ConversationSpacePanel({ conversationId, professionals }
                   </div>
                 )}
                 {p.inConversation ? (
-                  <button
-                    type="button"
-                    onClick={() => setRevealedId(revealedId === p.id ? null : p.id)}
-                    title="Afficher le contact"
-                    className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm shadow"
-                  >
-                    📞
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setRevealedId(revealedId === p.id ? null : p.id)}
+                      title="Afficher le contact"
+                      className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm shadow"
+                    >
+                      📞
+                    </button>
+                    <form action={removeConversationParticipant} className="absolute -top-1 -right-1">
+                      <input type="hidden" name="conversationId" value={conversationId} />
+                      <input type="hidden" name="userId" value={p.id} />
+                      <button
+                        type="submit"
+                        title={`Retirer ${p.name || "ce professionnel"} de la discussion`}
+                        className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-bold text-gray-400 shadow hover:text-red-500"
+                      >
+                        ✕
+                      </button>
+                    </form>
+                  </>
                 ) : (
                   <form action={addConversationParticipant} className="absolute -bottom-1 -right-1">
                     <input type="hidden" name="conversationId" value={conversationId} />
@@ -66,6 +79,10 @@ export default function ConversationSpacePanel({ conversationId, professionals }
           ))}
         </div>
       )}
+
+      <p className="rounded-lg bg-gray-50 px-3 py-2 text-[11px] text-gray-400">
+        ℹ️ Les documents du client restent sur la plateforme (pas de partage par WhatsApp ou e-mail). Les appels et rencontres entre professionnels restent bien sûr possibles.
+      </p>
 
       <div className="flex gap-3">
         <button

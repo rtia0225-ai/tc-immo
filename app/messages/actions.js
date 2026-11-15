@@ -201,6 +201,44 @@ export async function addConversationParticipant(formData) {
   redirect(`/messages/${conversationId}`);
 }
 
+// Retire quelqu'un de la conversation — symétrique à l'ajout : n'importe
+// quel participant peut retirer n'importe quel autre participant (hors
+// soi-même, qui n'a pas de sens ici — on quitterait sinon la discussion
+// sans bouton pour y revenir). La RLS (DELETE sur conversation_participants)
+// vérifie déjà que celui qui retire est bien dans la conversation.
+export async function removeConversationParticipant(formData) {
+  const supabase = createClient();
+  const conversationId = formData.get("conversationId");
+  const targetUserId = formData.get("userId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  if (!targetUserId || targetUserId === user.id) redirect(`/messages/${conversationId}`);
+
+  const { data: targetProfile } = await supabase.from("profiles").select("full_name").eq("id", targetUserId).single();
+
+  const { error } = await supabase
+    .from("conversation_participants")
+    .delete()
+    .eq("conversation_id", conversationId)
+    .eq("user_id", targetUserId);
+
+  if (error) {
+    redirect(`/messages/${conversationId}?error=${encodeURIComponent(error.message)}`);
+  }
+
+  await supabase.from("messages").insert({
+    conversation_id: conversationId,
+    sender_id: user.id,
+    content: `${targetProfile?.full_name || "Un participant"} a été retiré de la discussion.`,
+  });
+
+  redirect(`/messages/${conversationId}`);
+}
+
 // Appel vidéo entre tous les participants de l'espace : aucun prestataire
 // branché côté plateforme — c'est la personne qui lance l'appel qui crée
 // elle-même son lien (Google Meet, ou autre) et le colle ici. On se
