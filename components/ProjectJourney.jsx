@@ -449,7 +449,7 @@ export default function ProjectJourney({
                     {m.deliverables.map((d) => {
                       const uploaded = !!d.document_url;
                       const needsReview = uploaded && !d.signedUrl && d.review_status === "needs_manual_review";
-                      const rejected = d.review_status === "rejected";
+                      const wasRejected = d.review_status === "rejected";
                       return (
                         <div key={d.id} className="flex flex-wrap items-center gap-2 rounded-md bg-gray-50 px-2 py-1 text-xs">
                           <span className="font-medium text-ink">{d.label}</span>
@@ -459,19 +459,20 @@ export default function ProjectJourney({
                             </a>
                           ) : needsReview ? (
                             <span className="text-gray-500">en cours de vérification</span>
-                          ) : rejected ? (
-                            <span className="text-brand">non validé{isArtisan ? ", à redéposer" : ""}</span>
                           ) : uploaded ? (
                             <span className="text-gray-500">envoyé</span>
                           ) : isArtisan ? (
-                            <form action={uploadDeliverable} className="flex items-center gap-1.5">
-                              <input type="hidden" name="deliverableId" value={d.id} />
-                              <input type="hidden" name="milestoneId" value={m.id} />
-                              <input type="hidden" name="projectId" value={projectId} />
-                              <FileInputButton name="document" accept=".pdf,image/*" required label="Envoyer" autoSubmit />
-                            </form>
+                            <>
+                              {wasRejected && <span className="text-brand">non validé —</span>}
+                              <form action={uploadDeliverable} className="flex items-center gap-1.5">
+                                <input type="hidden" name="deliverableId" value={d.id} />
+                                <input type="hidden" name="milestoneId" value={m.id} />
+                                <input type="hidden" name="projectId" value={projectId} />
+                                <FileInputButton name="document" accept=".pdf,image/*" required label="Envoyer" autoSubmit />
+                              </form>
+                            </>
                           ) : (
-                            <span className="text-gray-400">pas encore envoyé</span>
+                            <span className="text-gray-400">{wasRejected ? "non validé, en attente d'un nouveau document" : "pas encore envoyé"}</span>
                           )}
                         </div>
                       );

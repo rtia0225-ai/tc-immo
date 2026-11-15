@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import AdminNav from "@/components/AdminNav";
 import { approveDeliverable, rejectDeliverable } from "./actions";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function AdminDocumentsPage() {
   const supabase = createClient();
@@ -14,20 +15,21 @@ export default async function AdminDocumentsPage() {
   if (!myProfile?.is_admin) redirect("/dashboard");
 
   const { data: pending } = await supabase
-    .from("project_milestones")
+    .from("milestone_deliverables")
     .select(
-      "id, title, deliverable_document_url, deliverable_review_note, deliverable_reviewed_at, project_id, project:project_id ( title, client:client_id ( full_name ) ), artisan:artisan_id ( trade, profiles ( full_name ) )"
+      "id, label, document_url, review_note, reviewed_at, milestone:milestone_id ( title, project_id, project:project_id ( title, client:client_id ( full_name ) ), artisan:artisan_id ( trade, profiles ( full_name ) ) )"
     )
-    .eq("deliverable_review_status", "needs_manual_review")
-    .order("deliverable_reviewed_at", { ascending: true });
+    .eq("review_status", "needs_manual_review")
+    .not("document_url", "is", null)
+    .order("reviewed_at", { ascending: true });
 
   const withUrls = await Promise.all(
-    (pending || []).map(async (m) => {
-      if (!m.deliverable_document_url) return m;
+    (pending || []).map(async (d) => {
+      if (!d.document_url) return d;
       const { data } = await supabase.storage
         .from("project-deliverables")
-        .createSignedUrl(m.deliverable_document_url, 3600);
-      return { ...m, signedUrl: data?.signedUrl || null };
+        .createSignedUrl(d.document_url, 3600);
+      return { ...d, signedUrl: data?.signedUrl || null };
     })
   );
 
@@ -44,38 +46,38 @@ export default async function AdminDocumentsPage() {
 
         <div className="mt-6 flex flex-col gap-3">
           {withUrls.length === 0 && <p className="text-sm text-gray-500">Rien en attente pour le moment.</p>}
-          {withUrls.map((m) => (
-            <div key={m.id} className="rounded-lg bg-white shadow-card p-4">
-              <p className="text-sm font-bold text-ink">{m.title}</p>
+          {withUrls.map((d) => (
+            <div key={d.id} className="rounded-lg bg-white shadow-card p-4">
+              <p className="text-sm font-bold text-ink">{d.label} <span className="font-normal text-gray-400">({d.milestone?.title})</span></p>
               <p className="text-xs text-gray-500">
-                {m.project?.title} — {m.artisan?.profiles?.full_name} ({m.artisan?.trade}) — client : {m.project?.client?.full_name}
+                {d.milestone?.project?.title} — {d.milestone?.artisan?.profiles?.full_name} ({d.milestone?.artisan?.trade}) — client : {d.milestone?.project?.client?.full_name}
               </p>
-              {m.deliverable_review_note && (
-                <p className="mt-1 text-xs italic text-gray-400">Raison de l'IA : {m.deliverable_review_note}</p>
+              {d.review_note && (
+                <p className="mt-1 text-xs italic text-gray-400">Raison de l'IA : {d.review_note}</p>
               )}
-              {m.signedUrl && (
-                <a href={m.signedUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-brand underline">
+              {d.signedUrl && (
+                <a href={d.signedUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block text-xs font-semibold text-brand underline">
                   📎 Voir le document
                 </a>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <form action={approveDeliverable}>
-                  <input type="hidden" name="milestoneId" value={m.id} />
-                  <button type="submit" className="rounded-md bg-forest px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-dark">
+                  <input type="hidden" name="deliverableId" value={d.id} />
+                  <SubmitButton className="rounded-md bg-forest px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-dark" pendingLabel="...">
                     Approuver
-                  </button>
+                  </SubmitButton>
                 </form>
                 <form action={rejectDeliverable} className="flex items-center gap-2">
-                  <input type="hidden" name="milestoneId" value={m.id} />
+                  <input type="hidden" name="deliverableId" value={d.id} />
                   <input
                     type="text"
                     name="reason"
                     placeholder="Raison (optionnel)"
                     className="rounded-md border border-gray-200 px-2 py-1.5 text-xs"
                   />
-                  <button type="submit" className="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-200">
+                  <SubmitButton className="rounded-md bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-600 hover:bg-gray-200" pendingLabel="...">
                     Refuser
-                  </button>
+                  </SubmitButton>
                 </form>
               </div>
             </div>

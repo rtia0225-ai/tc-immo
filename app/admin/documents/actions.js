@@ -16,36 +16,40 @@ async function requireAdmin(supabase) {
   return user;
 }
 
+// Approuve/refuse UN livrable précis (pas toute l'étape — une étape peut
+// en avoir plusieurs). N'affecte jamais is_completed directement : c'est
+// toujours le professionnel qui valide l'étape lui-même, une fois tous
+// les livrables approuvés ET le client payé (cf. toggleMilestone).
 export async function approveDeliverable(formData) {
   const supabase = createClient();
   const admin = await requireAdmin(supabase);
-  const milestoneId = formData.get("milestoneId");
+  const deliverableId = formData.get("deliverableId");
 
-  const { data: milestone } = await supabase
-    .from("project_milestones")
+  const { data: deliverable } = await supabase
+    .from("milestone_deliverables")
     .update({
-      is_completed: true,
-      completed_at: new Date().toISOString(),
-      deliverable_review_status: "approved",
-      deliverable_reviewed_at: new Date().toISOString(),
-      deliverable_reviewed_by: admin.id,
+      review_status: "approved",
+      review_note: "Validé manuellement par l'équipe TC-Immo.",
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: admin.id,
     })
-    .eq("id", milestoneId)
-    .select("title, project_id, artisan_id")
+    .eq("id", deliverableId)
+    .select("label, milestone:milestone_id ( title, project_id, artisan_id )")
     .single();
 
-  if (milestone) {
+  if (deliverable) {
+    const { project_id, artisan_id, title } = deliverable.milestone || {};
     await logTimelineEvent(supabase, {
-      projectId: milestone.project_id,
+      projectId: project_id,
       eventType: "document_added",
-      title: `Document validé (vérification manuelle) : ${milestone.title}`,
+      title: `Document validé (vérification manuelle) : ${deliverable.label}`,
       actorId: admin.id,
     });
     await sendPush(
-      milestone.artisan_id,
+      artisan_id,
       "Document validé",
-      `Votre document pour "${milestone.title}" a été validé, le paiement peut être débloqué.`,
-      `/projects/${milestone.project_id}`
+      `Ton document "${deliverable.label}" (${title}) a été validé.`,
+      `/projects/${project_id}`
     );
   }
 
@@ -55,35 +59,36 @@ export async function approveDeliverable(formData) {
 export async function rejectDeliverable(formData) {
   const supabase = createClient();
   const admin = await requireAdmin(supabase);
-  const milestoneId = formData.get("milestoneId");
+  const deliverableId = formData.get("deliverableId");
   const reason = formData.get("reason");
 
-  const { data: milestone } = await supabase
-    .from("project_milestones")
+  const { data: deliverable } = await supabase
+    .from("milestone_deliverables")
     .update({
-      is_completed: false,
-      deliverable_review_status: "rejected",
-      deliverable_review_note: reason || "Document non conforme.",
-      deliverable_reviewed_at: new Date().toISOString(),
-      deliverable_reviewed_by: admin.id,
+      document_url: null,
+      review_status: "rejected",
+      review_note: reason || "Document non conforme.",
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: admin.id,
     })
-    .eq("id", milestoneId)
-    .select("title, project_id, artisan_id")
+    .eq("id", deliverableId)
+    .select("label, milestone:milestone_id ( title, project_id, artisan_id )")
     .single();
 
-  if (milestone) {
+  if (deliverable) {
+    const { project_id, artisan_id, title } = deliverable.milestone || {};
     await logTimelineEvent(supabase, {
-      projectId: milestone.project_id,
+      projectId: project_id,
       eventType: "document_pending_review",
-      title: `Document refusé : ${milestone.title}`,
+      title: `Document refusé : ${deliverable.label}`,
       description: reason || "Document non conforme.",
       actorId: admin.id,
     });
     await sendPush(
-      milestone.artisan_id,
+      artisan_id,
       "Document à refaire",
-      `Votre document pour "${milestone.title}" n'a pas été validé${reason ? " : " + reason : ""}. Merci d'en déposer un nouveau.`,
-      `/projects/${milestone.project_id}`
+      `Ton document "${deliverable.label}" (${title}) n'a pas été validé${reason ? " : " + reason : ""}. Merci d'en déposer un nouveau.`,
+      `/projects/${project_id}`
     );
   }
 
