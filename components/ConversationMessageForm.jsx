@@ -68,6 +68,7 @@ export default function ConversationMessageForm({ conversationId, projectId, cur
           </label>
         )}
         <input
+          id="conversation-message-input"
           name="content"
           placeholder="Écrivez votre message..."
           className="flex-1 rounded-lg border border-gray-300 p-2"

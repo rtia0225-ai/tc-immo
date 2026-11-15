@@ -201,6 +201,71 @@ export async function addConversationParticipant(formData) {
   redirect(`/messages/${conversationId}`);
 }
 
+// Appel vidéo entre tous les participants de l'espace : pas d'infra
+// dédiée côté plateforme, on génère une salle Jitsi (gratuit, pas de
+// compte requis) et on la partage comme un message spécial — tout le
+// monde dans la conversation la voit et est notifié, grâce à la RLS déjà
+// basée sur conversation_participants.
+function videoRoomUrl(conversationId) {
+  return `https://meet.jit.si/tcimmo-${conversationId}`;
+}
+
+export async function startVideoCall(formData) {
+  const supabase = createClient();
+  const conversationId = formData.get("conversationId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  await supabase.from("messages").insert({
+    conversation_id: conversationId,
+    sender_id: user.id,
+    video_link: videoRoomUrl(conversationId),
+  });
+
+  const { data: participantRows } = await supabase
+    .from("conversation_participants")
+    .select("user_id")
+    .eq("conversation_id", conversationId);
+  for (const p of participantRows || []) {
+    if (p.user_id !== user.id) await notifyNewMessage(p.user_id);
+  }
+
+  redirect(`/messages/${conversationId}`);
+}
+
+export async function scheduleVideoMeeting(formData) {
+  const supabase = createClient();
+  const conversationId = formData.get("conversationId");
+  const scheduledAt = formData.get("scheduledAt");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  if (!scheduledAt) redirect(`/messages/${conversationId}`);
+
+  await supabase.from("messages").insert({
+    conversation_id: conversationId,
+    sender_id: user.id,
+    video_link: videoRoomUrl(conversationId),
+    video_scheduled_at: new Date(scheduledAt).toISOString(),
+  });
+
+  const { data: participantRows } = await supabase
+    .from("conversation_participants")
+    .select("user_id")
+    .eq("conversation_id", conversationId);
+  for (const p of participantRows || []) {
+    if (p.user_id !== user.id) await notifyNewMessage(p.user_id);
+  }
+
+  redirect(`/messages/${conversationId}`);
+}
+
 // Envoi d'une note vocale : reçoit l'audio enregistré depuis le micro du
 // téléphone (voir components/VoiceRecorder.jsx), le stocke dans le bucket
 // "voice-notes", puis crée le message correspondant.
