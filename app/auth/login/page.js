@@ -1,6 +1,6 @@
 import { login } from "../actions";
 import Link from "next/link";
-import PasswordField from "@/components/PasswordField";
+import LoginForm from "@/components/LoginForm";
 
 export default function LoginPage({ searchParams }) {
   const redirectTo = searchParams?.redirect || "";
@@ -13,31 +13,7 @@ export default function LoginPage({ searchParams }) {
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
       )}
 
-      <form action={login} className="mt-6 flex flex-col gap-4">
-        <input type="hidden" name="redirect" value={redirectTo} />
-        <div>
-          <label className="mb-1 block text-sm font-medium">Email ou numéro de téléphone</label>
-          <input
-            type="text"
-            name="identifier"
-            required
-            placeholder="email@exemple.com ou 07 00 00 00 00"
-            className="w-full rounded-lg border border-gray-300 p-2"
-          />
-        </div>
-        <div>
-          <div className="mb-1 flex items-center justify-between">
-            <label className="block text-sm font-medium">Mot de passe</label>
-            <Link href="/auth/forgot-password" className="text-xs text-brand hover:underline">
-              Mot de passe oublié ?
-            </Link>
-          </div>
-          <PasswordField />
-        </div>
-        <button type="submit" className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark">
-          Se connecter
-        </button>
-      </form>
+      <LoginForm login={login} redirectTo={redirectTo} />
 
       <p className="mt-6 text-center text-sm text-gray-500">Pas encore de compte ?</p>
       <Link
