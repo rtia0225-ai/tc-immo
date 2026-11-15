@@ -117,8 +117,11 @@ function EducationBlock({ content }) {
 
 // Bouton de partage du DOSSIER ENTIER d'un professionnel (pas un document
 // à la fois) vers un autre professionnel du projet : un clic révèle la
-// liste des autres professionnels, un clic sur un nom envoie tout le
-// dossier directement.
+// liste des autres professionnels, un clic sur l'un d'eux envoie tout le
+// dossier directement. Le "+" porte un libellé ("Partager avec") pour que
+// son rôle soit clair sans avoir à survoler. Les professionnels sont
+// identifiés par leur métier (Architecte, Technicien...), jamais par leur
+// nom : ce qui intéresse celui qui envoie, c'est le rôle, pas qui c'est.
 function ShareDossierButton({ projectId, sourceArtisanId, otherArtisans }) {
   const [open, setOpen] = useState(false);
   if (!otherArtisans || otherArtisans.length === 0) return null;
@@ -127,10 +130,9 @@ function ShareDossierButton({ projectId, sourceArtisanId, otherArtisans }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        title="Partager ce dossier"
-        className="flex h-5 w-5 items-center justify-center rounded-full bg-brand text-xs font-bold text-white hover:bg-brand-dark"
+        className="flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[11px] font-bold text-white hover:bg-brand-dark"
       >
-        +
+        <span aria-hidden>+</span> Partager avec
       </button>
     );
   }
@@ -142,7 +144,7 @@ function ShareDossierButton({ projectId, sourceArtisanId, otherArtisans }) {
           <input type="hidden" name="sourceArtisanId" value={sourceArtisanId} />
           <input type="hidden" name="recipientArtisanId" value={a.artisanId} />
           <SubmitButton className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-ink hover:bg-gray-200" pendingLabel="...">
-            {a.fullName || a.trade}
+            {a.trade}
           </SubmitButton>
         </form>
       ))}
