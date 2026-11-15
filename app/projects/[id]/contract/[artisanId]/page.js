@@ -20,6 +20,18 @@ export default async function ContractPage({ params, searchParams }) {
 
   if (!project) return <p className="px-4 py-12">Projet introuvable.</p>;
 
+  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
+  const isAdmin = !!profile?.is_admin;
+  const isClient = user.id === project.client_id;
+  const isThisArtisan = user.id === artisanId;
+
+  // Le contrat (contenu, montant, signatures) d'un professionnel ne
+  // regarde que le client, l'admin, et ce professionnel lui-même — pas
+  // les autres professionnels du projet.
+  if (!isClient && !isThisArtisan && !isAdmin) {
+    return <p className="px-4 py-12">Tu n'as pas accès à ce contrat.</p>;
+  }
+
   const { data: artisan } = await supabase
     .from("artisan_profiles")
     .select("trade, profiles ( full_name )")
@@ -34,9 +46,6 @@ export default async function ContractPage({ params, searchParams }) {
     .single();
 
   if (!contract) return <p className="px-4 py-12">Contrat introuvable pour cet artisan.</p>;
-
-  const isClient = user.id === project.client_id;
-  const isThisArtisan = user.id === artisanId;
   const hasSigned = isClient ? !!contract.client_signed_at : !!contract.artisan_signed_at;
   const bothSigned = !!contract.client_signed_at && !!contract.artisan_signed_at;
 

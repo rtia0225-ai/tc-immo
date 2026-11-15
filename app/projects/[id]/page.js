@@ -193,7 +193,12 @@ export default async function ProjectPage({ params, searchParams }) {
           .map(async (d) => {
             const files = await Promise.all(
               (d.deliverable_files || []).map(async (f) => {
-                const canSee = isAdmin || isArtisan || f.review_status === "approved";
+                // isArtisan seul ne suffit pas : ça couvre tous les
+                // professionnels du projet, pas seulement celui à qui ce
+                // livrable appartient — un fichier pas encore approuvé ne
+                // doit être visible que par son auteur, pas par un autre
+                // professionnel du même projet.
+                const canSee = isAdmin || (isArtisan && user.id === m.artisan_id) || f.review_status === "approved";
                 if (!canSee) return { ...f, signedUrl: null };
                 const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(f.document_url, 3600);
                 return { ...f, signedUrl: data?.signedUrl || null };
@@ -655,7 +660,7 @@ export default async function ProjectPage({ params, searchParams }) {
               noyé sous le détail de tout le monde à la fois. */}
           <div className="mb-6 rounded-lg bg-white shadow-card p-4">
             <ProjectRoadmap
-              artisans={artisansOnProject.map((a) => {
+              artisans={(isArtisan && !isAdmin ? artisansOnProject.filter((a) => a.artisanId === user.id) : artisansOnProject).map((a) => {
                 const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
                 const contractSignedAt =
                   contract?.client_signed_at && contract?.artisan_signed_at

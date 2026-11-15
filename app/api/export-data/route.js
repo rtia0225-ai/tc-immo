@@ -31,7 +31,7 @@ export async function GET() {
     .select(
       `id, title, description, amount, currency, status, terrain_location, terrain_reference_number, created_at,
        artisan:artisan_id ( full_name ),
-       project_milestones ( title, description, is_completed, completed_at, payment_percentage, amount, paid_at, deliverable_document_url, order_index ),
+       project_milestones ( title, description, is_completed, completed_at, payment_percentage, amount, paid_at, order_index, milestone_deliverables ( label, deliverable_files ( document_url ) ) ),
        contracts ( content, client_signed_at, artisan_signed_at, created_at )`
     )
     .eq("client_id", user.id)
@@ -81,7 +81,11 @@ export async function GET() {
       for (const m of sorted) {
         parts.push(`   - [${m.is_completed ? "Validée" : "En attente"}] ${m.title} (${m.payment_percentage}% — ${m.amount})`);
         if (m.completed_at) parts.push(`     Validée le ${formatDate(m.completed_at)}`);
-        if (m.deliverable_document_url) parts.push(`     Document/photo/vidéo : ${m.deliverable_document_url}`);
+        for (const d of m.milestone_deliverables || []) {
+          for (const f of d.deliverable_files || []) {
+            parts.push(`     Document (${d.label}) : ${f.document_url}`);
+          }
+        }
       }
     }
 

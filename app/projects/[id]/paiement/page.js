@@ -12,8 +12,9 @@ export default async function ProjectPaymentPage({ params }) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("role, is_admin").eq("id", user.id).single();
   const isArtisan = profile?.role === "artisan";
+  const isAdmin = !!profile?.is_admin;
 
   const { data: project } = await supabase
     .from("projects")
@@ -23,12 +24,14 @@ export default async function ProjectPaymentPage({ params }) {
 
   if (!project) return <p className="px-4 py-12">Projet introuvable.</p>;
 
+  const isClient = project.client_id === user.id;
+
   const { data: participants } = await supabase
     .from("project_participants")
     .select("id, artisan_id, amount, description, currency, artisan:artisan_id ( trade, profiles ( full_name ) )")
     .eq("project_id", id);
 
-  const artisansOnProject = [
+  const allArtisansOnProject = [
     {
       artisanId: project.artisan_id,
       isPrimary: true,
@@ -48,6 +51,13 @@ export default async function ProjectPaymentPage({ params }) {
       description: p.description,
     })),
   ];
+
+  // Le montant, le contrat et l'échéancier de CHAQUE professionnel ne
+  // regardent que le client (qui les paie tous) et l'admin — un
+  // professionnel ne doit voir que sa propre ligne, pas celles des
+  // autres intervenants du projet.
+  const artisansOnProject =
+    isClient || isAdmin ? allArtisansOnProject : allArtisansOnProject.filter((a) => a.artisanId === user.id);
   const artisanIds = artisansOnProject.map((a) => a.artisanId);
 
   const { data: allMilestones } = await supabase
