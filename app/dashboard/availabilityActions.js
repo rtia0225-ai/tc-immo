@@ -67,6 +67,37 @@ export async function bookAvailabilitySlot(formData) {
   const artisanId = formData.get("artisanId");
   const projectId = formData.get("projectId") || null;
   const regardingArtisanId = formData.get("regardingArtisanId") || null;
+  const milestoneId = formData.get("milestoneId") || null;
+  const isRequired = formData.get("isRequired") === "true";
+
+  // Tant qu'un appel pour cette étape n'est pas annulé, pas de doublon
+  // possible — et un double-clic rapide sur le même créneau ne crée pas
+  // deux rendez-vous (même logique que pour "démarrer un projet").
+  if (milestoneId) {
+    const { data: existingCall } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("milestone_id", milestoneId)
+      .neq("status", "cancelled")
+      .limit(1)
+      .maybeSingle();
+    if (existingCall) {
+      redirect(projectId ? `/projects/${projectId}` : "/appointments");
+    }
+  } else {
+    const { data: recentDuplicate } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("client_id", user.id)
+      .eq("artisan_id", artisanId)
+      .eq("availability_slot_id", slotId)
+      .gte("created_at", new Date(Date.now() - 30000).toISOString())
+      .limit(1)
+      .maybeSingle();
+    if (recentDuplicate) {
+      redirect("/appointments");
+    }
+  }
 
   const { data: slot } = await supabase
     .from("availability_slots")
@@ -90,6 +121,8 @@ export async function bookAvailabilitySlot(formData) {
     artisan_id: artisanId,
     project_id: projectId,
     regarding_artisan_id: regardingArtisanId,
+    milestone_id: milestoneId,
+    is_required: isRequired,
     scheduled_at: scheduledAt,
     status: "confirmed",
     proposed_by: user.id,

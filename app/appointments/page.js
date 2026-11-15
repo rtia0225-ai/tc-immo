@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { confirmAppointment, cancelAppointment, proposeNewTime } from "./actions";
+import SubmitButton from "@/components/SubmitButton";
 
 const STATUS_LABELS = {
   proposed: "En attente de confirmation",
@@ -112,12 +113,12 @@ export default async function AppointmentsPage() {
                       placeholder="Lien Meet / Zoom (optionnel)"
                       className="flex-1 rounded-lg border border-gray-300 p-2 text-sm"
                     />
-                    <button
-                      type="submit"
+                    <SubmitButton
                       className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+                      pendingLabel="Confirmation..."
                     >
                       Confirmer ce créneau
-                    </button>
+                    </SubmitButton>
                   </form>
                 )}
 
@@ -135,12 +136,12 @@ export default async function AppointmentsPage() {
                         required
                         className="flex-1 rounded-lg border border-gray-300 p-2 text-sm"
                       />
-                      <button
-                        type="submit"
+                      <SubmitButton
                         className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+                        pendingLabel="Envoi..."
                       >
                         Envoyer la proposition
-                      </button>
+                      </SubmitButton>
                     </form>
                   </details>
                 )}
@@ -148,12 +149,9 @@ export default async function AppointmentsPage() {
                 {a.status !== "cancelled" && a.status !== "completed" && (
                   <form action={cancelAppointment} className="mt-2">
                     <input type="hidden" name="appointmentId" value={a.id} />
-                    <button
-                      type="submit"
-                      className="text-xs text-gray-500 hover:text-red-600"
-                    >
+                    <SubmitButton className="text-xs text-gray-500 hover:text-red-600" pendingLabel="Annulation...">
                       Annuler ce rendez-vous
-                    </button>
+                    </SubmitButton>
                   </form>
                 )}
               </div>

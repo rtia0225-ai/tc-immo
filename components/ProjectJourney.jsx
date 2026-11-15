@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toggleMilestone, releasePayment, uploadDeliverable, shareDeliverable } from "@/app/projects/milestones-actions";
-import { requestAppointment, markAppointmentCompleted } from "@/app/appointments/actions";
+import { markAppointmentCompleted } from "@/app/appointments/actions";
 import { requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
-import { MANDATORY_CALL_TRADES, OPTIONAL_CALL_TRADES, CALL_TYPE_LABELS } from "@/lib/constants";
+import SubmitButton from "@/components/SubmitButton";
+import { MANDATORY_CALL_TRADES, OPTIONAL_CALL_TRADES } from "@/lib/constants";
 
 function formatDate(d) {
   if (!d) return "";
@@ -17,58 +18,21 @@ function formatDateTime(d) {
   return new Date(d).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" });
 }
 
-// Formulaire compact pour planifier l'appel de validation d'une étape.
-// Toujours disponible, à n'importe quel moment — seule la VALIDATION de
-// l'étape dépend de son existence, pas la possibilité de la programmer.
-// Audio ou vidéo : jamais imposé par métier, c'est celui qui propose le
-// créneau qui choisit selon l'urgence/l'importance du sujet. L'appel se
-// fait toujours via la plateforme — client et professionnel n'échangent
-// jamais leurs coordonnées.
-function ScheduleRequiredCall({ projectId, artisanId, milestoneId, mandatory }) {
-  const [open, setOpen] = useState(false);
-  const label = mandatory ? "📅 Planifier l'appel obligatoire" : "📅 Planifier un appel (facultatif)";
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={`mt-2 w-fit rounded-lg px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 ${
-          mandatory ? "bg-brand" : "bg-forest"
-        }`}
-      >
-        {label}
-      </button>
-    );
-  }
+// Un seul bouton, pas de formulaire : on part directement vers la prise de
+// rendez-vous (créneaux déjà déclarés par le professionnel, un clic = c'est
+// réservé, pas de date à taper ni de type d'appel à choisir — audio ou
+// vidéo, c'est eux qui en décident une fois en ligne).
+function CallButton({ projectId, artisanId, milestoneId, mandatory }) {
+  const label = mandatory ? "📞 Appeler (obligatoire)" : "📞 Appeler (facultatif)";
   return (
-    <form action={requestAppointment} className="mt-2 flex flex-wrap items-end gap-2 rounded-lg bg-white p-3 shadow-card">
-      <input type="hidden" name="projectId" value={projectId} />
-      <input type="hidden" name="artisanId" value={artisanId} />
-      <input type="hidden" name="milestoneId" value={milestoneId} />
-      <input type="hidden" name="isRequired" value={mandatory ? "true" : "false"} />
-      <div>
-        <label className="block text-[11px] font-semibold text-gray-500">Date et heure</label>
-        <input
-          type="datetime-local"
-          name="scheduledAt"
-          required
-          className="mt-0.5 rounded-md border border-gray-300 p-1.5 text-xs"
-        />
-      </div>
-      <div>
-        <label className="block text-[11px] font-semibold text-gray-500">Audio ou vidéo</label>
-        <select name="callType" required className="mt-0.5 rounded-md border border-gray-300 p-1.5 text-xs">
-          <option value="audio">Audio</option>
-          <option value="video">Vidéo</option>
-        </select>
-      </div>
-      <button type="submit" className="rounded-lg bg-forest px-3 py-1.5 text-xs font-bold text-white hover:bg-forest-dark">
-        Proposer ce créneau
-      </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">
-        Annuler
-      </button>
-    </form>
+    <Link
+      href={`/appointments/new?artisan=${artisanId}&project=${projectId}&milestone=${milestoneId}&required=${mandatory ? "true" : "false"}`}
+      className={`mt-2 inline-block w-fit rounded-lg px-3 py-1.5 text-xs font-bold text-white hover:opacity-90 ${
+        mandatory ? "bg-brand" : "bg-forest"
+      }`}
+    >
+      {label}
+    </Link>
   );
 }
 
@@ -92,17 +56,19 @@ function RequiredCallStatus({ projectId, appointment }) {
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-white p-2.5 shadow-card">
       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${color}`}>{label}</span>
-      <span className="text-xs text-gray-600">
-        {appointment.call_type ? CALL_TYPE_LABELS[appointment.call_type] || "Appel" : "Appel"} de validation —{" "}
-        {formatDateTime(appointment.scheduled_at)}
-      </span>
+      <span className="text-xs text-gray-600">Appel de validation — {formatDateTime(appointment.scheduled_at)}</span>
+      {appointment.meeting_link && appointment.status !== "cancelled" && (
+        <a href={appointment.meeting_link} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand hover:underline">
+          Rejoindre l'appel →
+        </a>
+      )}
       {appointment.status !== "completed" && appointment.status !== "cancelled" && (
         <form action={markAppointmentCompleted}>
           <input type="hidden" name="appointmentId" value={appointment.id} />
           <input type="hidden" name="projectId" value={projectId} />
-          <button type="submit" className="text-xs font-bold text-forest hover:underline">
+          <SubmitButton className="text-xs font-bold text-forest hover:underline" pendingLabel="...">
             Marquer comme terminé
-          </button>
+          </SubmitButton>
         </form>
       )}
     </div>
@@ -172,9 +138,9 @@ function ShareDeliverableButton({ projectId, deliverableId, otherArtisans }) {
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="deliverableId" value={deliverableId} />
           <input type="hidden" name="recipientArtisanId" value={a.artisanId} />
-          <button type="submit" className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-ink hover:bg-gray-200">
+          <SubmitButton className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-ink hover:bg-gray-200" pendingLabel="...">
             → {a.fullName || a.trade}
-          </button>
+          </SubmitButton>
         </form>
       ))}
       <button type="button" onClick={() => setOpen(false)} className="text-[11px] text-gray-400 hover:text-gray-600">
@@ -207,17 +173,17 @@ function AdditionItem({ projectId, item, isClient }) {
             <input type="hidden" name="requestId" value={item.id} />
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="decision" value="approved" />
-            <button type="submit" className="rounded-md bg-forest px-2.5 py-1 text-[11px] font-bold text-white hover:bg-forest-dark">
+            <SubmitButton className="rounded-md bg-forest px-2.5 py-1 text-[11px] font-bold text-white hover:bg-forest-dark" pendingLabel="...">
               Valider
-            </button>
+            </SubmitButton>
           </form>
           <form action={reviewAdditionRequest}>
             <input type="hidden" name="requestId" value={item.id} />
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="decision" value="rejected" />
-            <button type="submit" className="rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink shadow-card hover:bg-gray-50">
+            <SubmitButton className="rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-ink shadow-card hover:bg-gray-50" pendingLabel="...">
               Refuser
-            </button>
+            </SubmitButton>
           </form>
         </div>
       )}
@@ -294,9 +260,9 @@ function GapInsertion({ projectId, artisanId, afterMilestoneId, items, sharedDoc
               className="rounded-lg border border-gray-300 p-2 text-xs"
             />
             <div className="flex gap-2">
-              <button type="submit" className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-dark">
+              <SubmitButton className="w-fit rounded-lg bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-dark" pendingLabel="Ajout...">
                 Ajouter ici
-              </button>
+              </SubmitButton>
               <button type="button" onClick={() => setOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">
                 Annuler
               </button>
@@ -470,7 +436,7 @@ export default function ProjectJourney({
                     milestoneAppointments.map((a) => <RequiredCallStatus key={a.id} projectId={projectId} appointment={a} />)
                   ) : (
                     !m.is_completed && (
-                      <ScheduleRequiredCall
+                      <CallButton
                         projectId={projectId}
                         artisanId={artisanId}
                         milestoneId={m.id}
@@ -539,9 +505,9 @@ export default function ProjectJourney({
                       <input type="hidden" name="milestoneId" value={m.id} />
                       <input type="hidden" name="projectId" value={projectId} />
                       <input type="hidden" name="isCompleted" value="false" />
-                      <button type="submit" className="text-xs font-bold text-forest hover:underline">
+                      <SubmitButton className="text-xs font-bold text-forest hover:underline" pendingLabel="Validation...">
                         ✅ Valider l'étape
-                      </button>
+                      </SubmitButton>
                     </form>
                   );
                 })()}
@@ -550,9 +516,9 @@ export default function ProjectJourney({
                   <form action={releasePayment} className="mt-1">
                     <input type="hidden" name="milestoneId" value={m.id} />
                     <input type="hidden" name="projectId" value={projectId} />
-                    <button type="submit" className="text-xs font-bold text-forest hover:underline">
+                    <SubmitButton className="text-xs font-bold text-forest hover:underline" pendingLabel="Confirmation...">
                       Confirmer le virement effectué
-                    </button>
+                    </SubmitButton>
                   </form>
                 )}
 

@@ -18,9 +18,36 @@ export async function requestAppointment(formData) {
   const isRequired = formData.get("isRequired") === "true";
   const scheduledAt = formData.get("scheduledAt"); // datetime-local
   const notes = formData.get("notes");
-  // Audio ou vidéo : toujours choisi par qui propose le créneau, jamais
-  // imposé — l'appel passe par la plateforme, sans échange de coordonnées.
   const callType = formData.get("callType") || null;
+
+  // Même garde-fou qu'ailleurs sur le site : pas de doublon si un
+  // rendez-vous pour cette même étape existe déjà (pas annulé), ou en cas
+  // de double-clic rapide sur "proposer ce créneau".
+  if (milestoneId) {
+    const { data: existingCall } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("milestone_id", milestoneId)
+      .neq("status", "cancelled")
+      .limit(1)
+      .maybeSingle();
+    if (existingCall) {
+      redirect(projectId ? `/projects/${projectId}` : "/appointments");
+    }
+  } else {
+    const { data: recentDuplicate } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("client_id", user.id)
+      .eq("artisan_id", artisanId)
+      .eq("scheduled_at", new Date(scheduledAt).toISOString())
+      .gte("created_at", new Date(Date.now() - 30000).toISOString())
+      .limit(1)
+      .maybeSingle();
+    if (recentDuplicate) {
+      redirect(projectId ? `/projects/${projectId}` : "/appointments");
+    }
+  }
 
   const { data: appointment, error } = await supabase
     .from("appointments")

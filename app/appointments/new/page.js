@@ -1,11 +1,14 @@
 import { bookAvailabilitySlot } from "@/app/dashboard/availabilityActions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import SubmitButton from "@/components/SubmitButton";
 
 export default async function NewAppointmentPage({ searchParams }) {
   const artisanId = searchParams?.artisan;
   const projectId = searchParams?.project;
   const regardingArtisanId = searchParams?.regarding || null;
+  const milestoneId = searchParams?.milestone || null;
+  const isRequired = searchParams?.required === "true";
   const supabase = createClient();
 
   const {
@@ -18,6 +21,22 @@ export default async function NewAppointmentPage({ searchParams }) {
 
   if (user.id === artisanId) {
     redirect(`/artisans/${regardingArtisanId || artisanId}`);
+  }
+
+  // Tant qu'un appel pour cette étape n'est pas annulé, on ne propose pas
+  // d'en reprendre un autre — évite les doublons en cas de double-clic ou
+  // de retour en arrière sur cette page.
+  if (milestoneId) {
+    const { data: existingCall } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("milestone_id", milestoneId)
+      .neq("status", "cancelled")
+      .limit(1)
+      .maybeSingle();
+    if (existingCall && projectId) {
+      redirect(`/projects/${projectId}`);
+    }
   }
 
   const { data: artisan } = await supabase
@@ -93,12 +112,14 @@ export default async function NewAppointmentPage({ searchParams }) {
                     <input type="hidden" name="artisanId" value={artisanId} />
                     {projectId && <input type="hidden" name="projectId" value={projectId} />}
                     {regardingArtisanId && <input type="hidden" name="regardingArtisanId" value={regardingArtisanId} />}
-                    <button
-                      type="submit"
+                    {milestoneId && <input type="hidden" name="milestoneId" value={milestoneId} />}
+                    {milestoneId && <input type="hidden" name="isRequired" value={isRequired ? "true" : "false"} />}
+                    <SubmitButton
                       className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-ink hover:border-brand hover:bg-brand-light"
+                      pendingLabel="..."
                     >
                       {s.start_time.slice(0, 5)}
-                    </button>
+                    </SubmitButton>
                   </form>
                 ))}
               </div>
