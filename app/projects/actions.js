@@ -426,7 +426,7 @@ export async function signContract(formData) {
 
   const { data: project } = await supabase
     .from("projects")
-    .select("client_id")
+    .select("client_id, artisan_id")
     .eq("id", projectId)
     .single();
 
@@ -455,9 +455,21 @@ export async function signContract(formData) {
     .single();
 
   // Une fois les deux signatures réunies, le vrai parcours (étapes,
-  // paiements, rendez-vous) remplace l'échéancier indicatif.
+  // paiements, rendez-vous) remplace l'échéancier indicatif — pour
+  // l'artisan PRINCIPAL, c'est le statut du projet lui-même qui avance ;
+  // pour un PARTICIPANT (ajouté après coup), c'est son propre statut dans
+  // project_participants qu'il faut faire sortir de "en attente", sinon
+  // il reste bloqué sur "signer le contrat" indéfiniment même signé.
   if (updatedContract?.client_signed_at && updatedContract?.artisan_signed_at) {
-    await supabase.from("projects").update({ status: "awaiting_payment" }).eq("id", projectId).eq("artisan_id", artisanId);
+    if (artisanId === project?.artisan_id) {
+      await supabase.from("projects").update({ status: "awaiting_payment" }).eq("id", projectId);
+    } else {
+      await supabase
+        .from("project_participants")
+        .update({ status: "active" })
+        .eq("project_id", projectId)
+        .eq("artisan_id", artisanId);
+    }
   }
 
   redirect(`/projects/${projectId}/contract/${artisanId}`);
