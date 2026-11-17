@@ -49,7 +49,7 @@ export default async function PendingAccountsPage() {
         Professionnels en attente ({pending?.length || 0})
       </h1>
       <p className="mt-1 text-sm text-gray-500">
-        Seuls les comptes professionnels (artisans) nécessitent une validation. Les clients accèdent directement à leur espace.
+        Seuls les comptes professionnels nécessitent une validation. Les clients accèdent directement à leur espace.
       </p>
 
       <div className="mt-6 flex flex-col gap-3">
@@ -62,7 +62,7 @@ export default async function PendingAccountsPage() {
               <div>
                 <p className="text-sm font-bold text-ink">{p.full_name}</p>
                 <p className="text-xs text-gray-500">
-                  {p.role === "artisan" ? "Artisan" : "Client"} · {p.city || "Ville non renseignée"} · {p.phone || "—"}
+                  {p.role === "artisan" ? "Professionnel" : "Client"} · {p.city || "Ville non renseignée"} · {p.phone || "—"}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-400">
                   Inscrit le {new Date(p.created_at).toLocaleDateString("fr-FR")}

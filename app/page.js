@@ -9,7 +9,7 @@ const STEPS = [
   {
     n: 1,
     title: "Choisissez vos prestataires",
-    text: "Consultez les profils vérifiés (artisans, géomètre, architecte, technicien de suivi) et échangez avec eux avant de démarrer.",
+    text: "Consultez les profils vérifiés (professionnels, géomètre, architecte, technicien de suivi) et échangez avec eux avant de démarrer.",
     image: "/etapes/etape1.jpg",
   },
   {
@@ -44,7 +44,7 @@ export default async function HomePage() {
     .maybeSingle();
 
   const heroTitle = heroSection?.title || "Construisez chez vous, en toute sécurité, depuis n'importe où";
-  const heroSubtitle = heroSection?.body || "TCHolding-Immo connecte la diaspora à des artisans vérifiés en Côte d'Ivoire.";
+  const heroSubtitle = heroSection?.body || "TCHolding-Immo connecte la diaspora à des professionnels vérifiés en Côte d'Ivoire.";
 
   const { data: allArtisans } = await supabase
     .from("artisan_profiles")
@@ -165,17 +165,17 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Artisans vérifiés */}
+      {/* Professionnels vérifiés */}
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="flex items-end justify-between">
-          <h2 className="font-heading text-2xl font-bold text-ink">Artisans vérifiés</h2>
+          <h2 className="font-heading text-2xl font-bold text-ink">Professionnels vérifiés</h2>
           <Link href="/artisans" className="text-sm font-semibold text-brand hover:underline">
             Voir tous les profils
           </Link>
         </div>
 
         {!artisans || artisans.length === 0 ? (
-          <p className="mt-6 text-gray-500">Aucun artisan pour le moment.</p>
+          <p className="mt-6 text-gray-500">Aucun professionnel pour le moment.</p>
         ) : (
           <div className="mt-6 flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
             {artisans.map((a) => {

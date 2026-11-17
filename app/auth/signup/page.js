@@ -53,7 +53,7 @@ export default async function SignupPage({ searchParams }) {
             href={`/auth/signup?role=artisan${qs}`}
             className="rounded-lg bg-brand py-4 font-heading font-bold text-white hover:bg-brand-dark"
           >
-            Je suis un artisan
+            Je suis un professionnel
           </Link>
           <p className="text-sm text-gray-500">Ou</p>
           <Link
@@ -71,7 +71,7 @@ export default async function SignupPage({ searchParams }) {
   return (
     <div className="mx-auto max-w-md px-4 py-16">
       <h1 className="font-heading text-2xl font-bold">
-        {role === "artisan" ? "Inscription, Artisan" : "Inscription, Client"}
+        {role === "artisan" ? "Inscription, Professionnel" : "Inscription, Client"}
       </h1>
       <p className="mt-1 text-sm text-gray-500">
         <Link href={`/auth/signup${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`} className="underline">

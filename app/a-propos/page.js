@@ -1,6 +1,6 @@
 export const metadata = {
   title: "À propos",
-  description: "TCHolding-Immo, la plateforme qui connecte la diaspora ivoirienne à des artisans vérifiés pour construire en toute confiance en Côte d'Ivoire.",
+  description: "TCHolding-Immo, la plateforme qui connecte la diaspora ivoirienne à des professionnels vérifiés pour construire en toute confiance en Côte d'Ivoire.",
 };
 
 export default function AProposPage() {
@@ -24,7 +24,7 @@ export default function AProposPage() {
             </h1>
             <p className="mt-3 text-justify text-sm leading-relaxed text-white/90 sm:text-base">
               TCHolding-Immo est la marketplace de confiance qui connecte la diaspora ivoirienne
-              à des artisans vérifiés en Côte d'Ivoire, pour construire ou rénover en
+              à des professionnels vérifiés en Côte d'Ivoire, pour construire ou rénover en
               toute sécurité, où que l'on vive.
             </p>
           </div>
@@ -34,7 +34,7 @@ export default function AProposPage() {
       <div className="mx-auto max-w-5xl px-4 pb-14 pt-8">
         <h2 className="font-heading text-xl font-bold text-ink">Le constat de départ</h2>
         <p className="mt-3 text-justify text-gray-600 leading-relaxed">
-          Construire une maison en Côte d'Ivoire quand on vit à l'étranger est un pari risqué. On ne peut pas vérifier le sérieux d'un artisan avant de lui confier un chantier, on ne peut pas se déplacer chaque semaine pour constater l'avancement des travaux, et on entend trop souvent la même histoire : un proche chargé de surveiller le chantier, un artisan payé d'avance qui disparaît, un projet qui prend deux fois plus de temps et deux fois plus cher que prévu. Ce n'est pas un problème de volonté, c'est un problème d'outils.
+          Construire une maison en Côte d'Ivoire quand on vit à l'étranger est un pari risqué. On ne peut pas vérifier le sérieux d'un professionnel avant de lui confier un chantier, on ne peut pas se déplacer chaque semaine pour constater l'avancement des travaux, et on entend trop souvent la même histoire : un proche chargé de surveiller le chantier, un professionnel payé d'avance qui disparaît, un projet qui prend deux fois plus de temps et deux fois plus cher que prévu. Ce n'est pas un problème de volonté, c'est un problème d'outils.
         </p>
 
         <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre mission</h2>
@@ -49,7 +49,7 @@ export default function AProposPage() {
 
         <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre façon de faire</h2>
         <p className="mt-3 text-justify text-gray-600 leading-relaxed">
-          Nous ne vendons pas une prestation unique : nous organisons la collaboration entre plusieurs professionnels indépendants autour d'un même projet, du géomètre qui sécurise le terrain jusqu'au technicien qui supervise le chantier, en passant par l'architecte et les artisans. Chacun reste responsable de son propre travail, mais tout transite par la même plateforme : les échanges, les documents, l'échéancier de paiement. C'est cette centralisation qui rend le suivi à distance réellement possible.
+          Nous ne vendons pas une prestation unique : nous organisons la collaboration entre plusieurs professionnels indépendants autour d'un même projet, du géomètre qui sécurise le terrain jusqu'au technicien qui supervise le chantier, en passant par l'architecte et les professionnels. Chacun reste responsable de son propre travail, mais tout transite par la même plateforme : les échanges, les documents, l'échéancier de paiement. C'est cette centralisation qui rend le suivi à distance réellement possible.
         </p>
 
         <h2 className="font-heading mt-10 text-xl font-bold text-ink">Notre ambition</h2>

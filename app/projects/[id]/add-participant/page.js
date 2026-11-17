@@ -41,7 +41,7 @@ export default async function AddParticipantPage({ params, searchParams }) {
           Décris ce que tu attends de {artisan?.profiles?.full_name}.{" "}
           <strong className="text-ink">C'est ensuite lui qui remplira l'échéancier de paiement</strong> de sa
           propre prestation (étapes, montant, pourcentages) — tu le valideras avant que le contrat ne soit signé,
-          comme pour l'artisan principal.
+          comme pour le professionnel principal.
         </p>
 
         {searchParams?.error && (
@@ -113,7 +113,7 @@ export default async function AddParticipantPage({ params, searchParams }) {
       </form>
 
       {artisans.length === 0 ? (
-        <p className="mt-8 text-gray-500">Aucun artisan disponible pour ce métier.</p>
+        <p className="mt-8 text-gray-500">Aucun professionnel disponible pour ce métier.</p>
       ) : (
         <div className="mt-6 flex flex-col gap-3">
           {artisans.map((a) => (

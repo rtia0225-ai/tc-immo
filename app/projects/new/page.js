@@ -71,7 +71,7 @@ export default async function NewProjectPage({ searchParams }) {
           />
           <FileInputButton name="idDocument" accept="image/*,.pdf" required label="Choisir un fichier" />
           <p className="text-xs text-gray-500">
-            Carte nationale d'identité, passeport ou équivalent. Jamais visible par l'artisan.
+            Carte nationale d'identité, passeport ou équivalent. Jamais visible par le professionnel.
           </p>
           <button
             type="submit"
@@ -119,7 +119,7 @@ export default async function NewProjectPage({ searchParams }) {
           <textarea
             name="description"
             rows={3}
-            placeholder="Ce que vous souhaitez, ce qui a été discuté avec l'artisan"
+            placeholder="Ce que vous souhaitez, ce qui a été discuté avec le professionnel"
             className="w-full rounded-lg border border-gray-300 p-2"
           />
         </div>
@@ -190,7 +190,7 @@ export default async function NewProjectPage({ searchParams }) {
           pendingLabel="Envoi en cours…"
           className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark disabled:opacity-60"
         >
-          Envoyer la demande à {artisan?.profiles?.full_name || "l'artisan"}
+          Envoyer la demande à {artisan?.profiles?.full_name || "le professionnel"}
         </SubmitButton>
       </form>
     </div>

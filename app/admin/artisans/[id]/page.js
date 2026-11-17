@@ -25,7 +25,7 @@ export default async function AdminArtisanDetailPage({ params }) {
     .eq("id", id)
     .single();
 
-  if (!artisan) return <p className="px-4 py-12">Artisan introuvable.</p>;
+  if (!artisan) return <p className="px-4 py-12">Professionnel introuvable.</p>;
 
   let idDocumentSignedUrl = null;
   if (artisan.profiles?.id_document_url) {
@@ -52,7 +52,7 @@ export default async function AdminArtisanDetailPage({ params }) {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
       <Link href="/admin/artisans" className="text-sm text-brand hover:underline">
-        ← Tous les artisans
+        ← Tous les professionnels
       </Link>
 
       <div className="mt-4 flex items-center gap-4">
