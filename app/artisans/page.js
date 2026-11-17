@@ -140,7 +140,7 @@ export default async function ArtisansPage({ searchParams }) {
             </div>
             <button
               type="submit"
-              className="shrink-0 rounded-full bg-gold px-7 py-3 text-sm font-bold text-white hover:bg-gold/90"
+              className="shrink-0 rounded-full bg-brand px-7 py-3 text-sm font-bold text-white hover:bg-brand-dark"
             >
               Rechercher
             </button>
