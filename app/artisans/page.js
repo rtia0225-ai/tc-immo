@@ -97,10 +97,12 @@ export default async function ArtisansPage({ searchParams }) {
   return (
     <div className="bg-[#F8F6F1]">
       <div className="mx-auto max-w-6xl px-4 py-10">
+        <h1 className="font-heading text-2xl font-bold text-ink">Trouver un artisan</h1>
+
         {/* Bandeau vert reprenant la forme de la barre de recherche de référence,
             sans le bloc titre/sous-titre : juste la barre blanche arrondie avec les
-            filtres et le bouton "Rechercher", et le bouton "+ Ajouter ma fiche". */}
-        <div className="rounded-2xl bg-forest px-5 py-5 text-center text-white sm:px-8">
+            filtres et le bouton "Rechercher". */}
+        <div className="mt-4 rounded-2xl bg-forest px-5 py-5 text-center text-white sm:px-8">
           <form
             action="/artisans"
             className="mx-auto flex max-w-4xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-card sm:flex-row sm:items-stretch sm:gap-0 sm:rounded-full"
@@ -143,13 +145,6 @@ export default async function ArtisansPage({ searchParams }) {
               Rechercher
             </button>
           </form>
-
-          <Link
-            href="/auth/signup?role=artisan"
-            className="mt-4 inline-flex items-center gap-1 rounded-full border border-white/70 px-4 py-2 text-xs font-bold text-white hover:bg-white/10"
-          >
-            + Ajouter ma fiche
-          </Link>
         </div>
 
         {!user && (
