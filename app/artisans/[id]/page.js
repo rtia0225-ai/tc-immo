@@ -101,12 +101,36 @@ export default async function ArtisanProfilePage({ params }) {
   // noyer la page sous le texte — le détail complet reste discuté avec
   // l'artisan au moment de la négociation.
   let aSavoirText;
+  let echeancierExample;
   if (SINGLE_INSTALLMENT_TRADES[artisan.trade]) {
     aSavoirText = `Paiement en une fois, à la livraison du ${SINGLE_INSTALLMENT_TRADES[artisan.trade]}. Les frais administratifs se règlent au fur et à mesure.`;
+    echeancierExample = [
+      `Livraison du ${SINGLE_INSTALLMENT_TRADES[artisan.trade]} — 100% de la main d'œuvre`,
+      "Frais administratifs (dépôts, taxes, timbres...) — réglés au fur et à mesure des démarches",
+    ];
   } else if (FINAL_DOCUMENT_TRADES[artisan.trade]) {
     aSavoirText = `Plusieurs étapes, la dernière étant la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}. Nombre de versements à discuter avec le professionnel.`;
+    echeancierExample = [
+      "1er versement — au démarrage",
+      "2e versement (optionnel) — à mi-parcours",
+      `Dernier versement — à la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}`,
+    ];
   } else {
     aSavoirText = `Échéancier d'au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, à définir avec l'artisan selon l'avancement des travaux.`;
+    echeancierExample =
+      artisan.trade === "Maçonnerie"
+        ? [
+            "Fondations — 20%",
+            "Élévation des murs — 20%",
+            "Dalle — 20%",
+            "Chaînage / poteaux — 20%",
+            "Enduits et finitions — 20%",
+          ]
+        : [
+            "Démarrage des travaux — 1ère tranche",
+            "Avancement à mi-parcours — tranche(s) intermédiaire(s)",
+            "Fin des travaux — dernière tranche",
+          ];
   }
 
   return (
@@ -274,11 +298,11 @@ export default async function ArtisanProfilePage({ params }) {
             </div>
           )}
 
-          <div className="overflow-hidden rounded-lg bg-white shadow-card">
-            <p className="p-6 pb-0 text-xs font-bold uppercase tracking-wide text-gray-400">Galerie de réalisations</p>
-            <div className="mt-4">
-              <PhotoCarousel photos={photos} fullBleed />
-            </div>
+          <div className="relative overflow-hidden rounded-lg bg-white shadow-card">
+            <span className="absolute left-3 top-3 z-10 rounded bg-black/55 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+              Galerie de réalisations
+            </span>
+            <PhotoCarousel photos={photos} fullBleed />
           </div>
 
           {/* Avis */}
@@ -300,6 +324,18 @@ export default async function ArtisanProfilePage({ params }) {
 
           <div className="rounded-lg bg-brand-light p-4 text-xs leading-relaxed text-brand-dark">
             <strong>À savoir avant de négocier :</strong> {aSavoirText}
+          </div>
+
+          <div className="rounded-lg bg-white shadow-card p-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Exemple d&apos;échéancier</p>
+            <ul className="mt-2 space-y-1 text-xs text-gray-600">
+              {echeancierExample.map((step) => (
+                <li key={step} className="flex gap-1.5">
+                  <span className="text-brand">•</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
