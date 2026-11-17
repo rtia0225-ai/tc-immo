@@ -93,7 +93,7 @@ export default async function ArtisanProfilePage({ params }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto max-w-6xl px-4 py-12">
       <div className="overflow-hidden rounded-lg shadow-card">
         <PhotoCarousel photos={photos} />
       </div>
