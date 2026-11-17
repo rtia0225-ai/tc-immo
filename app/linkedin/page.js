@@ -27,7 +27,7 @@ const POINTS = [
 
 export default function LinkedInLandingPage() {
   return (
-    <div className="bg-[#FAF8F3]">
+    <div className="bg-[#F8F6F1]">
       {/* Hero — un seul message, un seul bouton */}
       <section
         className="relative flex min-h-[360px] flex-col items-center justify-center overflow-hidden px-4 py-14 text-center text-white sm:min-h-[440px]"

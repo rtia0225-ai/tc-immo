@@ -271,7 +271,7 @@ export default async function DashboardPage({ searchParams }) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl bg-[#FAF8F3] px-4 py-8">
+    <div className="mx-auto max-w-4xl bg-[#F8F6F1] px-4 py-8">
       {/* Bandeau d'accueil */}
       <div className="rounded-lg bg-forest p-6 text-white">
         <div className="flex items-center justify-between">
