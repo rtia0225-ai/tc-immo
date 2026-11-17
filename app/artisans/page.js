@@ -92,89 +92,126 @@ export default async function ArtisansPage({ searchParams }) {
       .slice(0, 3);
   }
 
+  const resultCountLabel = `${artisans.length} artisan${artisans.length > 1 ? "s" : ""} trouvé${artisans.length > 1 ? "s" : ""}`;
+
   return (
     <div className="bg-[#F8F6F1]">
-      <div className="mx-auto max-w-6xl px-4 py-12">
-        <h1 className="font-heading text-2xl font-bold text-ink">Trouver un artisan</h1>
+      <div className="mx-auto max-w-6xl px-4 py-10">
+        {/* Bandeau vert reprenant la forme exacte de la barre de recherche de référence :
+            titre + sous-titre centrés, puis une barre blanche arrondie contenant les
+            filtres et le bouton "Rechercher", avec le bouton "+ Ajouter ma fiche" à côté. */}
+        <div className="rounded-2xl bg-forest px-5 py-10 text-center text-white sm:px-10">
+          <h1 className="font-heading text-2xl font-bold sm:text-3xl">Annuaire des Pros BTP</h1>
+          <p className="mt-2 text-sm text-forest-light sm:text-base">
+            Trouvez un artisan qualifié près de chez vous en Côte d&apos;Ivoire
+          </p>
+
+          <form
+            action="/artisans"
+            className="mx-auto mt-6 flex max-w-4xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-card sm:flex-row sm:items-stretch sm:gap-0 sm:rounded-full"
+          >
+            <div className="sm:flex-1">
+              <MultiSelectDropdown
+                name="trade"
+                options={CONSTRUCTION_SERVICES}
+                defaultValues={trades}
+                placeholder="Toutes catégories"
+              />
+            </div>
+            <div className="hidden w-px bg-gray-200 sm:block" />
+            <div className="sm:flex-1">
+              <MultiSelectDropdown
+                name="city"
+                options={CI_CITIES}
+                defaultValues={cities}
+                placeholder="Ville ou code postal..."
+                searchable
+              />
+            </div>
+            <div className="hidden w-px bg-gray-200 sm:block" />
+            <div className="sm:flex-1">
+              <select
+                name="recommendation"
+                defaultValue={recommendation || ""}
+                className="h-full w-full rounded-full bg-transparent p-3 text-left text-sm text-ink focus:outline-none"
+              >
+                <option value="">Mot-clé libre...</option>
+                {RECOMMENDATION_OPTIONS.map((r) => (
+                  <option key={r.value} value={r.value}>{r.label}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              className="shrink-0 rounded-full bg-gold px-7 py-3 text-sm font-bold text-white hover:bg-gold/90"
+            >
+              Rechercher
+            </button>
+          </form>
+
+          <Link
+            href="/auth/signup?role=artisan"
+            className="mt-4 inline-flex items-center gap-1 rounded-full border border-white/70 px-4 py-2 text-xs font-bold text-white hover:bg-white/10"
+          >
+            + Ajouter ma fiche
+          </Link>
+        </div>
 
         {!user && (
-          <div className="mt-4 flex flex-col items-center justify-between gap-3 rounded-lg bg-forest p-4 text-white sm:flex-row">
+          <div className="mt-6 flex flex-col items-center justify-between gap-3 rounded-lg bg-brand p-4 text-white sm:flex-row">
             <p className="text-sm font-medium">
               Crée un compte pour contacter un artisan, prendre rendez-vous ou démarrer un projet.
             </p>
             <Link
               href="/auth/signup"
-              className="shrink-0 rounded-md bg-white px-5 py-2 text-sm font-bold text-forest hover:bg-gray-100"
+              className="shrink-0 rounded-md bg-white px-5 py-2 text-sm font-bold text-brand hover:bg-gray-100"
             >
               Créer un compte
             </Link>
           </div>
         )}
 
-        <form action="/artisans" className="mt-6 grid gap-px overflow-visible rounded-lg bg-forest p-1 shadow-card sm:grid-cols-4">
-          <MultiSelectDropdown
-            name="trade"
-            options={CONSTRUCTION_SERVICES}
-            defaultValues={trades}
-            placeholder="Tous les métiers"
-          />
-          <MultiSelectDropdown
-            name="city"
-            options={CI_CITIES}
-            defaultValues={cities}
-            placeholder="Toutes les villes"
-            searchable
-          />
-          <select name="recommendation" defaultValue={recommendation || ""} className="rounded-md bg-white p-3 text-sm text-ink focus:outline-none">
-            <option value="">Toute la liste</option>
-            {RECOMMENDATION_OPTIONS.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
-            ))}
-          </select>
-          <button type="submit" className="rounded-md bg-forest-dark text-sm font-bold text-white hover:bg-forest">
-            Rechercher
-          </button>
-        </form>
-
         {recommendation === "top3" && (
           <p className="mt-4 text-sm text-gray-500">Nos 3 recommandations les plus expérimentées.</p>
         )}
 
-        <p className="mt-6 text-sm text-gray-500">{artisans.length} professionnel{artisans.length > 1 ? "s" : ""} trouvé{artisans.length > 1 ? "s" : ""}</p>
+        <div className="mt-6 flex items-center justify-between">
+          <p className="text-sm text-gray-500">{resultCountLabel}</p>
+          <p className="text-sm text-gray-500">
+            Tri : <span className="font-bold text-brand">Certifiés en premier</span>
+          </p>
+        </div>
 
         {artisans.length === 0 ? (
           <p className="mt-10 text-gray-500">Aucun artisan ne correspond à votre recherche.</p>
         ) : (
-          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {artisans.map((a) => {
               const firstName = (a.profiles?.full_name || "").trim().split(/\s+/)[0] || "Professionnel";
               return (
                 <Link
                   key={a.id}
                   href={`/artisans/${a.id}`}
-                  className="group rounded-xl bg-white p-3 shadow-card transition-shadow hover:shadow-card-hover"
+                  className="group overflow-hidden rounded-lg border border-gray-100 bg-white shadow-card transition-shadow hover:shadow-card-hover"
                 >
-                  <div className="relative overflow-hidden rounded-xl">
+                  <div className="relative">
                     {a.profiles?.avatar_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                         alt={firstName}
-                        className="h-36 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-36 w-full items-center justify-center bg-forest-light text-forest">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <div className="flex h-32 w-full items-center justify-center bg-brand-light text-brand">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                           <circle cx="12" cy="8" r="4" />
                           <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" />
                         </svg>
                       </div>
                     )}
-                    <span className="absolute left-2 top-2 rounded bg-forest px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                      {a.trade}
-                    </span>
                     {a.is_verified && (
-                      <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-forest">
+                      <span className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-brand">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                           <path d="M20 6 9 17l-5-5" />
                         </svg>
@@ -182,18 +219,16 @@ export default async function ArtisansPage({ searchParams }) {
                     )}
                   </div>
 
-                  <div className="px-1 pb-1 pt-3">
-                    <p className="font-heading text-base font-bold text-forest">{firstName}</p>
-                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                  <div className="p-3.5">
+                    <p className="font-heading line-clamp-1 text-sm font-bold text-brand">{firstName}</p>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-                        <path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11Z" />
-                        <circle cx="12" cy="10" r="2.5" />
+                        <path d="M3 7.5 12 3l9 4.5M4.5 10v9h15v-9" />
                       </svg>
-                      {a.profiles?.city || "Côte d'Ivoire"}
-                      {a.mobility_scope === "all" && " · Disponible partout"}
+                      <span className="line-clamp-1">{a.trade}</span>
                     </p>
                     {a.years_experience ? (
-                      <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
                           <circle cx="12" cy="12" r="9" />
                           <path d="M12 7v5l3 2" />
@@ -201,22 +236,26 @@ export default async function ArtisansPage({ searchParams }) {
                         {a.years_experience} an{a.years_experience > 1 ? "s" : ""} d&apos;expérience
                       </p>
                     ) : null}
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-500">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+                        <path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11Z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                      </svg>
+                      <span className="line-clamp-1">
+                        {a.profiles?.city || "Côte d'Ivoire"}
+                        {a.mobility_scope === "all" && " · Partout"}
+                      </span>
+                    </p>
 
                     {a.services && a.services.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
-                        {a.services.slice(0, 3).map((s) => (
-                          <span key={s} className="rounded bg-forest-light px-1.5 py-0.5 text-[10px] font-medium text-forest">
+                        {a.services.slice(0, 2).map((s) => (
+                          <span key={s} className="rounded bg-brand-light px-1.5 py-0.5 text-[10px] font-medium text-brand">
                             {s}
                           </span>
                         ))}
                       </div>
                     )}
-
-                    <div className="mt-2.5 flex items-center justify-end border-t border-gray-100 pt-2.5">
-                      <span className="shrink-0 rounded-full bg-forest px-3 py-1.5 text-[11px] font-bold text-white">
-                        Voir le profil
-                      </span>
-                    </div>
                   </div>
                 </Link>
               );
