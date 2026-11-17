@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 const WELCOME_MESSAGE = {
   role: "assistant",
-  content: "Bonjour ! Je suis là pour répondre à vos questions sur TCHolding-Immo (recherche d'artisan, paiement sécurisé, suivi de chantier...). Comment puis-je vous aider ?",
+  content: "Bonjour ! Je suis là pour répondre à vos questions sur TCHolding-Immo (recherche d'un professionnel, paiement sécurisé, suivi de chantier...). Comment puis-je vous aider ?",
 };
 
 export default function ChatWidget() {

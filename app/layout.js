@@ -16,11 +16,11 @@ export const metadata = {
     template: "%s | TCHolding-Immo",
   },
   description:
-    "TCHolding-Immo (TC Holding Immo) connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres, architectes et techniques BTP vérifiés, pour construire en Côte d'Ivoire en toute confiance, paiement sécurisé, suivi à distance, échéancier en plusieurs étapes.",
+    "TCHolding-Immo (TC Holding Immo) connecte la diaspora ivoirienne et tout client à distance à des professionnels, géomètres, architectes et techniques BTP vérifiés, pour construire en Côte d'Ivoire en toute confiance, paiement sécurisé, suivi à distance, échéancier en plusieurs étapes.",
   keywords: [
     "construire en Côte d'Ivoire",
     "construire en Côte d'Ivoire depuis l'étranger",
-    "artisan vérifié Côte d'Ivoire",
+    "professionnel vérifié Côte d'Ivoire",
     "géomètre topographe Côte d'Ivoire",
     "architecte Côte d'Ivoire",
     "technicien BTP Côte d'Ivoire",
@@ -34,7 +34,7 @@ export const metadata = {
     siteName: "TCHolding-Immo",
     title: "TCHolding-Immo, Construire en Côte d'Ivoire, depuis n'importe où",
     description:
-      "Trouvez un artisan, un géomètre ou un architecte vérifié pour construire en Côte d'Ivoire, où que vous soyez. Paiement sécurisé, suivi à distance.",
+      "Trouvez un professionnel, un géomètre ou un architecte vérifié pour construire en Côte d'Ivoire, où que vous soyez. Paiement sécurisé, suivi à distance.",
     images: ["/hero-elephants.jpg"],
   },
 };
@@ -75,7 +75,7 @@ export default async function RootLayout({ children }) {
               url: "https://www.tcholding-immo.com",
               logo: "https://www.tcholding-immo.com/logo-navbar.png",
               description:
-                "Plateforme qui connecte la diaspora ivoirienne et tout client à distance à des artisans, géomètres et architectes vérifiés, pour construire en Côte d'Ivoire.",
+                "Plateforme qui connecte la diaspora ivoirienne et tout client à distance à des professionnels, géomètres et architectes vérifiés, pour construire en Côte d'Ivoire.",
               areaServed: {
                 "@type": "Country",
                 name: "Côte d'Ivoire",

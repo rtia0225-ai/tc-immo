@@ -92,7 +92,7 @@ export async function GET() {
     if (p.contracts?.length) {
       parts.push("  Contrat(s) :");
       for (const c of p.contracts) {
-        parts.push(`   - Créé le ${formatDate(c.created_at)}, signé client le ${formatDate(c.client_signed_at) || "(non signé)"}, signé artisan le ${formatDate(c.artisan_signed_at) || "(non signé)"}`);
+        parts.push(`   - Créé le ${formatDate(c.created_at)}, signé client le ${formatDate(c.client_signed_at) || "(non signé)"}, signé professionnel le ${formatDate(c.artisan_signed_at) || "(non signé)"}`);
       }
     }
     parts.push("");

@@ -21,9 +21,9 @@ export async function generateMetadata({ params }) {
     .eq("id", params.id)
     .single();
 
-  if (!artisan) return { title: "Artisan" };
+  if (!artisan) return { title: "Professionnel" };
 
-  const name = artisan.profiles?.full_name || "Artisan";
+  const name = artisan.profiles?.full_name || "Professionnel";
   const city = artisan.profiles?.city;
 
   return {
@@ -89,7 +89,7 @@ export default async function ArtisanProfilePage({ params }) {
     .order("created_at", { ascending: false });
 
   if (!artisan) {
-    return <p className="px-4 py-12">Artisan introuvable.</p>;
+    return <p className="px-4 py-12">Professionnel introuvable.</p>;
   }
 
   const firstName = (artisan.profiles?.full_name || "").trim().split(/\s+/)[0] || "Professionnel";
@@ -116,7 +116,7 @@ export default async function ArtisanProfilePage({ params }) {
       `Dernier versement — à la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}`,
     ];
   } else {
-    aSavoirText = `Échéancier d'au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, à définir avec l'artisan selon l'avancement des travaux.`;
+    aSavoirText = `Échéancier d'au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, à définir avec le professionnel selon l'avancement des travaux.`;
     echeancierExample =
       artisan.trade === "Maçonnerie"
         ? [
@@ -234,7 +234,7 @@ export default async function ArtisanProfilePage({ params }) {
         <>
           {artisan.technician && (
             <p className="mt-4 text-sm text-gray-500">
-              Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong>, il répond aux messages et rendez-vous pour cet artisan.
+              Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong>, il répond aux messages et rendez-vous pour ce professionnel.
             </p>
           )}
           <div className={`mt-4 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-1" : "sm:grid-cols-2"}`}>

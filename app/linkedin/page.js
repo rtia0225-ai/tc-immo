@@ -7,7 +7,7 @@ import Link from "next/link";
 export const metadata = {
   title: "Construire en Côte d'Ivoire, depuis l'étranger",
   description:
-    "TCHolding-Immo connecte la diaspora ivoirienne à des artisans vérifiés en Côte d'Ivoire : paiement sécurisé par étapes, suivi de chantier à distance.",
+    "TCHolding-Immo connecte la diaspora ivoirienne à des professionnels vérifiés en Côte d'Ivoire : paiement sécurisé par étapes, suivi de chantier à distance.",
 };
 
 const POINTS = [
@@ -48,7 +48,7 @@ export default function LinkedInLandingPage() {
             Construisez chez vous, en toute sécurité, depuis n'importe où
           </h1>
           <p className="max-w-md text-base text-white/90">
-            TCHolding-Immo connecte la diaspora ivoirienne à des artisans vérifiés en Côte d'Ivoire — pour construire ou rénover sans être sur place.
+            TCHolding-Immo connecte la diaspora ivoirienne à des professionnels vérifiés en Côte d'Ivoire — pour construire ou rénover sans être sur place.
           </p>
           <Link
             href="/"

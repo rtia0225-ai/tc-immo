@@ -11,7 +11,7 @@ const ITEMS = [
   },
   {
     image: "/icons-trust/award.png",
-    title: "Artisans vérifiés",
+    title: "Professionnels vérifiés",
     text: "Chaque prestataire est audité (dont vérification RCCM) avant d'être référencé sur la plateforme.",
   },
   {

@@ -281,7 +281,7 @@ export default async function DashboardPage({ searchParams }) {
             </div>
             <div>
               <p className="font-heading font-bold">Bonjour, {profile?.full_name}</p>
-              <p className="text-xs text-white/70">Compte {isArtisan ? "artisan" : "client"}</p>
+              <p className="text-xs text-white/70">Compte {isArtisan ? "professionnel" : "client"}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

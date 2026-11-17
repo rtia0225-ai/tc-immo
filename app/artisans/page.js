@@ -5,8 +5,8 @@ import CitySelect from "@/components/CitySelect";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
 
 export const metadata = {
-  title: "Trouver un artisan vérifié en Côte d'Ivoire",
-  description: "Maçons, électriciens, plombiers, architectes, géomètres... Recherchez parmi les artisans et professionnels vérifiés de TCHolding-Immo, par métier et par ville.",
+  title: "Trouver un professionnel vérifié en Côte d'Ivoire",
+  description: "Maçons, électriciens, plombiers, architectes, géomètres... Recherchez parmi les professionnels vérifiés de TCHolding-Immo, par métier et par ville.",
 };
 
 // searchParams renvoie une chaîne s'il n'y a qu'une valeur, un tableau
@@ -92,12 +92,12 @@ export default async function ArtisansPage({ searchParams }) {
       .slice(0, 3);
   }
 
-  const resultCountLabel = `${artisans.length} artisan${artisans.length > 1 ? "s" : ""} trouvé${artisans.length > 1 ? "s" : ""}`;
+  const resultCountLabel = `${artisans.length} professionnel${artisans.length > 1 ? "s" : ""} trouvé${artisans.length > 1 ? "s" : ""}`;
 
   return (
     <div className="bg-[#F8F6F1]">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="font-heading text-2xl font-bold text-ink">Trouver un artisan</h1>
+        <h1 className="font-heading text-2xl font-bold text-ink">Trouver un professionnel</h1>
 
         {/* Bandeau vert reprenant la forme de la barre de recherche de référence,
             sans le bloc titre/sous-titre : juste la barre blanche arrondie avec les
@@ -150,7 +150,7 @@ export default async function ArtisansPage({ searchParams }) {
         {!user && (
           <div className="mt-6 flex flex-col items-center justify-between gap-3 rounded-lg bg-brand p-4 text-white sm:flex-row">
             <p className="text-sm font-medium">
-              Crée un compte pour contacter un artisan, prendre rendez-vous ou démarrer un projet.
+              Crée un compte pour contacter un professionnel, prendre rendez-vous ou démarrer un projet.
             </p>
             <Link
               href="/auth/signup"
@@ -173,7 +173,7 @@ export default async function ArtisansPage({ searchParams }) {
         </div>
 
         {artisans.length === 0 ? (
-          <p className="mt-10 text-gray-500">Aucun artisan ne correspond à votre recherche.</p>
+          <p className="mt-10 text-gray-500">Aucun professionnel ne correspond à votre recherche.</p>
         ) : (
           <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {artisans.map((a) => {

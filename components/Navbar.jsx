@@ -147,7 +147,7 @@ export default function Navbar({ user, isAdmin }) {
                 <>
                   <div className="my-1 border-t border-gray-100" />
                   <Link href="/admin/artisans" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                    Admin : Artisans
+                    Admin : Professionnels
                   </Link>
                   <Link href="/admin/pending" className="rounded px-2 py-2 font-bold hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                     Admin : Inscriptions en attente
