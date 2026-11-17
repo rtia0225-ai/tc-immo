@@ -110,7 +110,7 @@ export default async function ConversationPage({ params, searchParams }) {
   );
 
   return (
-    <div className="mx-auto flex h-[80vh] max-w-3xl flex-col px-4 py-4">
+    <div className="mx-auto flex h-[80vh] max-w-6xl flex-col px-4 py-4">
       {conversation?.regarding?.profiles?.full_name && (
         <p className="mb-2 text-sm text-gray-500">
           Au sujet de : <strong className="text-ink">{conversation.regarding.profiles.full_name}</strong>
