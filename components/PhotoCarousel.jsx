@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 
-export default function PhotoCarousel({ photos }) {
+export default function PhotoCarousel({ photos, fullBleed = false }) {
   const [index, setIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="mt-3 flex h-48 items-center justify-center rounded-lg bg-gray-100 text-sm text-gray-400">
+      <div
+        className={`flex h-64 items-center justify-center bg-gray-100 text-sm text-gray-400 ${
+          fullBleed ? "" : "mt-3 rounded-lg"
+        }`}
+      >
         Aucune photo pour le moment
       </div>
     );
@@ -17,15 +21,16 @@ export default function PhotoCarousel({ photos }) {
   const goPrev = () => setIndex((i) => (i === 0 ? photos.length - 1 : i - 1));
   const goNext = () => setIndex((i) => (i === photos.length - 1 ? 0 : i + 1));
   const current = photos[index];
+  const roundedClass = fullBleed ? "" : "rounded-xl";
 
   return (
     <>
-      <div className="relative mt-3">
+      <div className={`relative ${fullBleed ? "" : "mt-3"}`}>
         {current.media_type === "video" ? (
           <video
             src={current.photo_url}
             controls
-            className="h-64 w-full rounded-xl bg-black object-contain"
+            className={`h-64 w-full bg-black object-contain ${roundedClass}`}
           />
         ) : (
           <button
@@ -38,7 +43,7 @@ export default function PhotoCarousel({ photos }) {
             <img
               src={current.photo_url}
               alt={current.caption || "Réalisation"}
-              className="h-64 w-full rounded-xl object-cover"
+              className={`h-64 w-full object-cover ${roundedClass}`}
             />
           </button>
         )}

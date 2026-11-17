@@ -110,9 +110,17 @@ export default async function ArtisanProfilePage({ params }) {
   }
 
   return (
+    <div className="bg-[#F8F6F1]">
     <div className="mx-auto max-w-6xl px-4 py-12">
+      <Link href="/artisans" className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-brand">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M15 18 9 12l6-6" />
+        </svg>
+        Retour à la liste
+      </Link>
+
       {/* Plaquette de présentation, séparée de la barre de navigation */}
-      <div className="mt-2 flex flex-col items-center gap-4 rounded-2xl bg-forest p-6 text-center text-white sm:flex-row sm:p-8 sm:text-left">
+      <div className="mt-3 flex flex-col items-center gap-4 rounded-2xl bg-forest p-6 text-center text-white sm:flex-row sm:p-8 sm:text-left">
         {artisan.profiles?.avatar_url ? (
           <div className="relative shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -266,9 +274,11 @@ export default async function ArtisanProfilePage({ params }) {
             </div>
           )}
 
-          <div className="rounded-lg bg-white shadow-card p-6">
-            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Galerie de réalisations</p>
-            <PhotoCarousel photos={photos} />
+          <div className="overflow-hidden rounded-lg bg-white shadow-card">
+            <p className="p-6 pb-0 text-xs font-bold uppercase tracking-wide text-gray-400">Galerie de réalisations</p>
+            <div className="mt-4">
+              <PhotoCarousel photos={photos} fullBleed />
+            </div>
           </div>
 
           {/* Avis */}
@@ -293,6 +303,7 @@ export default async function ArtisanProfilePage({ params }) {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
