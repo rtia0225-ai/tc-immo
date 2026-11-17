@@ -92,21 +92,34 @@ export default async function ArtisanProfilePage({ params }) {
     return <p className="px-4 py-12">Artisan introuvable.</p>;
   }
 
+  const firstName = (artisan.profiles?.full_name || "").trim().split(/\s+/)[0] || "Professionnel";
+  const ratings = (reviews || []).map((r) => r.rating).filter((r) => typeof r === "number");
+  const avgRating = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+  const filledStars = Math.round(avgRating);
+
+  // Texte "à savoir" condensé en une ou deux phrases courtes, pour ne pas
+  // noyer la page sous le texte — le détail complet reste discuté avec
+  // l'artisan au moment de la négociation.
+  let aSavoirText;
+  if (SINGLE_INSTALLMENT_TRADES[artisan.trade]) {
+    aSavoirText = `Paiement en une fois, à la livraison du ${SINGLE_INSTALLMENT_TRADES[artisan.trade]}. Les frais administratifs se règlent au fur et à mesure.`;
+  } else if (FINAL_DOCUMENT_TRADES[artisan.trade]) {
+    aSavoirText = `Plusieurs étapes, la dernière étant la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}. Nombre de versements à discuter avec le professionnel.`;
+  } else {
+    aSavoirText = `Échéancier d'au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, à définir avec l'artisan selon l'avancement des travaux.`;
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <div className="overflow-hidden rounded-lg shadow-card">
-        <PhotoCarousel photos={photos} />
-      </div>
-
-      {/* Identité */}
-      <div className="mt-6 flex items-start gap-4 rounded-lg bg-white shadow-card p-6">
+      {/* Plaquette de présentation, séparée de la barre de navigation */}
+      <div className="mt-2 flex flex-col items-center gap-4 rounded-2xl bg-forest p-6 text-center text-white sm:flex-row sm:p-8 sm:text-left">
         {artisan.profiles?.avatar_url ? (
           <div className="relative shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${artisan.profiles.avatar_url}?v=${Date.now()}`}
-              alt={artisan.profiles?.full_name}
-              className="h-28 w-28 rounded-full object-cover shadow-md ring-2 ring-offset-2 ring-brand/30"
+              alt={firstName}
+              className="h-28 w-28 rounded-xl object-cover shadow-md"
             />
             {AVATAR_PHOTO_CREDITS[artisan.id] && (
               <p className="pointer-events-none absolute inset-x-0 bottom-0.5 text-center text-[6px] leading-none text-white/60 [text-shadow:0_1px_1px_rgba(0,0,0,0.5)]">
@@ -115,106 +128,62 @@ export default async function ArtisanProfilePage({ params }) {
             )}
           </div>
         ) : (
-          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-gray-50 font-heading text-2xl font-bold text-gray-300 shadow-md ring-2 ring-offset-2 ring-brand/30">
-            {artisan.profiles?.full_name?.slice(0, 2).toUpperCase()}
+          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-white/10 font-heading text-2xl font-bold text-white shadow-md">
+            {firstName.slice(0, 2).toUpperCase()}
           </div>
         )}
         <div>
-          <h1 className="font-heading text-2xl font-bold text-ink">{artisan.profiles?.full_name}</h1>
-          <p className="mt-0.5 text-sm text-gray-500">{artisan.trade}</p>
+          <h1 className="font-heading text-2xl font-bold">{firstName}</h1>
+          <p className="mt-0.5 text-sm text-forest-light">{artisan.trade}</p>
 
-          {/* Où se trouve le professionnel : d'abord sa ville de base, puis
-              sa mobilité (disponible partout, ou villes précises en plus). */}
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-ink">
+          <div className="mt-2 flex items-center justify-center gap-1 sm:justify-start">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <svg
+                key={n}
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill={n <= filledStars ? "#f5a623" : "none"}
+                stroke={n <= filledStars ? "#f5a623" : "rgba(255,255,255,0.5)"}
+                strokeWidth="1.5"
+              >
+                <path d="M12 2.5 14.9 8.6l6.6.9-4.8 4.7 1.1 6.6L12 17.8l-5.8 3 1.1-6.6-4.8-4.7 6.6-.9Z" />
+              </svg>
+            ))}
+            <span className="ml-1 text-sm font-semibold">{avgRating.toFixed(1)}</span>
+            <span className="text-xs text-forest-light">({reviews?.length || 0} avis)</span>
+          </div>
+
+          {/* Où est-ce qu'il est disponible */}
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold">
               📍 {artisan.profiles?.city || "Côte d'Ivoire"}
             </span>
             {artisan.mobility_scope === "all" ? (
-              <span className="inline-flex items-center rounded-full bg-forest/10 px-2.5 py-1 text-xs font-semibold text-forest">
+              <span className="inline-flex items-center rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold">
                 Disponible partout
               </span>
             ) : (
               artisan.mobility_cities
                 ?.filter((c) => c !== artisan.profiles?.city)
                 .map((c) => (
-                  <span key={c} className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                  <span key={c} className="inline-flex items-center rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium">
                     {c}
                   </span>
                 ))
             )}
+            {artisan.years_experience ? (
+              <span className="inline-flex items-center rounded-full bg-white/15 px-2.5 py-1 text-xs font-medium">
+                {artisan.years_experience} an{artisan.years_experience > 1 ? "s" : ""} d&apos;expérience
+              </span>
+            ) : null}
+            {artisan.is_verified && (
+              <span className="inline-flex items-center rounded-full bg-gold px-2.5 py-1 text-xs font-bold">
+                Profil vérifié
+              </span>
+            )}
           </div>
-
-          {artisan.is_verified && (
-            <span className="mt-2 inline-block rounded bg-forest px-2 py-0.5 text-xs font-bold text-white">
-              Profil vérifié
-            </span>
-          )}
         </div>
-      </div>
-
-      {/* Chiffres clés */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg bg-white shadow-card p-4 text-center">
-          <p className="font-heading text-2xl font-bold text-ink">{artisan.years_experience || 0}</p>
-          <p className="text-xs text-gray-500">années d'expérience</p>
-        </div>
-        <div className="rounded-lg bg-white shadow-card p-4 text-center">
-          <p className="font-heading text-2xl font-bold text-ink">{artisan.projects_completed || 0}</p>
-          <p className="text-xs text-gray-500">projets réalisés sur la plateforme</p>
-        </div>
-      </div>
-
-      {/* Règle de paiement à connaître avant toute négociation */}
-      <div className="mt-4 rounded-lg bg-brand-light p-4 text-sm text-brand-dark">
-        {SINGLE_INSTALLMENT_TRADES[artisan.trade] ? (
-          <p>
-            <strong>À savoir avant de négocier :</strong> la main d'œuvre de ce professionnel (ses honoraires) se paie en une seule fois, uniquement à la livraison du {SINGLE_INSTALLMENT_TRADES[artisan.trade]} sur la plateforme. Les frais administratifs liés au dossier (dépôts, taxes, timbres...) sont distincts : ils se règlent au fur et à mesure de l'avancement réel des démarches, pas en une fois.
-          </p>
-        ) : FINAL_DOCUMENT_TRADES[artisan.trade] ? (
-          <p>
-            <strong>À savoir avant de négocier :</strong> ce métier se déroule en plusieurs étapes bien réelles (pas un paiement unique) — la dernière étant la livraison du {FINAL_DOCUMENT_TRADES[artisan.trade]}, vérifiée automatiquement avant de débloquer son paiement. Le nombre de versements (1, 2 ou 3 en général) et leur répartition sont à discuter avec le professionnel, il n'y a pas de minimum imposé.
-          </p>
-        ) : (
-          <div>
-            <p>
-              <strong>À savoir avant de négocier :</strong> un échéancier de paiement en au moins {MIN_INSTALLMENTS_OTHER_TRADES} étapes est requis pour ce métier. Prévoyez ce découpage dans votre discussion avec l'artisan.
-            </p>
-            <p className="mt-2">
-              {artisan.trade === "Maçonnerie" ? (
-                <>
-                  <strong>Exemple pour la maçonnerie :</strong> 20% après les fondations, 20% après l'élévation des murs, 20% après la dalle, 20% après le chaînage/poteaux, 20% après les enduits et finitions.
-                </>
-              ) : (
-                <>
-                  <strong>Découpe selon ce métier précis</strong>, à ne pas mélanger avec le travail d'un autre artisan du même projet.
-                </>
-              )}{" "}
-              Autre possibilité : un paiement régulier (chaque semaine ou chaque mois) selon les jours réellement travaillés.
-            </p>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4 rounded-lg bg-white shadow-card p-6">
-        {artisan.services && artisan.services.length > 0 && (
-          <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Services proposés</p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {artisan.services.map((s) => (
-                <span key={s} className="rounded bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                  {s}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {artisan.bio && (
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Pourquoi moi</p>
-            <p className="mt-1 text-sm leading-relaxed text-gray-600">{artisan.bio}</p>
-          </div>
-        )}
       </div>
 
       {/* Actions, un artisan ne peut ni se contacter ni démarrer un
@@ -236,7 +205,7 @@ export default async function ArtisanProfilePage({ params }) {
               Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong>, il répond aux messages et rendez-vous pour cet artisan.
             </p>
           )}
-          <div className={`mt-2 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+          <div className={`mt-4 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
             <Link
               href={
                 viewerIsAdmin
@@ -269,11 +238,59 @@ export default async function ArtisanProfilePage({ params }) {
         </>
       )}
 
-      {/* Avis */}
-      <div className="mt-6 rounded-lg bg-white shadow-card p-6">
-        <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Avis</p>
-        <div className="mt-3">
-          <ReviewList reviews={reviews} />
+      {/* Colonne principale (services, description, galerie, avis) +
+          colonne latérale (simulation, puis à savoir condensé). */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          {(artisan.services?.length > 0 || artisan.bio) && (
+            <div className="rounded-lg bg-white shadow-card p-6">
+              {artisan.services && artisan.services.length > 0 && (
+                <div className={artisan.bio ? "mb-5" : ""}>
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Services proposés</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {artisan.services.map((s) => (
+                      <span key={s} className="rounded bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {artisan.bio && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Description</p>
+                  <p className="mt-1 text-sm leading-relaxed text-gray-600">{artisan.bio}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="rounded-lg bg-white shadow-card p-6">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Galerie de réalisations</p>
+            <PhotoCarousel photos={photos} />
+          </div>
+
+          {/* Avis */}
+          <div className="rounded-lg bg-white shadow-card p-6">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Avis clients ({reviews?.length || 0})</p>
+            <div className="mt-3">
+              <ReviewList reviews={reviews} />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-lg bg-white shadow-card p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Simulation</p>
+            <div className="mt-3 flex h-40 items-center justify-center rounded-lg border border-dashed border-gray-200 text-center text-xs text-gray-400">
+              Simulation à venir
+            </div>
+          </div>
+
+          <div className="rounded-lg bg-brand-light p-4 text-xs leading-relaxed text-brand-dark">
+            <strong>À savoir avant de négocier :</strong> {aSavoirText}
+          </div>
         </div>
       </div>
     </div>
