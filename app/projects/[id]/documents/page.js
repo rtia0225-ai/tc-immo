@@ -90,7 +90,7 @@ export default async function ProjectDocumentsPage({ params }) {
     .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-8">
       <Link href={`/projects/${projectId}`} className="text-sm text-gray-500 hover:text-brand">
         ← Retour au projet
       </Link>

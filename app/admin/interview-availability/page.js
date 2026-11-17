@@ -29,7 +29,7 @@ export default async function InterviewAvailabilityPage({ searchParams }) {
   return (
     <div>
       <AdminNav current="/admin/interview-availability" />
-      <div className="mx-auto max-w-xl px-4 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="font-heading text-2xl font-bold text-ink">Mes créneaux d'entretien</h1>
       <p className="mt-1 text-sm text-gray-500">
         Tous les métiers sauf Maçonnerie doivent réserver un entretien avant validation de leur profil.

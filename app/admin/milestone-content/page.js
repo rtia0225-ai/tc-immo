@@ -25,7 +25,7 @@ export default async function MilestoneContentPage({ searchParams }) {
   return (
     <div>
       <AdminNav current="/admin/milestone-content" />
-      <div className="mx-auto max-w-2xl px-4 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-10">
         <h1 className="font-heading text-2xl font-bold text-ink">Contenu pédagogique par étape</h1>
         <p className="mt-1 text-sm text-gray-500">
           Pour chaque phase du chantier, la vidéo et le PDF renseignés ici s'affichent automatiquement sur tous les projets qui ont une étape de ce nom.

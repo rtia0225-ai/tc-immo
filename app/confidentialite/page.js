@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function ConfidentialitePage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-14">
+    <div className="mx-auto max-w-6xl px-4 py-14">
       <h1 className="font-heading text-3xl font-bold text-ink">Politique de confidentialité</h1>
       <p className="mt-2 text-sm italic text-gray-500">
         Phase de pré-ouverture — Dernière mise à jour : 06/10/2026

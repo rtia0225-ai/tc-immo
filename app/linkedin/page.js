@@ -60,7 +60,7 @@ export default function LinkedInLandingPage() {
       </section>
 
       {/* Pourquoi TCHolding-Immo — 3 points, pas plus */}
-      <section className="mx-auto max-w-3xl px-4 py-14">
+      <section className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="text-center font-heading text-xl font-bold text-ink sm:text-2xl">
           Construire à distance n'est plus un pari
         </h2>

@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function CguPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-14">
+    <div className="mx-auto max-w-6xl px-4 py-14">
       <h1 className="font-heading text-3xl font-bold text-ink">Conditions Générales d'Utilisation</h1>
       <p className="mt-2 text-sm italic text-gray-500">
         Site tcholding-immo.com — Phase de pré-ouverture — Version en vigueur au 06/10/2026

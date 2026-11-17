@@ -18,7 +18,7 @@ export default function AProposPage() {
           fabrikasimf / Freepik
         </p>
         <div className="absolute inset-x-0 bottom-0 px-4 pb-6">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h1 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
               À propos de TCHolding-Immo
             </h1>
@@ -31,7 +31,7 @@ export default function AProposPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 pb-14 pt-8">
+      <div className="mx-auto max-w-6xl px-4 pb-14 pt-8">
         <h2 className="font-heading text-xl font-bold text-ink">Le constat de départ</h2>
         <p className="mt-3 text-justify text-gray-600 leading-relaxed">
           Construire une maison en Côte d'Ivoire quand on vit à l'étranger est un pari risqué. On ne peut pas vérifier le sérieux d'un professionnel avant de lui confier un chantier, on ne peut pas se déplacer chaque semaine pour constater l'avancement des travaux, et on entend trop souvent la même histoire : un proche chargé de surveiller le chantier, un professionnel payé d'avance qui disparaît, un projet qui prend deux fois plus de temps et deux fois plus cher que prévu. Ce n'est pas un problème de volonté, c'est un problème d'outils.

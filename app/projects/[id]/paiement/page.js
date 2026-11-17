@@ -73,7 +73,7 @@ export default async function ProjectPaymentPage({ params }) {
     .eq("project_id", id);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-8">
       <Link href={`/projects/${id}`} className="text-sm text-gray-500 hover:text-brand">
         ← Retour au projet
       </Link>

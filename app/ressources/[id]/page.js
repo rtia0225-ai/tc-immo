@@ -62,7 +62,7 @@ export default async function RessourceArticlePage({ params }) {
         <img src={section.image_url} alt={section.title} className="h-64 w-full object-cover sm:h-80" />
       )}
 
-      <div className="mx-auto max-w-2xl px-4 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-10">
         <Link href="/ressources" className="text-sm text-brand hover:underline">
           ← Toutes les ressources
         </Link>

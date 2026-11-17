@@ -39,7 +39,7 @@ export default async function RessourcesPage() {
           jcomp / Freepik
         </p>
         <div className="absolute inset-x-0 bottom-0 px-4 pb-6">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h1 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
               Ressources
             </h1>
@@ -50,7 +50,7 @@ export default async function RessourcesPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
         {sections.length === 0 && <p className="text-sm text-gray-500">Contenu à venir.</p>}
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

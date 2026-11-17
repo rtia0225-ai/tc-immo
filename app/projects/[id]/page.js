@@ -254,7 +254,7 @@ export default async function ProjectPage({ params, searchParams }) {
   const educationByTitle = Object.fromEntries((educationRows || []).map((r) => [r.phase_title, r]));
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-1 text-2xl font-bold text-brand-dark">
         {project.title}
       </h1>

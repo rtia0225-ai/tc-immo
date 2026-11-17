@@ -50,7 +50,7 @@ export default async function AdminArtisanDetailPage({ params }) {
   const p = artisan.profiles;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-10">
       <Link href="/admin/artisans" className="text-sm text-brand hover:underline">
         ← Tous les professionnels
       </Link>

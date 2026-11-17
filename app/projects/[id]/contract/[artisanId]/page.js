@@ -50,7 +50,7 @@ export default async function ContractPage({ params, searchParams }) {
   const bothSigned = !!contract.client_signed_at && !!contract.artisan_signed_at;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="font-heading text-2xl font-bold">Contrat, {project.title}</h1>
       <p className="mt-1 text-sm text-gray-500">
         Avec {artisan?.profiles?.full_name} ({artisan?.trade})

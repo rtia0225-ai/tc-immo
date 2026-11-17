@@ -199,7 +199,7 @@ export default async function CommentCaMarchePage() {
           bearfotos / Freepik
         </p>
         <div className="absolute inset-x-0 bottom-0 px-4 pb-6">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <h1 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
               Comment ça marche
             </h1>
@@ -210,7 +210,7 @@ export default async function CommentCaMarchePage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-16">
           {(sections || []).map((s) => {
             const Layout = pickLayout(s.order_index);
