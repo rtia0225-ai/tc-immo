@@ -97,18 +97,13 @@ export default async function ArtisansPage({ searchParams }) {
   return (
     <div className="bg-[#F8F6F1]">
       <div className="mx-auto max-w-6xl px-4 py-10">
-        {/* Bandeau vert reprenant la forme exacte de la barre de recherche de référence :
-            titre + sous-titre centrés, puis une barre blanche arrondie contenant les
-            filtres et le bouton "Rechercher", avec le bouton "+ Ajouter ma fiche" à côté. */}
-        <div className="rounded-2xl bg-forest px-5 py-10 text-center text-white sm:px-10">
-          <h1 className="font-heading text-2xl font-bold sm:text-3xl">Annuaire des Pros BTP</h1>
-          <p className="mt-2 text-sm text-forest-light sm:text-base">
-            Trouvez un artisan qualifié près de chez vous en Côte d&apos;Ivoire
-          </p>
-
+        {/* Bandeau vert reprenant la forme de la barre de recherche de référence,
+            sans le bloc titre/sous-titre : juste la barre blanche arrondie avec les
+            filtres et le bouton "Rechercher", et le bouton "+ Ajouter ma fiche". */}
+        <div className="rounded-2xl bg-forest px-5 py-5 text-center text-white sm:px-8">
           <form
             action="/artisans"
-            className="mx-auto mt-6 flex max-w-4xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-card sm:flex-row sm:items-stretch sm:gap-0 sm:rounded-full"
+            className="mx-auto flex max-w-4xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-card sm:flex-row sm:items-stretch sm:gap-0 sm:rounded-full"
           >
             <div className="sm:flex-1">
               <MultiSelectDropdown
@@ -200,10 +195,10 @@ export default async function ArtisansPage({ searchParams }) {
                       <img
                         src={`${a.profiles.avatar_url}?v=${Date.now()}`}
                         alt={firstName}
-                        className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-40 w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-32 w-full items-center justify-center bg-brand-light text-brand">
+                      <div className="flex h-40 w-full items-center justify-center bg-brand-light text-brand">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                           <circle cx="12" cy="8" r="4" />
                           <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" />
