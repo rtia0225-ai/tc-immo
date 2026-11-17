@@ -237,26 +237,19 @@ export default async function ArtisanProfilePage({ params }) {
               Représenté par <strong className="text-ink">{artisan.technician.profiles?.full_name}</strong>, il répond aux messages et rendez-vous pour cet artisan.
             </p>
           )}
-          <div className={`mt-4 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
-            <Link
-              href={
-                viewerIsAdmin
-                  ? `/appointments/new?artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`
-                  : `/interet?type=appointment&artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`
-              }
-              className="rounded-md bg-brand px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-dark"
-            >
-              Rendez-vous visio
-            </Link>
+          <div className={`mt-4 grid gap-3 ${viewerIsArtisan ? "sm:grid-cols-1" : "sm:grid-cols-2"}`}>
+            {/* Un seul bouton "Contacter" : il atterrit directement dans
+                l'espace de conversation (messages, rendez-vous, appeler),
+                au lieu de boutons séparés par type d'action. */}
             <Link
               href={
                 viewerIsAdmin
                   ? `/messages/new?artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`
-                  : `/interet?type=message&artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`
+                  : `/interet?type=contact&artisan=${artisan.technician?.id || artisan.id}&regarding=${artisan.id}`
               }
-              className="rounded-md bg-gray-100 px-4 py-3 text-center text-sm font-bold text-ink hover:bg-gray-200"
+              className="rounded-md bg-brand px-4 py-3 text-center text-sm font-bold text-white hover:bg-brand-dark"
             >
-              Message
+              Contacter
             </Link>
             {(!viewerIsArtisan || viewerIsAdmin) && (
               <Link

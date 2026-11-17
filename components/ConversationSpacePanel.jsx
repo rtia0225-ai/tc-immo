@@ -112,8 +112,8 @@ export default function ConversationSpacePanel({ conversationId, professionals, 
           onClick={() => setShowCallLink((s) => !s)}
           className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 hover:bg-gray-100"
         >
-          <span className="text-2xl" aria-hidden>📹</span>
-          <span className="text-xs font-semibold text-ink">Appel vidéo</span>
+          <span className="text-2xl" aria-hidden>📞</span>
+          <span className="text-xs font-semibold text-ink">Appeler</span>
         </button>
       </div>
 
