@@ -93,7 +93,7 @@ export default async function NewProjectPage({ searchParams }) {
         </p>
       )}
       <p className="mt-3 text-sm text-gray-500">
-        Décris le projet et le terrain. <strong className="text-ink">C'est ensuite {artisan?.profiles?.full_name || "le professionnel"} qui remplira l'échéancier de paiement</strong> (étapes, montants, pourcentages) selon son métier — tu le valideras avant que le contrat ne soit signé.
+        {artisan?.profiles?.full_name || "Le professionnel"} proposera ensuite l'échéancier de paiement, que tu valideras avant la signature du contrat.
       </p>
 
       {searchParams?.error && (
@@ -126,10 +126,7 @@ export default async function NewProjectPage({ searchParams }) {
 
         <div className="border-t border-gray-100 pt-4">
           <p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
-            Informations sur le terrain
-          </p>
-          <p className="mb-3 text-xs text-gray-500">
-            Utile notamment pour le géomètre, à remplir avec ce que vous savez, vous pourrez compléter plus tard.
+            Le terrain
           </p>
 
           <div className="flex flex-col gap-3">
@@ -143,47 +140,54 @@ export default async function NewProjectPage({ searchParams }) {
             </div>
 
             <GpsCaptureButton latName="terrainLatitude" lngName="terrainLongitude" />
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">Type de document foncier</label>
-              <select name="terrainDocumentType" defaultValue="" className="w-full rounded-lg border border-gray-300 p-2 text-sm">
-                <option value="">Je ne sais pas / à préciser</option>
-                <option value="Attestation villageoise / Lettre d'attribution">Attestation villageoise / Lettre d'attribution</option>
-                <option value="ACD (Arrêté de Concession Définitive)">ACD (Arrêté de Concession Définitive)</option>
-                <option value="Titre Foncier">Titre Foncier</option>
-                <option value="Autre">Autre</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="mb-1 block text-sm font-medium">Numéro de référence</label>
-                <input
-                  name="terrainReferenceNumber"
-                  placeholder="ex: n° de lot"
-                  className="w-full rounded-lg border border-gray-300 p-2"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">Superficie</label>
-                <input
-                  name="terrainArea"
-                  placeholder="ex: 500 m²"
-                  className="w-full rounded-lg border border-gray-300 p-2"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">Notes complémentaires</label>
-              <textarea
-                name="terrainNotes"
-                rows={2}
-                placeholder="Tout ce qui peut aider à situer ou comprendre le terrain"
-                className="w-full rounded-lg border border-gray-300 p-2"
-              />
-            </div>
           </div>
+
+          <details className="group mt-3">
+            <summary className="cursor-pointer text-sm font-medium text-forest hover:underline">
+              + Ajouter d'autres détails sur le terrain (optionnel)
+            </summary>
+            <div className="mt-3 flex flex-col gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Type de document foncier</label>
+                <select name="terrainDocumentType" defaultValue="" className="w-full rounded-lg border border-gray-300 p-2 text-sm">
+                  <option value="">Je ne sais pas / à préciser</option>
+                  <option value="Attestation villageoise / Lettre d'attribution">Attestation villageoise / Lettre d'attribution</option>
+                  <option value="ACD (Arrêté de Concession Définitive)">ACD (Arrêté de Concession Définitive)</option>
+                  <option value="Titre Foncier">Titre Foncier</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">Numéro de référence</label>
+                  <input
+                    name="terrainReferenceNumber"
+                    placeholder="ex: n° de lot"
+                    className="w-full rounded-lg border border-gray-300 p-2"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">Superficie</label>
+                  <input
+                    name="terrainArea"
+                    placeholder="ex: 500 m²"
+                    className="w-full rounded-lg border border-gray-300 p-2"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">Notes complémentaires</label>
+                <textarea
+                  name="terrainNotes"
+                  rows={2}
+                  placeholder="Tout ce qui peut aider à situer ou comprendre le terrain"
+                  className="w-full rounded-lg border border-gray-300 p-2"
+                />
+              </div>
+            </div>
+          </details>
         </div>
 
         <SubmitButton
