@@ -26,7 +26,7 @@ export async function requestAppointment(formData) {
   if (user.id === artisanId) {
     redirect(
       `${projectId ? `/projects/${projectId}` : "/appointments"}?error=${encodeURIComponent(
-        "Impossible de prendre rendez-vous avec soi-même — vérifie que tu es bien connecté sur le bon compte (client ou professionnel)."
+        "Impossible de prendre rendez-vous avec soi-même. Vérifie que tu es bien connecté sur le bon compte (client ou professionnel)."
       )}`
     );
   }

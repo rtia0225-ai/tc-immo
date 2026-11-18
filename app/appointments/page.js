@@ -68,7 +68,7 @@ export default async function AppointmentsPage() {
                   </span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {a.call_type ? `${CALL_TYPE_LABELS[a.call_type] || "Appel"} — ` : ""}
+                  {a.call_type ? `${CALL_TYPE_LABELS[a.call_type] || "Appel"}. ` : ""}
                   Avec{" "}
                   {isArtisan
                     ? a.client?.full_name

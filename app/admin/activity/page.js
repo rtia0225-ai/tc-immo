@@ -93,7 +93,7 @@ export default async function ClientActivityPage({ searchParams }) {
   rows.forEach((e) => {
     const key = e.user_id;
     if (!countByClient[key]) {
-      countByClient[key] = { id: key, name: e.client?.full_name || "—", count: 0 };
+      countByClient[key] = { id: key, name: e.client?.full_name || "N/A", count: 0 };
     }
     countByClient[key].count += 1;
   });

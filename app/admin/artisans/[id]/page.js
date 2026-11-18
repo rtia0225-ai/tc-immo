@@ -108,19 +108,19 @@ export default async function AdminArtisanDetailPage({ params }) {
       <div className="mt-6 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Informations privées</p>
         <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
-          <div><dt className="text-gray-400">Téléphone</dt><dd>{p?.phone || "—"}</dd></div>
-          <div><dt className="text-gray-400">Ville</dt><dd>{p?.city || "—"}</dd></div>
-          <div><dt className="text-gray-400">Contact d'un proche</dt><dd>{p?.emergency_contact_name || "—"}</dd></div>
-          <div><dt className="text-gray-400">Téléphone du proche</dt><dd>{p?.emergency_contact_phone || "—"}</dd></div>
-          <div><dt className="text-gray-400">Mobile Money</dt><dd>{artisan.mobile_money_operator} {artisan.mobile_money_number || "—"}</dd></div>
-          <div><dt className="text-gray-400">Inscrit le</dt><dd>{p?.created_at ? new Date(p.created_at).toLocaleDateString("fr-FR") : "—"}</dd></div>
+          <div><dt className="text-gray-400">Téléphone</dt><dd>{p?.phone || "N/A"}</dd></div>
+          <div><dt className="text-gray-400">Ville</dt><dd>{p?.city || "N/A"}</dd></div>
+          <div><dt className="text-gray-400">Contact d'un proche</dt><dd>{p?.emergency_contact_name || "N/A"}</dd></div>
+          <div><dt className="text-gray-400">Téléphone du proche</dt><dd>{p?.emergency_contact_phone || "N/A"}</dd></div>
+          <div><dt className="text-gray-400">Mobile Money</dt><dd>{artisan.mobile_money_operator} {artisan.mobile_money_number || "N/A"}</dd></div>
+          <div><dt className="text-gray-400">Inscrit le</dt><dd>{p?.created_at ? new Date(p.created_at).toLocaleDateString("fr-FR") : "N/A"}</dd></div>
         </dl>
 
         <div className="mt-4 border-t border-gray-100 pt-4">
           <dt className="text-xs text-gray-400">Position GPS (adresse fixe)</dt>
           {p?.home_latitude && p?.home_longitude ? (
             <dd className="mt-1 text-sm">
-              Capturée le {p.home_location_captured_at ? new Date(p.home_location_captured_at).toLocaleDateString("fr-FR") : "—"} ,{" "}
+              Capturée le {p.home_location_captured_at ? new Date(p.home_location_captured_at).toLocaleDateString("fr-FR") : "N/A"} ,{" "}
               <a
                 href={`https://www.google.com/maps?q=${p.home_latitude},${p.home_longitude}`}
                 target="_blank"
@@ -162,10 +162,10 @@ export default async function AdminArtisanDetailPage({ params }) {
       <div className="mt-4 rounded-lg bg-white shadow-card p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Profil professionnel</p>
         <dl className="mt-3 flex flex-col gap-2 text-sm">
-          <div><dt className="text-gray-400">Description</dt><dd>{artisan.bio || "—"}</dd></div>
+          <div><dt className="text-gray-400">Description</dt><dd>{artisan.bio || "N/A"}</dd></div>
           <div><dt className="text-gray-400">Expérience</dt><dd>{artisan.years_experience || 0} ans</dd></div>
-          <div><dt className="text-gray-400">Facteurs de tarification (non visible client)</dt><dd>{artisan.pricing_info || "—"}</dd></div>
-          <div><dt className="text-gray-400">Services</dt><dd>{(artisan.services || []).join(", ") || "—"}</dd></div>
+          <div><dt className="text-gray-400">Facteurs de tarification (non visible client)</dt><dd>{artisan.pricing_info || "N/A"}</dd></div>
+          <div><dt className="text-gray-400">Services</dt><dd>{(artisan.services || []).join(", ") || "N/A"}</dd></div>
           <div><dt className="text-gray-400">Mobilité</dt><dd>{artisan.mobility_scope === "all" ? "Toute la CI" : (artisan.mobility_cities || []).join(", ")}</dd></div>
         </dl>
       </div>

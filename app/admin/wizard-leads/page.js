@@ -5,7 +5,7 @@ import AdminNav from "@/components/AdminNav";
 // Récapitule, pour chaque jeu de réponses possible, ce que la personne a
 // indiqué dans le simulateur "Trouver ma démarche" (page d'accueil).
 function describeAnswers(answers) {
-  if (!answers || Object.keys(answers).length === 0) return "—";
+  if (!answers || Object.keys(answers).length === 0) return "N/A";
   const parts = [];
   if (answers.loti === "non") {
     parts.push("terrain non loti");
@@ -17,7 +17,7 @@ function describeAnswers(answers) {
     if (answers.construction === "simple") parts.push("maison simple");
     if (answers.construction === "grand") parts.push("grand bâtiment");
   }
-  return parts.join(", ") || "—";
+  return parts.join(", ") || "N/A";
 }
 
 export default async function WizardLeadsPage() {
@@ -44,7 +44,7 @@ export default async function WizardLeadsPage() {
     <div>
       <AdminNav current="/admin/wizard-leads" />
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="font-heading text-2xl font-bold text-ink">Rapport simulateur — e-mails collectés</h1>
+        <h1 className="font-heading text-2xl font-bold text-ink">Rapport simulateur : e-mails collectés</h1>
         <p className="mt-1 text-sm text-gray-500">
           Personnes ayant demandé le rapport détaillé depuis le simulateur "Trouver ma démarche" sur la page d'accueil.
         </p>

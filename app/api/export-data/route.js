@@ -69,7 +69,7 @@ export async function GET() {
     parts.push("Aucun projet démarré pour le moment.");
   }
   for (const p of projects || []) {
-    parts.push(`• ${p.title} — avec ${p.artisan?.full_name || "professionnel"}`);
+    parts.push(`• ${p.title}, avec ${p.artisan?.full_name || "professionnel"}`);
     parts.push(`  Statut : ${p.status} | Montant : ${p.amount} ${p.currency || ""}`);
     parts.push(`  Créé le ${formatDate(p.created_at)}`);
     if (p.terrain_location) parts.push(`  Terrain : ${p.terrain_location}${p.terrain_reference_number ? " (réf. " + p.terrain_reference_number + ")" : ""}`);
@@ -79,7 +79,7 @@ export async function GET() {
       parts.push("  Échéancier :");
       const sorted = [...p.project_milestones].sort((a, b) => a.order_index - b.order_index);
       for (const m of sorted) {
-        parts.push(`   - [${m.is_completed ? "Validée" : "En attente"}] ${m.title} (${m.payment_percentage}% — ${m.amount})`);
+        parts.push(`   - [${m.is_completed ? "Validée" : "En attente"}] ${m.title} (${m.payment_percentage}% : ${m.amount})`);
         if (m.completed_at) parts.push(`     Validée le ${formatDate(m.completed_at)}`);
         for (const d of m.milestone_deliverables || []) {
           for (const f of d.deliverable_files || []) {
@@ -104,7 +104,7 @@ export async function GET() {
     parts.push("Aucun rendez-vous pour le moment.");
   }
   for (const a of appointments || []) {
-    parts.push(`• ${formatDate(a.scheduled_at)} (${a.duration_minutes} min) avec ${a.artisan?.full_name || "professionnel"} — ${a.status}`);
+    parts.push(`• ${formatDate(a.scheduled_at)} (${a.duration_minutes} min) avec ${a.artisan?.full_name || "professionnel"}, ${a.status}`);
     if (a.notes) parts.push(`  Notes : ${a.notes}`);
   }
   parts.push("");

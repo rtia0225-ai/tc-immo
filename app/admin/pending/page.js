@@ -62,7 +62,7 @@ export default async function PendingAccountsPage() {
               <div>
                 <p className="text-sm font-bold text-ink">{p.full_name}</p>
                 <p className="text-xs text-gray-500">
-                  {p.role === "artisan" ? "Professionnel" : "Client"} · {p.city || "Ville non renseignée"} · {p.phone || "—"}
+                  {p.role === "artisan" ? "Professionnel" : "Client"} · {p.city || "Ville non renseignée"} · {p.phone || "N/A"}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-400">
                   Inscrit le {new Date(p.created_at).toLocaleDateString("fr-FR")}

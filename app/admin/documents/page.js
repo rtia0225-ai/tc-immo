@@ -48,7 +48,7 @@ export default async function AdminDocumentsPage() {
             <div key={d.id} className="rounded-lg bg-white shadow-card p-4">
               <p className="text-sm font-bold text-ink">{d.deliverable?.label} <span className="font-normal text-gray-400">({d.deliverable?.milestone?.title})</span></p>
               <p className="text-xs text-gray-500">
-                {d.deliverable?.milestone?.project?.title} — {d.deliverable?.milestone?.artisan?.profiles?.full_name} ({d.deliverable?.milestone?.artisan?.trade}) — client : {d.deliverable?.milestone?.project?.client?.full_name}
+                {d.deliverable?.milestone?.project?.title} : {d.deliverable?.milestone?.artisan?.profiles?.full_name} ({d.deliverable?.milestone?.artisan?.trade}), client : {d.deliverable?.milestone?.project?.client?.full_name}
               </p>
               {d.review_note && (
                 <p className="mt-1 text-xs italic text-gray-400">Raison de l'IA : {d.review_note}</p>
