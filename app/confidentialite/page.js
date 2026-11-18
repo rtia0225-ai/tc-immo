@@ -8,7 +8,7 @@ export default function ConfidentialitePage() {
     <div className="mx-auto max-w-6xl px-4 py-14">
       <h1 className="font-heading text-3xl font-bold text-ink">Politique de confidentialité</h1>
       <p className="mt-2 text-sm italic text-gray-500">
-        Phase de pré-ouverture — Dernière mise à jour : 06/10/2026
+        Phase de pré-ouverture, dernière mise à jour : 06/10/2026
       </p>
 
       <div className="mt-8 flex flex-col gap-7 text-sm leading-relaxed text-gray-700">

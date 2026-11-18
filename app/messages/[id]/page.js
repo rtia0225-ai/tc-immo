@@ -146,7 +146,7 @@ export default async function ConversationPage({ params, searchParams }) {
                   <div className="mt-1">
                     {m.video_scheduled_at && (
                       <p className="text-xs font-semibold">
-                        📅 RDV visio — {formatDateTime(m.video_scheduled_at)}
+                        📅 RDV visio : {formatDateTime(m.video_scheduled_at)}
                       </p>
                     )}
                     <a

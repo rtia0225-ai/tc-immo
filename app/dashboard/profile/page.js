@@ -380,7 +380,7 @@ export default async function ProfileEditPage({ searchParams }) {
             <div>
               <label className="mb-1 block text-sm font-medium">Facteurs qui jouent dans votre tarif</label>
               <p className="mb-1 text-xs text-gray-500">
-                Pas de prix ici — ce champ n'est pas visible par le client. Juste ce qui fait varier votre tarif, pour que vous ayez vous-même une idée claire en discutant avec lui (ex : expérience, taille de l'équipe, surface du chantier, type de matériaux...).
+                Pas de prix ici. Ce champ n'est pas visible par le client. Juste ce qui fait varier votre tarif, pour que vous ayez vous-même une idée claire en discutant avec lui (ex : expérience, taille de l'équipe, surface du chantier, type de matériaux...).
               </p>
               <textarea
                 name="pricingInfo"

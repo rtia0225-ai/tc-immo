@@ -56,7 +56,7 @@ export default async function ProjectDocumentsPage({ params }) {
             const { data } = await supabase.storage.from("project-deliverables").createSignedUrl(f.document_url, 3600);
             return {
               id: `file-${f.document_url}`,
-              label: `${deliv.label} — ${m.title}`,
+              label: `${deliv.label} : ${m.title}`,
               who: m.artisan?.profiles?.full_name,
               trade: m.artisan?.trade,
               date: f.reviewed_at || f.created_at,
@@ -113,7 +113,7 @@ export default async function ProjectDocumentsPage({ params }) {
                 <p className="font-medium text-ink">{d.label}</p>
                 <p className="text-xs text-gray-500">
                   {[d.who, d.trade].filter(Boolean).join(" · ")}
-                  {d.date ? ` — ${formatDate(d.date)}` : ""}
+                  {d.date ? ` · ${formatDate(d.date)}` : ""}
                 </p>
               </div>
               <span className="text-brand" aria-hidden>↗</span>

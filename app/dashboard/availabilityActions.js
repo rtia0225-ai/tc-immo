@@ -77,7 +77,7 @@ export async function bookAvailabilitySlot(formData) {
   if (user.id === artisanId) {
     redirect(
       `/appointments/new?artisan=${artisanId}&error=${encodeURIComponent(
-        "Impossible de prendre rendez-vous avec soi-même — vérifie que tu es bien connecté sur le bon compte (client ou professionnel)."
+        "Impossible de prendre rendez-vous avec soi-même. Vérifie que tu es bien connecté sur le bon compte (client ou professionnel)."
       )}`
     );
   }

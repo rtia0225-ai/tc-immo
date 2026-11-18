@@ -40,7 +40,7 @@ export default async function AddParticipantPage({ params, searchParams }) {
         <p className="mt-3 text-sm text-gray-500">
           Décris ce que tu attends de {artisan?.profiles?.full_name}.{" "}
           <strong className="text-ink">C'est ensuite lui qui remplira l'échéancier de paiement</strong> de sa
-          propre prestation (étapes, montant, pourcentages) — tu le valideras avant que le contrat ne soit signé,
+          propre prestation (étapes, montant, pourcentages), tu le valideras avant que le contrat ne soit signé,
           comme pour le professionnel principal.
         </p>
 

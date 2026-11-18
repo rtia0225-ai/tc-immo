@@ -62,7 +62,7 @@ export default async function ContractPage({ params, searchParams }) {
         </p>
       ) : contract.client_signed_at ? (
         <p className="mt-3 rounded-lg bg-brand-light p-3 text-sm text-brand-dark">
-          Le client a signé — en attente de la signature du professionnel.
+          Le client a signé. En attente de la signature du professionnel.
         </p>
       ) : (
         <p className="mt-3 rounded-lg bg-brand-light p-3 text-sm text-brand-dark">

@@ -29,7 +29,7 @@ function IndicativeSchedule({ trade }) {
   return (
     <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-3">
       <p className="text-xs font-bold uppercase tracking-wide text-gray-400">
-        Exemple de déroulé pour ce métier{finalDoc ? ` (se termine par : ${finalDoc})` : ""} — à titre indicatif
+        Exemple de déroulé pour ce métier{finalDoc ? ` (se termine par : ${finalDoc})` : ""}, à titre indicatif
       </p>
       <div className="mt-2 flex flex-col gap-1">
         {rows.map((r) => (
@@ -498,7 +498,7 @@ export default async function ProjectPage({ params, searchParams }) {
                       <div key={m.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 text-sm">
                         <span className="text-ink">{m.title}</span>
                         <span className="text-gray-500">
-                          {m.payment_percentage}% — {Number(m.amount || 0).toLocaleString("fr-FR")} {p.currency}
+                          {m.payment_percentage}% : {Number(m.amount || 0).toLocaleString("fr-FR")} {p.currency}
                         </span>
                       </div>
                     ))}
@@ -540,7 +540,7 @@ export default async function ProjectPage({ params, searchParams }) {
 
           {p.status === "pending_contract_signature" && (
             <>
-              <p className="font-bold text-ink">📝 Échéancier validé — il ne reste plus qu'à signer le contrat.</p>
+              <p className="font-bold text-ink">📝 Échéancier validé. Il ne reste plus qu'à signer le contrat.</p>
               <Link
                 href={`/projects/${project.id}/contract/${p.artisan_id}`}
                 className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
@@ -598,7 +598,7 @@ export default async function ProjectPage({ params, searchParams }) {
                       <div key={m.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 text-sm">
                         <span className="text-ink">{m.title}</span>
                         <span className="text-gray-500">
-                          {m.payment_percentage}% — {Number(m.amount || 0).toLocaleString("fr-FR")} {project.currency}
+                          {m.payment_percentage}% : {Number(m.amount || 0).toLocaleString("fr-FR")} {project.currency}
                         </span>
                       </div>
                     ))}
@@ -638,7 +638,7 @@ export default async function ProjectPage({ params, searchParams }) {
 
           {project.status === "pending_contract_signature" && (
             <>
-              <p className="font-bold text-ink">📝 Échéancier validé — il ne reste plus qu'à signer le contrat.</p>
+              <p className="font-bold text-ink">📝 Échéancier validé. Il ne reste plus qu'à signer le contrat.</p>
               <Link
                 href={`/projects/${project.id}/contract/${project.artisan_id}`}
                 className="mt-3 inline-block rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand-dark"
