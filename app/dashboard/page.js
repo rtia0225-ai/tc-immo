@@ -14,6 +14,16 @@ const CLIENT_TABS = [
   { key: "documents", label: "Documents" },
 ];
 
+// Même mécanique d'onglets pour l'espace professionnel, pour que les deux
+// interfaces se comportent pareil (tout sur la même page, pas de plaquettes
+// colorées qui renvoient vers d'autres pages).
+const ARTISAN_TABS = [
+  { key: "projets", label: "Mes projets" },
+  { key: "revenus", label: "Revenus" },
+  { key: "rendezvous", label: "Rendez-vous" },
+  { key: "messagerie", label: "Messagerie" },
+];
+
 export default async function DashboardPage({ searchParams }) {
   const supabase = createClient();
   const {
@@ -226,9 +236,9 @@ export default async function DashboardPage({ searchParams }) {
   const totalEtapes = milestones.length;
   const avancement = totalEtapes > 0 ? Math.round((etapesValidees / totalEtapes) * 100) : 0;
 
-  // Onglet Messagerie (client uniquement)
+  // Onglet Messagerie (client et professionnel, même mécanique)
   let conversations = [];
-  if (!isArtisan && activeTab === "messagerie") {
+  if (activeTab === "messagerie") {
     const { data } = await supabase
       .from("conversations")
       .select(
@@ -241,7 +251,18 @@ export default async function DashboardPage({ searchParams }) {
     conversations = data || [];
   }
 
-  // Raccourcis artisan : nouveaux messages / nouveaux rendez-vous
+  // Onglet Rendez-vous (professionnel)
+  let appointments = [];
+  if (isArtisan && activeTab === "rendezvous") {
+    const { data } = await supabase
+      .from("appointments")
+      .select("id, scheduled_at, status, client:client_id ( full_name )")
+      .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`)
+      .order("scheduled_at", { ascending: true });
+    appointments = data || [];
+  }
+
+  // Pastilles de notification sur les onglets
   let unreadCount = 0;
   let upcomingCount = 0;
   if (isArtisan) {
@@ -261,13 +282,13 @@ export default async function DashboardPage({ searchParams }) {
       unreadCount = count || 0;
     }
 
-    const { data: appts } = await supabase
+    const { count: apptCount } = await supabase
       .from("appointments")
-      .select("id")
+      .select("id", { count: "exact", head: true })
       .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`)
       .in("status", ["proposed", "confirmed"])
       .gte("scheduled_at", new Date().toISOString());
-    upcomingCount = appts?.length || 0;
+    upcomingCount = apptCount || 0;
   }
 
   return (
@@ -310,166 +331,141 @@ export default async function DashboardPage({ searchParams }) {
         </div>
       </div>
 
-      {isArtisan ? (
-        <>
-          {/* Raccourcis artisan */}
-          <div className="mt-6 grid grid-cols-2 gap-3">
+      {/* Onglets, identiques dans leur fonctionnement pour le client et le
+          professionnel : tout reste sur la même page, rien ne renvoie vers
+          une autre page. */}
+      <div className="mt-6 flex gap-6 border-b border-gray-200 text-sm font-medium">
+        {(isArtisan ? ARTISAN_TABS : CLIENT_TABS).map((tab) => {
+          const badgeCount = isArtisan && tab.key === "messagerie" ? unreadCount : isArtisan && tab.key === "rendezvous" ? upcomingCount : 0;
+          return (
             <Link
-              href="/messages"
-              className="flex items-center justify-between rounded-lg bg-brand p-4 text-white shadow-card transition hover:bg-brand-dark"
+              key={tab.key}
+              href={`/dashboard?tab=${tab.key}`}
+              className={`-mb-px flex items-center gap-1.5 border-b-2 pb-2 ${
+                activeTab === tab.key ? "border-brand text-brand" : "border-transparent text-gray-500"
+              }`}
             >
-              <span className="text-sm font-semibold">Nouveaux messages</span>
-              {unreadCount > 0 && (
-                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-brand">{unreadCount}</span>
+              {tab.label}
+              {badgeCount > 0 && (
+                <span className="rounded-full bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">{badgeCount}</span>
               )}
             </Link>
-            <Link
-              href="/appointments"
-              className="flex items-center justify-between rounded-lg bg-forest p-4 text-white shadow-card transition hover:bg-forest-dark"
-            >
-              <span className="text-sm font-semibold">Nouveaux rendez-vous</span>
-              {upcomingCount > 0 && (
-                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-forest">{upcomingCount}</span>
-              )}
-            </Link>
-          </div>
+          );
+        })}
+      </div>
 
-          <Link
-            href="/revenus"
-            className="mt-3 block rounded-lg bg-gold p-4 text-ink shadow-card transition hover:bg-gold/90"
-          >
-            <span className="text-sm font-semibold">Mes revenus</span>
-            <p className="mt-0.5 text-xs text-ink/70">Paiements perçus et en attente</p>
-          </Link>
+      <div className="py-6">
+        {activeTab === "projets" && (
+          <>
+            {isArtisan && (
+              <div className="mb-4">
+                {activeProject ? (
+                  <div className="rounded-lg bg-white p-5 shadow-card">
+                    <p className="font-heading font-bold">{activeProject.title}</p>
 
-          <Link
-            href="/dashboard/availability"
-            className="mt-3 block rounded-lg bg-azure p-4 text-white shadow-card transition hover:bg-azure-dark"
-          >
-            <span className="text-sm font-semibold">Mes disponibilités</span>
-            <p className="mt-0.5 text-xs text-azure-light">Créneaux visio proposés aux clients</p>
-          </Link>
+                    <div className="mt-4">
+                      <ProjectTimeline
+                        projectId={activeProject.id}
+                        milestones={milestones}
+                        isArtisan={true}
+                        currency={activeProject.currency}
+                      />
+                    </div>
 
-          {/* Projets en cours */}
-          <div className="mt-6">
-            <p className="mb-2 text-sm font-semibold text-gray-700">Projets en cours</p>
-            {activeProject ? (
-              <div className="rounded-lg bg-white p-5 shadow-card">
-                <p className="font-heading font-bold">{activeProject.title}</p>
-
-                <div className="mt-4">
-                  <ProjectTimeline
-                    projectId={activeProject.id}
-                    milestones={milestones}
-                    isArtisan={true}
-                    currency={activeProject.currency}
-                  />
-                </div>
-
-                <Link
-                  href={`/projects/${activeProject.id}`}
-                  className="mt-4 block rounded-lg bg-forest py-2 text-center text-xs font-semibold text-white hover:bg-forest-dark"
-                >
-                  Ouvrir le projet (documents, messagerie)
-                </Link>
+                    <Link
+                      href={`/projects/${activeProject.id}`}
+                      className="mt-4 block rounded-lg bg-forest py-2 text-center text-xs font-semibold text-white hover:bg-forest-dark"
+                    >
+                      Ouvrir le projet (documents, messagerie)
+                    </Link>
+                  </div>
+                ) : (
+                  <p className="text-gray-500">Aucun projet en cours pour le moment.</p>
+                )}
               </div>
-            ) : (
-              <p className="text-gray-500">Aucun projet en cours pour le moment.</p>
             )}
 
-            {allProjects && allProjects.length > 0 && (
-              <div className="mt-4 flex flex-col gap-2">
-                {allProjects.map((p) => (
-                  <div key={p.id} className="flex items-center gap-1 rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
+            {!allProjects || allProjects.length === 0 ? (
+              !isArtisan && <p className="text-gray-500">Aucun projet pour le moment.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {(isArtisan ? allProjects : projects).map((p) => (
+                  <div key={p.id} className="flex items-center gap-1 rounded-lg bg-white p-4 shadow-card hover:shadow-md">
                     <Link href={`/projects/${p.id}`} className="flex flex-1 items-center justify-between">
-                      <span>{p.title}</span>
-                      <span className="text-gray-500">{translateStatus(p.status)}</span>
+                      <div>
+                        <p className="font-heading font-bold text-ink">{p.title}</p>
+                        <p className="mt-0.5 text-xs text-gray-500">{translateStatus(p.status)}</p>
+                      </div>
+                      <span className="text-brand">→</span>
                     </Link>
                     {isAdmin && <DeleteProjectButton projectId={p.id} projectTitle={p.title} />}
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Onglets client */}
-          <div className="mt-6 flex gap-6 border-b border-gray-200 text-sm font-medium">
-            {CLIENT_TABS.map((tab) => (
-              <Link
-                key={tab.key}
-                href={`/dashboard?tab=${tab.key}`}
-                className={`-mb-px border-b-2 pb-2 ${
-                  activeTab === tab.key ? "border-brand text-brand" : "border-transparent text-gray-500"
-                }`}
-              >
-                {tab.label}
+          </>
+        )}
+
+        {(activeTab === "paiements" || activeTab === "revenus") && (
+          <div className="flex flex-col gap-2">
+            {isArtisan && (
+              <Link href="/revenus" className="mb-1 self-start text-xs font-semibold text-brand hover:underline">
+                Voir le détail de mes revenus →
               </Link>
-            ))}
-          </div>
-
-          <div className="py-6">
-            {activeTab === "projets" && (
-              <>
-                {!projects || projects.length === 0 ? (
-                  <p className="text-gray-500">Aucun projet pour le moment.</p>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {projects.map((p) => (
-                      <div key={p.id} className="flex items-center gap-1 rounded-lg bg-white p-4 shadow-card hover:shadow-md">
-                        <Link href={`/projects/${p.id}`} className="flex flex-1 items-center justify-between">
-                          <div>
-                            <p className="font-heading font-bold text-ink">{p.title}</p>
-                            <p className="mt-0.5 text-xs text-gray-500">{translateStatus(p.status)}</p>
-                          </div>
-                          <span className="text-brand">→</span>
-                        </Link>
-                        {isAdmin && <DeleteProjectButton projectId={p.id} projectTitle={p.title} />}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
             )}
-
-            {activeTab === "paiements" && (
-              <div className="flex flex-col gap-2">
-                {!projects || projects.length === 0 ? (
-                  <p className="text-gray-500">Aucun paiement pour le moment.</p>
-                ) : (
-                  projects.map((p) => (
-                    <div key={p.id} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm shadow-card">
-                      <span>{p.title}</span>
-                      <span className="font-medium">{p.amount} {p.currency}, {translateStatus(p.status)}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {activeTab === "messagerie" && (
-              <div className="flex flex-col gap-2">
-                {conversations.length === 0 ? (
-                  <p className="text-gray-500">Aucune conversation pour le moment.</p>
-                ) : (
-                  conversations.map((c) => (
-                    <Link key={c.id} href={`/messages/${c.id}`} className="rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
-                      Conversation avec {c.artisan?.profiles?.full_name || c.client?.full_name}
-                    </Link>
-                  ))
-                )}
-              </div>
-            )}
-
-            {activeTab === "documents" && (
-              <p className="text-gray-500">
-                Devis, plans et pièces liées à vos projets.
-              </p>
+            {!projects || projects.length === 0 ? (
+              <p className="text-gray-500">Aucun paiement pour le moment.</p>
+            ) : (
+              projects.map((p) => (
+                <div key={p.id} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm shadow-card">
+                  <span>{p.title}</span>
+                  <span className="font-medium">{p.amount} {p.currency}, {translateStatus(p.status)}</span>
+                </div>
+              ))
             )}
           </div>
-        </>
-      )}
+        )}
+
+        {activeTab === "rendezvous" && (
+          <div className="flex flex-col gap-2">
+            <Link href="/dashboard/availability" className="mb-1 self-start text-xs font-semibold text-brand hover:underline">
+              Gérer mes disponibilités →
+            </Link>
+            {appointments.length === 0 ? (
+              <p className="text-gray-500">Aucun rendez-vous pour le moment.</p>
+            ) : (
+              appointments.map((a) => (
+                <div key={a.id} className="flex items-center justify-between rounded-lg bg-white p-3 text-sm shadow-card">
+                  <span>{a.client?.full_name}</span>
+                  <span className="text-gray-500">
+                    {new Date(a.scheduled_at).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === "messagerie" && (
+          <div className="flex flex-col gap-2">
+            {conversations.length === 0 ? (
+              <p className="text-gray-500">Aucune conversation pour le moment.</p>
+            ) : (
+              conversations.map((c) => (
+                <Link key={c.id} href={`/messages/${c.id}`} className="rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
+                  Conversation avec {isArtisan ? c.client?.full_name : c.artisan?.profiles?.full_name || c.client?.full_name}
+                </Link>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === "documents" && (
+          <p className="text-gray-500">
+            Devis, plans et pièces liées à vos projets.
+          </p>
+        )}
+      </div>
 
       <div className="mt-10 border-t border-gray-100 pt-4 text-center">
         <Link href="/dashboard/delete-account" className="text-xs text-gray-400 hover:text-red-600">
