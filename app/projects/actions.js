@@ -190,7 +190,7 @@ export async function createProject(formData) {
   await sendPush(
     artisanId,
     "Nouvelle demande de projet",
-    `${clientProfile?.full_name || "Un client"} souhaite démarrer "${title}" — remplis l'échéancier de paiement pour continuer.`,
+    `${clientProfile?.full_name || "Un client"} souhaite démarrer "${title}". Remplis l'échéancier de paiement pour continuer.`,
     `/projects/${project.id}/schedule`
   );
 
@@ -279,7 +279,7 @@ export async function submitMilestoneSchedule(formData) {
   await sendPush(
     project.client_id,
     "Échéancier à valider",
-    `L'échéancier de paiement pour "${project.title}" est prêt — vérifie qu'il correspond bien à ce que vous avez convenu.`,
+    `L'échéancier de paiement pour "${project.title}" est prêt. Vérifie qu'il correspond bien à ce que vous avez convenu.`,
     `/projects/${projectId}`
   );
 
@@ -351,7 +351,7 @@ export async function validateMilestoneSchedule(formData) {
   await sendPush(
     project.artisan_id,
     "Échéancier validé",
-    `${clientProfile?.full_name || "Le client"} a validé l'échéancier — le contrat est prêt à être signé.`,
+    `${clientProfile?.full_name || "Le client"} a validé l'échéancier. Le contrat est prêt à être signé.`,
     `/projects/${projectId}/contract/${project.artisan_id}`
   );
 
@@ -557,7 +557,7 @@ export async function addParticipant(formData) {
   await sendPush(
     artisanId,
     "Nouvelle demande de projet",
-    `${clientProfile?.full_name || "Un client"} souhaite t'ajouter au projet "${project.title}" — remplis l'échéancier de ta prestation pour continuer.`,
+    `${clientProfile?.full_name || "Un client"} souhaite t'ajouter au projet "${project.title}". Remplis l'échéancier de ta prestation pour continuer.`,
     `/projects/${projectId}/participant/${artisanId}/schedule`
   );
 
@@ -720,7 +720,7 @@ export async function validateParticipantMilestoneSchedule(formData) {
   await sendPush(
     participant.artisan_id,
     "Échéancier validé",
-    `${clientProfile?.full_name || "Le client"} a validé ton échéancier — le contrat est prêt à être signé.`,
+    `${clientProfile?.full_name || "Le client"} a validé ton échéancier. Le contrat est prêt à être signé.`,
     `/projects/${projectId}/contract/${participant.artisan_id}`
   );
 

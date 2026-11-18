@@ -41,7 +41,7 @@ function RequiredCallStatus({ projectId, appointment }) {
       : appointment.status === "cancelled"
         ? "Annulé"
         : isPast
-          ? "Passé — à confirmer"
+          ? "Passé, à confirmer"
           : "Prévu";
   const color =
     appointment.status === "completed"
@@ -53,7 +53,7 @@ function RequiredCallStatus({ projectId, appointment }) {
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-white p-2.5 shadow-card">
       <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${color}`}>{label}</span>
-      <span className="text-xs text-gray-600">Appel de validation — {formatDateTime(appointment.scheduled_at)}</span>
+      <span className="text-xs text-gray-600">Appel de validation : {formatDateTime(appointment.scheduled_at)}</span>
       {appointment.meeting_link && appointment.status !== "cancelled" && (
         <a href={appointment.meeting_link} target="_blank" rel="noreferrer" className="text-xs font-bold text-brand hover:underline">
           Rejoindre l'appel →
@@ -164,13 +164,13 @@ function AdditionItem({ projectId, item, isClient }) {
   return (
     <div className={`mt-1 rounded-lg p-2.5 text-xs ${pending ? "bg-gold/30" : "bg-gray-50"}`}>
       <p className="font-bold text-ink">
-        {ADDITION_TYPE_LABEL[item.request_type] || "Ajout"} — {item.title}
+        {ADDITION_TYPE_LABEL[item.request_type] || "Ajout"} : {item.title}
         {item.amount ? ` (${Number(item.amount).toLocaleString("fr-FR")})` : ""}
       </p>
       <p className="mt-0.5 text-[11px] text-gray-500">
         {pending ? "En attente de validation" : item.status === "rejected" ? "Refusé" : "Validé"}
-        {item.requester?.full_name ? ` — demandé par ${item.requester.full_name}` : ""}
-        {item.justification ? ` — ${item.justification}` : ""}
+        {item.requester?.full_name ? `, demandé par ${item.requester.full_name}` : ""}
+        {item.justification ? `, ${item.justification}` : ""}
       </p>
       {pending && isClient && (
         <div className="mt-1.5 flex gap-2">
@@ -203,7 +203,7 @@ function SharedDocumentItem({ doc }) {
     <div className="mt-1 rounded-lg bg-forest-light/50 p-2.5 text-xs">
       <p className="font-bold text-ink">📎 {doc.label}</p>
       <p className="mt-0.5 text-[11px] text-gray-500">
-        Reçu de {doc.sourceArtisanName || "un autre professionnel"} — {formatDate(doc.document_date)}
+        Reçu de {doc.sourceArtisanName || "un autre professionnel"} : {formatDate(doc.document_date)}
       </p>
       {doc.signedUrl && (
         <a href={doc.signedUrl} target="_blank" rel="noreferrer" className="mt-0.5 inline-block font-semibold text-brand underline">
@@ -429,7 +429,7 @@ export default function ProjectJourney({
                   <span className="text-xs text-gray-500">{status}</span>
                   {m.amount != null && (
                     <span className="text-xs text-gray-500">
-                      — {m.amount.toLocaleString("fr-FR")} {currency}
+                      : {m.amount.toLocaleString("fr-FR")} {currency}
                       {m.paid_at && ` payé le ${formatDate(m.paid_at)}`}
                     </span>
                   )}
@@ -517,7 +517,7 @@ export default function ProjectJourney({
                   if (!m.paid_at) {
                     return (
                       <p className="mt-1 text-xs text-gray-400">
-                        ⏳ Livrable(s) envoyé(s) — en attente du virement du client pour pouvoir valider l'étape.
+                        ⏳ Livrable(s) envoyé(s). En attente du virement du client pour pouvoir valider l'étape.
                       </p>
                     );
                   }
@@ -568,7 +568,7 @@ export default function ProjectJourney({
           <div className="mt-1 flex flex-col gap-0.5">
             {looseAppointments.map((a) => (
               <p key={a.id} className="text-xs text-gray-500">
-                {formatDateTime(a.scheduled_at)} — {a.status}
+                {formatDateTime(a.scheduled_at)} : {a.status}
               </p>
             ))}
           </div>

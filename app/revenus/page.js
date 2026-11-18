@@ -51,7 +51,7 @@ export default async function RevenusPage() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="mb-1 text-2xl font-bold text-brand-dark">Mes revenus</h1>
       <p className="mb-6 text-sm text-gray-500">
-        Chaque étape apparaît ici dès que le client confirme le virement — en test, en attendant le prestataire de paiement.
+        Chaque étape apparaît ici dès que le client confirme le virement (en test, en attendant le prestataire de paiement).
       </p>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">

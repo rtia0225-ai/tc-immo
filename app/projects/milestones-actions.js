@@ -62,7 +62,7 @@ export async function shareDossier(formData) {
   if (project?.client_id !== user.id) {
     redirect(
       `/projects/${projectId}?error=${encodeURIComponent(
-        "Seul le client du projet peut partager un dossier — vérifie que tu es connecté sur le bon compte."
+        "Seul le client du projet peut partager un dossier. Vérifie que tu es connecté sur le bon compte."
       )}`
     );
   }
@@ -176,7 +176,7 @@ export async function toggleMilestone(formData) {
   if (milestoneOwner?.artisan_id !== user.id) {
     redirect(
       `/projects/${projectId}?error=${encodeURIComponent(
-        "Seul le professionnel de cette étape peut la valider — vérifie que tu es connecté sur le bon compte."
+        "Seul le professionnel de cette étape peut la valider. Vérifie que tu es connecté sur le bon compte."
       )}`
     );
   }
@@ -256,7 +256,7 @@ export async function releasePayment(formData) {
   if (project?.client_id !== user.id) {
     redirect(
       `/projects/${projectId}?error=${encodeURIComponent(
-        "Seul le client du projet peut confirmer un virement — vérifie que tu es connecté sur le bon compte."
+        "Seul le client du projet peut confirmer un virement. Vérifie que tu es connecté sur le bon compte."
       )}`
     );
   }
@@ -453,7 +453,7 @@ export async function uploadDeliverable(formData) {
         sendPush(
           a.id,
           "Document à vérifier",
-          `${documentLabel} (${milestoneTitle}) — vérification automatique incertaine, à vérifier manuellement.`,
+          `${documentLabel} (${milestoneTitle}) : vérification automatique incertaine, à vérifier manuellement.`,
           "/admin/documents"
         )
       )

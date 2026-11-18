@@ -61,7 +61,7 @@ export default async function ParticipantSchedulePage({ params, searchParams }) 
     <div className="mx-auto max-w-md px-4 py-12">
       <h1 className="font-heading text-2xl font-bold">Échéancier de paiement</h1>
       <p className="mt-1 text-sm text-gray-500">
-        {project.title} — demandé par {project.client?.full_name || "le client"}
+        {project.title}, demandé par {project.client?.full_name || "le client"}
       </p>
 
       {participant.milestone_feedback_note && (

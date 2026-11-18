@@ -109,7 +109,7 @@ export default function ProjectActivityLog({ projectId, progressReports, isArtis
             {progressReports.map((r) => (
               <div key={r.id} className="rounded-lg bg-white p-3 shadow-card">
                 <p className="text-xs font-semibold text-gray-500">
-                  Rapport de {r.technician?.full_name} — {formatDate(r.created_at)}
+                  Rapport de {r.technician?.full_name} : {formatDate(r.created_at)}
                 </p>
                 {r.notes && <p className="mt-1 text-sm text-gray-700">{r.notes}</p>}
                 {r.technician_report_media?.length > 0 && (
