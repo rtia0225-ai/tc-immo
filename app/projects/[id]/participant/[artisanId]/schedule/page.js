@@ -43,7 +43,7 @@ export default async function ParticipantSchedulePage({ params, searchParams }) 
 
   const { data: existingMilestones } = await supabase
     .from("project_milestones")
-    .select("id, title, payment_percentage, milestone_deliverables ( label, order_index )")
+    .select("id, title, payment_percentage, team_phones, milestone_deliverables ( label, order_index )")
     .eq("project_id", id)
     .eq("artisan_id", user.id)
     .order("order_index", { ascending: true });
@@ -55,6 +55,7 @@ export default async function ParticipantSchedulePage({ params, searchParams }) 
       .sort((a, b) => a.order_index - b.order_index)
       .map((d) => d.label)
       .join(", "),
+    teamPhones: (m.team_phones || []).join(", "),
   }));
 
   return (

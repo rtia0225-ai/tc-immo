@@ -287,13 +287,41 @@ function GapInsertion({ projectId, artisanId, afterMilestoneId, items, sharedDoc
 // décide seul de la répartition, le client n'a rien à valider — l'argent
 // de chaque part suit automatiquement le même paiement et la même
 // validation que l'étape principale.
-function MilestoneSplitManager({ projectId, milestoneId, milestoneAmount, currency, splits }) {
+function MilestoneSplitManager({ projectId, milestoneId, milestoneAmount, currency, splits, declaredPhones }) {
   const totalSplit = splits.reduce((s, r) => s + Number(r.amount || 0), 0);
   const remaining = Number(milestoneAmount || 0) - totalSplit;
 
   return (
     <div className="mt-2 rounded-md border border-dashed border-gray-200 p-2">
       <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Répartir avec mon équipe</p>
+
+      {/* Téléphones déjà annoncés en remplissant l'échéancier : juste un
+          montant à indiquer, pas besoin de les ressaisir. */}
+      {(declaredPhones || []).length > 0 && (
+        <div className="mt-1.5 flex flex-col gap-1">
+          {declaredPhones.map((phone) => (
+            <form key={phone} action={addMilestoneSplit} className="flex items-center gap-1.5">
+              <input type="hidden" name="parentMilestoneId" value={milestoneId} />
+              <input type="hidden" name="projectId" value={projectId} />
+              <input type="hidden" name="recipientPhone" value={phone} />
+              <span className="w-32 shrink-0 text-xs text-gray-600">Prévu : {phone}</span>
+              <input
+                name="amount"
+                type="number"
+                min="0"
+                step="1"
+                required
+                placeholder={`Sa part (${currency})`}
+                className="w-28 rounded-md border border-gray-300 p-1.5 text-xs"
+              />
+              <SubmitButton className="rounded-md bg-forest px-2 py-1 text-xs font-bold text-white hover:bg-forest-dark" pendingLabel="Ajout...">
+                Attribuer
+              </SubmitButton>
+            </form>
+          ))}
+        </div>
+      )}
+
       {splits.length > 0 && (
         <div className="mt-1.5 flex flex-col gap-1">
           {splits.map((s) => (
@@ -371,6 +399,7 @@ export default function ProjectJourney({
   sharedDocuments,
   otherArtisans,
   milestoneSplits,
+  declaredTeamPhones,
 }) {
   const sortedMilestones = [...(milestones || [])].sort((a, b) => a.order_index - b.order_index);
   const appointmentsByMilestone = {};
@@ -618,6 +647,7 @@ export default function ProjectJourney({
                     milestoneAmount={m.amount}
                     currency={currency}
                     splits={milestoneSplits?.[m.id] || []}
+                    declaredPhones={declaredTeamPhones?.[m.id] || []}
                   />
                 )}
 

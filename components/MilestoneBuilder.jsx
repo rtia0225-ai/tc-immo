@@ -20,21 +20,21 @@ export default function MilestoneBuilder({ trade, initialRows }) {
 
   // Livrable par défaut = le titre de l'étape (ex: "Esquisse" → livrable
   // attendu "Esquisse") — point de départ simple, toujours modifiable.
-  const withDeliverable = (list) => list.map((r) => ({ deliverable: r.title, ...r }));
+  const withDeliverable = (list) => list.map((r) => ({ deliverable: r.title, teamPhones: "", ...r }));
 
   const [rows, setRows] = useState(
     isSingleInstallment
-      ? [{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100", deliverable: singleInstallmentDoc }]
+      ? [{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100", deliverable: singleInstallmentDoc, teamPhones: "" }]
       : startingRows
         ? startingRows
         : defaultSchedule
           ? withDeliverable(defaultSchedule)
           : [
-              { title: "", percentage: "", deliverable: "" },
-              { title: "", percentage: "", deliverable: "" },
-              { title: "", percentage: "", deliverable: "" },
-              { title: "", percentage: "", deliverable: "" },
-              { title: "", percentage: "", deliverable: "" },
+              { title: "", percentage: "", deliverable: "", teamPhones: "" },
+              { title: "", percentage: "", deliverable: "", teamPhones: "" },
+              { title: "", percentage: "", deliverable: "", teamPhones: "" },
+              { title: "", percentage: "", deliverable: "", teamPhones: "" },
+              { title: "", percentage: "", deliverable: "", teamPhones: "" },
             ]
   );
 
@@ -43,7 +43,7 @@ export default function MilestoneBuilder({ trade, initialRows }) {
   useEffect(() => {
     if (startingRows) return;
     if (isSingleInstallment) {
-      setRows([{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100", deliverable: singleInstallmentDoc }]);
+      setRows([{ title: `Livraison du ${singleInstallmentDoc}`, percentage: "100", deliverable: singleInstallmentDoc, teamPhones: "" }]);
     } else if (defaultSchedule) {
       setRows(withDeliverable(defaultSchedule));
     }
@@ -53,7 +53,7 @@ export default function MilestoneBuilder({ trade, initialRows }) {
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)));
   };
 
-  const addRow = () => setRows((r) => [...r, { title: "", percentage: "", deliverable: "" }]);
+  const addRow = () => setRows((r) => [...r, { title: "", percentage: "", deliverable: "", teamPhones: "" }]);
   const canRemoveRow = (currentLength) =>
     !isSingleInstallment && (isFlexibleMinimum ? currentLength > 1 : currentLength > MIN_INSTALLMENTS_OTHER_TRADES);
   const removeRow = (i) => {
@@ -86,8 +86,13 @@ export default function MilestoneBuilder({ trade, initialRows }) {
         )}
       </div>
       <p className="mb-3 text-xs text-gray-500">{ruleText}</p>
+      <p className="mb-3 text-xs text-gray-500">
+        Si d'autres professionnels interviennent avec toi sur une étape (ex: tes maçons), indique dès maintenant leur
+        téléphone dans « Équipe » : une fois l'échéancier validé, tu n'auras plus qu'à leur attribuer leur part, sans
+        les ressaisir.
+      </p>
 
-      {/* Tableau : une ligne = une étape, 3 colonnes bien visibles. */}
+      {/* Tableau : une ligne = une étape, 4 colonnes bien visibles. */}
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full text-sm">
           <thead>
@@ -95,6 +100,7 @@ export default function MilestoneBuilder({ trade, initialRows }) {
               <th className="px-2 py-2">Étape</th>
               <th className="w-16 px-2 py-2">%</th>
               <th className="px-2 py-2 text-brand">Livrable(s), séparés par une virgule</th>
+              <th className="px-2 py-2">Équipe (téléphones, optionnel)</th>
               <th className="w-6 px-1 py-2" />
             </tr>
           </thead>
@@ -135,6 +141,15 @@ export default function MilestoneBuilder({ trade, initialRows }) {
                     required
                     placeholder="ex: plan d'esquisse signé, photos du terrain"
                     title="Plusieurs livrables ? Séparez-les par une virgule."
+                    className="w-full rounded-md border border-gray-300 p-1.5 text-sm"
+                  />
+                </td>
+                <td className="p-1.5">
+                  <input
+                    name="milestoneTeamPhones"
+                    value={row.teamPhones || ""}
+                    onChange={(e) => updateRow(i, "teamPhones", e.target.value)}
+                    placeholder="ex: 0701020304, 0709998888"
                     className="w-full rounded-md border border-gray-300 p-1.5 text-sm"
                   />
                 </td>

@@ -1223,3 +1223,14 @@ create policy if not exists "professionnel retire une part qu'il a attribuee" on
         and parent.artisan_id = auth.uid()
     )
   );
+
+-- ---------------------------------------------------------
+-- 49. ANNONCER L'ÉQUIPE DÈS LE REMPLISSAGE DE L'ÉCHÉANCIER
+-- Avant même l'envoi au client pour validation, le professionnel peut
+-- déjà indiquer (par simple numéro de téléphone) quels autres
+-- professionnels interviennent sur chaque étape. Une fois l'échéancier
+-- validé et le contrat signé, il n'a plus qu'à leur attribuer un
+-- montant (cf. section 48) sans les ressaisir.
+-- ---------------------------------------------------------
+alter table project_milestones
+  add column if not exists team_phones text[] default '{}';

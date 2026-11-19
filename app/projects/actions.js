@@ -209,6 +209,7 @@ export async function submitMilestoneSchedule(formData) {
   const milestoneTitles = formData.getAll("milestoneTitle");
   const milestonePercentages = formData.getAll("milestonePercentage");
   const milestoneDeliverables = formData.getAll("milestoneDeliverable");
+  const milestoneTeamPhones = formData.getAll("milestoneTeamPhones");
 
   const {
     data: { user },
@@ -242,6 +243,13 @@ export async function submitMilestoneSchedule(formData) {
   const totalAmount = Number(amount) || 0;
   const milestoneRows = milestoneTitles.map((t, i) => {
     const pct = Number(milestonePercentages[i]) || 0;
+    // Les téléphones déclarés ici ne sont qu'une annonce (pas encore de
+    // montant) : l'attribution réelle de leur part se fait une fois
+    // l'échéancier validé, directement sur l'étape (cf. ProjectJourney).
+    const teamPhones = (milestoneTeamPhones[i] || "")
+      .split(/[,\n]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
     return {
       project_id: projectId,
       artisan_id: user.id,
@@ -249,6 +257,7 @@ export async function submitMilestoneSchedule(formData) {
       order_index: i + 1,
       payment_percentage: pct,
       amount: Math.round((totalAmount * pct) / 100),
+      team_phones: teamPhones,
     };
   });
 
@@ -579,6 +588,7 @@ export async function submitParticipantMilestoneSchedule(formData) {
   const milestoneTitles = formData.getAll("milestoneTitle");
   const milestonePercentages = formData.getAll("milestonePercentage");
   const milestoneDeliverables = formData.getAll("milestoneDeliverable");
+  const milestoneTeamPhones = formData.getAll("milestoneTeamPhones");
 
   const {
     data: { user },
@@ -611,6 +621,10 @@ export async function submitParticipantMilestoneSchedule(formData) {
   const totalAmount = Number(amount) || 0;
   const milestoneRows = milestoneTitles.map((t, i) => {
     const pct = Number(milestonePercentages[i]) || 0;
+    const teamPhones = (milestoneTeamPhones[i] || "")
+      .split(/[,\n]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
     return {
       project_id: projectId,
       artisan_id: user.id,
@@ -618,6 +632,7 @@ export async function submitParticipantMilestoneSchedule(formData) {
       order_index: i + 1,
       payment_percentage: pct,
       amount: Math.round((totalAmount * pct) / 100),
+      team_phones: teamPhones,
     };
   });
 

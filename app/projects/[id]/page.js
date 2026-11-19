@@ -709,6 +709,12 @@ export default async function ProjectPage({ params, searchParams }) {
                 const milestoneSplits = isOwnArtisanViewer
                   ? Object.fromEntries(artisanMilestones.map((m) => [m.id, splitsByParent[m.id] || []]))
                   : {};
+                // Téléphones déjà déclarés en remplissant l'échéancier
+                // (avant même la validation du client) : permet d'attribuer
+                // une part sans les ressaisir, une fois le contrat signé.
+                const declaredTeamPhones = isOwnArtisanViewer
+                  ? Object.fromEntries(artisanMilestones.map((m) => [m.id, m.team_phones || []]))
+                  : {};
 
                 return {
                   artisanId: a.artisanId,
@@ -733,6 +739,7 @@ export default async function ProjectPage({ params, searchParams }) {
                     sharedDocuments: artisanSharedDocuments,
                     otherArtisans,
                     milestoneSplits,
+                    declaredTeamPhones,
                   },
                 };
               })}
