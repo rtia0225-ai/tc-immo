@@ -1172,3 +1172,54 @@ create policy if not exists "client valide les demandes de son projet"
         and p.client_id = auth.uid()
     )
   );
+
+-- ---------------------------------------------------------
+-- 48. RÉPARTITION INTERNE D'UNE ÉTAPE (ex: chef de chantier → ses maçons)
+-- Un professionnel peut répartir une partie du montant d'une de ses
+-- propres étapes avec d'autres professionnels déjà inscrits sur la
+-- plateforme (rattachés au cas par cas, pas une équipe permanente).
+-- La ligne créée est une project_milestones normale, avec son propre
+-- artisan_id (le bénéficiaire) et parent_milestone_id renseigné : elle
+-- suit donc déjà tout le circuit existant (Revenus, is_completed/
+-- paid_at, cascadé depuis l'étape parent par les actions serveur), et
+-- n'est jamais liée à project_participants donc jamais visible du
+-- client. C'est le professionnel propriétaire de l'étape parent qui
+-- décide seul de la répartition, sans validation du client.
+-- ---------------------------------------------------------
+alter table project_milestones
+  add column if not exists parent_milestone_id uuid references project_milestones(id) on delete cascade;
+
+-- La policy "artisan gere ses propres etapes" (artisan_id = auth.uid())
+-- ne couvre pas la création d'une part pour UN AUTRE professionnel :
+-- l'insert se fait avec artisan_id = le bénéficiaire, pas auth.uid().
+-- On ajoute des policies dédiées, basées sur la propriété de l'étape
+-- PARENT plutôt que sur artisan_id de la ligne elle-même.
+create policy if not exists "professionnel repartit sa propre etape" on project_milestones
+  for insert with check (
+    parent_milestone_id is not null
+    and exists (
+      select 1 from project_milestones parent
+      where parent.id = project_milestones.parent_milestone_id
+        and parent.artisan_id = auth.uid()
+    )
+  );
+
+create policy if not exists "professionnel voit les parts de sa propre etape" on project_milestones
+  for select using (
+    parent_milestone_id is not null
+    and exists (
+      select 1 from project_milestones parent
+      where parent.id = project_milestones.parent_milestone_id
+        and parent.artisan_id = auth.uid()
+    )
+  );
+
+create policy if not exists "professionnel retire une part qu'il a attribuee" on project_milestones
+  for delete using (
+    parent_milestone_id is not null
+    and exists (
+      select 1 from project_milestones parent
+      where parent.id = project_milestones.parent_milestone_id
+        and parent.artisan_id = auth.uid()
+    )
+  );

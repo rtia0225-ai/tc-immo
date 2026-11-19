@@ -217,6 +217,17 @@ export async function toggleMilestone(formData) {
     .select("title")
     .single();
 
+  // Si cette étape a été répartie avec d'autres professionnels (ex: un
+  // chef de chantier avec ses maçons), leur part suit exactement le même
+  // statut que l'étape principale — ils ne valident rien séparément.
+  await supabase
+    .from("project_milestones")
+    .update({
+      is_completed: !isCompleted,
+      completed_at: !isCompleted ? new Date().toISOString() : null,
+    })
+    .eq("parent_milestone_id", milestoneId);
+
   if (!isCompleted && milestone) {
     await logTimelineEvent(supabase, {
       projectId,
@@ -283,6 +294,16 @@ export async function releasePayment(formData) {
       )}`
     );
   }
+
+  // Le virement du client ne part que vers le professionnel principal de
+  // l'étape (ex: le chef de chantier) : si celui-ci a réparti son
+  // montant avec d'autres (ex: ses maçons), leur part est débloquée au
+  // même instant, avant même que l'argent n'atteigne le compte du
+  // professionnel principal.
+  await supabase
+    .from("project_milestones")
+    .update({ paid_at: new Date().toISOString() })
+    .eq("parent_milestone_id", milestoneId);
 
   await logTimelineEvent(supabase, {
     projectId,
@@ -459,6 +480,131 @@ export async function uploadDeliverable(formData) {
       )
     );
   }
+
+  redirect(`/projects/${projectId}`);
+}
+
+// ---------------------------------------------------------
+// RÉPARTITION INTERNE D'UNE ÉTAPE (ex: chef de chantier → ses maçons)
+// Un professionnel peut répartir une partie du montant d'une de ses
+// propres étapes avec d'autres professionnels déjà inscrits sur la
+// plateforme, qu'il rattache lui-même au fur et à mesure (pas une
+// équipe permanente). Ceux-ci ne deviennent jamais des participants du
+// projet : ils restent invisibles du client, et c'est le professionnel
+// propriétaire de l'étape qui décide seul de la répartition, sans
+// validation du client. La ligne créée est une project_milestones
+// normale (avec parent_milestone_id renseigné), donc elle apparaît
+// directement dans la page Revenus du bénéficiaire.
+export async function addMilestoneSplit(formData) {
+  const supabase = createClient();
+  const parentMilestoneId = formData.get("parentMilestoneId");
+  const projectId = formData.get("projectId");
+  const recipientPhone = (formData.get("recipientPhone") || "").trim();
+  const amount = parseFloat(formData.get("amount"));
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: parent } = await supabase
+    .from("project_milestones")
+    .select("id, title, amount, artisan_id, is_completed, completed_at, paid_at, order_index, project_id")
+    .eq("id", parentMilestoneId)
+    .single();
+
+  if (!parent || parent.artisan_id !== user.id) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "Seul le professionnel propriétaire de cette étape peut la répartir. Vérifie que tu es connecté sur le bon compte."
+      )}`
+    );
+  }
+
+  if (!recipientPhone || !amount || amount <= 0) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Indique un numéro de téléphone et un montant valides.")}`);
+  }
+
+  const { data: recipientProfile } = await supabase
+    .from("profiles")
+    .select("id, full_name, role, artisan_profiles ( id, trade )")
+    .eq("phone", recipientPhone)
+    .eq("role", "artisan")
+    .maybeSingle();
+
+  if (!recipientProfile?.artisan_profiles) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "Aucun professionnel inscrit sur la plateforme avec ce numéro. Il doit d'abord créer son compte."
+      )}`
+    );
+  }
+
+  if (recipientProfile.id === user.id) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Tu ne peux pas te répartir une part à toi-même.")}`);
+  }
+
+  const { data: existingSplits } = await supabase
+    .from("project_milestones")
+    .select("amount")
+    .eq("parent_milestone_id", parentMilestoneId);
+
+  const alreadySplit = (existingSplits || []).reduce((s, r) => s + Number(r.amount || 0), 0);
+  if (alreadySplit + amount > Number(parent.amount || 0)) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        `La répartition dépasse le montant de l'étape (${Number(parent.amount || 0).toLocaleString("fr-FR")} au total, ${alreadySplit.toLocaleString("fr-FR")} déjà réparti).`
+      )}`
+    );
+  }
+
+  await supabase.from("project_milestones").insert({
+    project_id: parent.project_id,
+    parent_milestone_id: parent.id,
+    artisan_id: recipientProfile.id,
+    title: `Part sur « ${parent.title} »`,
+    amount,
+    order_index: parent.order_index,
+    is_completed: parent.is_completed,
+    completed_at: parent.completed_at,
+    paid_at: parent.paid_at,
+  });
+
+  await sendPush(
+    recipientProfile.id,
+    "Nouvelle part sur un chantier",
+    `Tu as été ajouté sur l'étape « ${parent.title} » pour ${amount.toLocaleString("fr-FR")} : suis le paiement depuis Mes revenus.`,
+    "/revenus"
+  );
+
+  redirect(`/projects/${projectId}`);
+}
+
+export async function removeMilestoneSplit(formData) {
+  const supabase = createClient();
+  const splitId = formData.get("splitId");
+  const projectId = formData.get("projectId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: split } = await supabase
+    .from("project_milestones")
+    .select("id, paid_at, parent:parent_milestone_id ( artisan_id )")
+    .eq("id", splitId)
+    .single();
+
+  if (!split || split.parent?.artisan_id !== user.id) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Tu ne peux retirer que les parts que tu as toi-même attribuées.")}`);
+  }
+
+  if (split.paid_at) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Cette part a déjà été payée, elle ne peut plus être retirée.")}`);
+  }
+
+  await supabase.from("project_milestones").delete().eq("id", splitId);
 
   redirect(`/projects/${projectId}`);
 }

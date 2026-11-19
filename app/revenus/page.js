@@ -23,11 +23,38 @@ export default async function RevenusPage() {
   // ingénieur, chef de chantier...) n'est jamais le "artisan_id" du
   // projet lui-même, donc filtrer sur le projet le faisait disparaître
   // entièrement de cette page, même une fois payé.
-  const { data: milestones } = await supabase
+  const { data: rawMilestones } = await supabase
     .from("project_milestones")
     .select("id, title, amount, is_completed, paid_at, project:project_id ( id, title, currency )")
     .eq("artisan_id", user.id)
     .order("created_at", { ascending: true });
+
+  // Si une de mes étapes a été répartie avec d'autres professionnels (ex:
+  // mes maçons), ce qui me revient réellement n'est pas le montant total
+  // de l'étape mais ce qu'il en reste après leurs parts — leurs parts
+  // apparaissent, elles, directement dans LEUR propre page Revenus (ce
+  // sont des project_milestones à part entière, à leur nom).
+  const myMilestoneIds = (rawMilestones || []).map((m) => m.id);
+  const splitTotalByParent = {};
+  if (myMilestoneIds.length > 0) {
+    const { data: mySplits } = await supabase
+      .from("project_milestones")
+      .select("parent_milestone_id, amount")
+      .in("parent_milestone_id", myMilestoneIds);
+    (mySplits || []).forEach((s) => {
+      splitTotalByParent[s.parent_milestone_id] = (splitTotalByParent[s.parent_milestone_id] || 0) + Number(s.amount || 0);
+    });
+  }
+
+  const milestones = (rawMilestones || []).map((m) => {
+    const reversed = splitTotalByParent[m.id] || 0;
+    return {
+      ...m,
+      grossAmount: m.amount,
+      amount: Number(m.amount || 0) - reversed,
+      reversedToTeam: reversed,
+    };
+  });
 
   const paid = (milestones || []).filter((m) => m.paid_at);
   const awaitingTransfer = (milestones || []).filter((m) => m.is_completed && !m.paid_at);
@@ -86,7 +113,14 @@ export default async function RevenusPage() {
               <div className="flex flex-col gap-1.5">
                 {group.items.map((m) => (
                   <div key={m.id} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700">{m.title}</span>
+                    <span className="text-gray-700">
+                      {m.title}
+                      {m.reversedToTeam > 0 && (
+                        <span className="ml-1 text-[11px] text-gray-400">
+                          (dont {m.reversedToTeam.toLocaleString("fr-FR")} {currency} reversés à ton équipe)
+                        </span>
+                      )}
+                    </span>
                     <span className="text-xs">
                       <span className="text-gray-500">
                         {Number(m.amount || 0).toLocaleString("fr-FR")} {currency}

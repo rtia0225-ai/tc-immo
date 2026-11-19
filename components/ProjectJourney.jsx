@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { toggleMilestone, releasePayment, uploadDeliverable, shareDossier } from "@/app/projects/milestones-actions";
+import { toggleMilestone, releasePayment, uploadDeliverable, shareDossier, addMilestoneSplit, removeMilestoneSplit } from "@/app/projects/milestones-actions";
 import { markAppointmentCompleted } from "@/app/appointments/actions";
 import { requestAddition, reviewAdditionRequest } from "@/app/projects/activityActions";
 import FileInputButton from "@/components/FileInputButton";
@@ -279,6 +279,73 @@ function GapInsertion({ projectId, artisanId, afterMilestoneId, items, sharedDoc
   );
 }
 
+// Permet au professionnel propriétaire d'une étape (ex: un chef de
+// chantier) de répartir une partie de son montant avec d'autres
+// professionnels déjà inscrits sur la plateforme (ex: ses maçons),
+// rattachés ici au cas par cas, projet par projet. Invisible du client :
+// ce bloc n'est rendu que pour isArtisan (voir au-dessus). C'est lui qui
+// décide seul de la répartition, le client n'a rien à valider — l'argent
+// de chaque part suit automatiquement le même paiement et la même
+// validation que l'étape principale.
+function MilestoneSplitManager({ projectId, milestoneId, milestoneAmount, currency, splits }) {
+  const totalSplit = splits.reduce((s, r) => s + Number(r.amount || 0), 0);
+  const remaining = Number(milestoneAmount || 0) - totalSplit;
+
+  return (
+    <div className="mt-2 rounded-md border border-dashed border-gray-200 p-2">
+      <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400">Répartir avec mon équipe</p>
+      {splits.length > 0 && (
+        <div className="mt-1.5 flex flex-col gap-1">
+          {splits.map((s) => (
+            <div key={s.id} className="flex items-center justify-between text-xs">
+              <span className="text-gray-600">
+                {s.recipientName} : {Number(s.amount || 0).toLocaleString("fr-FR")} {currency}
+                <span className="ml-1 text-gray-400">
+                  ({s.paidAt ? "payée" : s.isCompleted ? "en attente du virement" : "à venir"})
+                </span>
+              </span>
+              {!s.paidAt && (
+                <form action={removeMilestoneSplit}>
+                  <input type="hidden" name="splitId" value={s.id} />
+                  <input type="hidden" name="projectId" value={projectId} />
+                  <button type="submit" className="text-gray-400 hover:text-brand" aria-label="Retirer cette part">
+                    ✕
+                  </button>
+                </form>
+              )}
+            </div>
+          ))}
+          <p className="text-[11px] text-gray-500">
+            Il te reste {remaining.toLocaleString("fr-FR")} {currency} sur cette étape.
+          </p>
+        </div>
+      )}
+      <form action={addMilestoneSplit} className="mt-1.5 flex flex-wrap items-end gap-1.5">
+        <input type="hidden" name="parentMilestoneId" value={milestoneId} />
+        <input type="hidden" name="projectId" value={projectId} />
+        <input
+          name="recipientPhone"
+          required
+          placeholder="Téléphone du professionnel"
+          className="w-40 rounded-md border border-gray-300 p-1.5 text-xs"
+        />
+        <input
+          name="amount"
+          type="number"
+          min="0"
+          step="1"
+          required
+          placeholder={`Part (${currency})`}
+          className="w-28 rounded-md border border-gray-300 p-1.5 text-xs"
+        />
+        <SubmitButton className="rounded-md bg-forest px-2.5 py-1.5 text-xs font-bold text-white hover:bg-forest-dark" pendingLabel="Ajout...">
+          + Ajouter
+        </SubmitButton>
+      </form>
+    </div>
+  );
+}
+
 // LE parcours du projet : un seul chemin, toutes les phases visibles en
 // permanence (jamais révélées au fur et à mesure), avec pour chacune son
 // statut, son paiement, son rendez-vous de validation, ses documents et
@@ -303,6 +370,7 @@ export default function ProjectJourney({
   isClient,
   sharedDocuments,
   otherArtisans,
+  milestoneSplits,
 }) {
   const sortedMilestones = [...(milestones || [])].sort((a, b) => a.order_index - b.order_index);
   const appointmentsByMilestone = {};
@@ -541,6 +609,16 @@ export default function ProjectJourney({
                       Confirmer le virement effectué
                     </SubmitButton>
                   </form>
+                )}
+
+                {isArtisan && (
+                  <MilestoneSplitManager
+                    projectId={projectId}
+                    milestoneId={m.id}
+                    milestoneAmount={m.amount}
+                    currency={currency}
+                    splits={milestoneSplits?.[m.id] || []}
+                  />
                 )}
 
                 <EducationBlock content={education} />

@@ -31,7 +31,7 @@ export async function GET() {
     .select(
       `id, title, description, amount, currency, status, terrain_location, terrain_reference_number, created_at,
        artisan:artisan_id ( full_name ),
-       project_milestones ( title, description, is_completed, completed_at, payment_percentage, amount, paid_at, order_index, milestone_deliverables ( label, deliverable_files ( document_url ) ) ),
+       project_milestones ( title, description, is_completed, completed_at, payment_percentage, amount, paid_at, order_index, parent_milestone_id, milestone_deliverables ( label, deliverable_files ( document_url ) ) ),
        contracts ( content, client_signed_at, artisan_signed_at, created_at )`
     )
     .eq("client_id", user.id)
@@ -75,9 +75,14 @@ export async function GET() {
     if (p.terrain_location) parts.push(`  Terrain : ${p.terrain_location}${p.terrain_reference_number ? " (réf. " + p.terrain_reference_number + ")" : ""}`);
     if (p.description) parts.push(`  Description : ${p.description}`);
 
-    if (p.project_milestones?.length) {
+    // Les parts internes qu'un professionnel répartit avec d'autres (ex:
+    // un chef de chantier avec ses maçons) ne concernent pas le client :
+    // exclues de son export, qui ne doit refléter que son propre
+    // échéancier avec le professionnel qu'il a choisi.
+    const ownMilestones = (p.project_milestones || []).filter((m) => !m.parent_milestone_id);
+    if (ownMilestones.length) {
       parts.push("  Échéancier :");
-      const sorted = [...p.project_milestones].sort((a, b) => a.order_index - b.order_index);
+      const sorted = [...ownMilestones].sort((a, b) => a.order_index - b.order_index);
       for (const m of sorted) {
         parts.push(`   - [${m.is_completed ? "Validée" : "En attente"}] ${m.title} (${m.payment_percentage}% : ${m.amount})`);
         if (m.completed_at) parts.push(`     Validée le ${formatDate(m.completed_at)}`);

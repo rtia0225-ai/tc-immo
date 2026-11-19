@@ -211,6 +211,30 @@ export default async function ProjectPage({ params, searchParams }) {
     })
   );
 
+  // Répartitions internes d'étapes (ex: chef de chantier → ses maçons) :
+  // seulement utile à un professionnel regardant ses propres étapes,
+  // jamais au client — on ne va même pas chercher ces données sinon,
+  // pour ne jamais les faire transiter vers la page du client.
+  const splitsByParent = {};
+  if (isArtisan && !isAdmin) {
+    const { data: milestoneSplitsRaw } = await supabase
+      .from("project_milestones")
+      .select("id, parent_milestone_id, amount, paid_at, is_completed, artisan:artisan_id ( profiles ( full_name ) )")
+      .eq("project_id", id)
+      .not("parent_milestone_id", "is", null);
+
+    (milestoneSplitsRaw || []).forEach((s) => {
+      if (!splitsByParent[s.parent_milestone_id]) splitsByParent[s.parent_milestone_id] = [];
+      splitsByParent[s.parent_milestone_id].push({
+        id: s.id,
+        amount: s.amount,
+        paidAt: s.paid_at,
+        isCompleted: s.is_completed,
+        recipientName: s.artisan?.profiles?.full_name || "Professionnel",
+      });
+    });
+  }
+
   const { data: allContracts } = await supabase
     .from("contracts")
     .select("artisan_id, client_signed_at, artisan_signed_at")
@@ -676,6 +700,15 @@ export default async function ProjectPage({ params, searchParams }) {
                 const otherArtisans = artisansOnProject
                   .filter((other) => other.artisanId !== a.artisanId)
                   .map((other) => ({ artisanId: other.artisanId, fullName: other.fullName, trade: other.trade }));
+                // Jamais transmis quand ce n'est pas le professionnel qui
+                // regarde ses propres étapes (client, admin, autre
+                // professionnel du projet) : même si l'UI ne l'affiche
+                // pas, ces infos (noms/montants des maçons) ne doivent
+                // pas se retrouver dans la page envoyée à quelqu'un d'autre.
+                const isOwnArtisanViewer = isArtisan && !isAdmin && user.id === a.artisanId;
+                const milestoneSplits = isOwnArtisanViewer
+                  ? Object.fromEntries(artisanMilestones.map((m) => [m.id, splitsByParent[m.id] || []]))
+                  : {};
 
                 return {
                   artisanId: a.artisanId,
@@ -699,6 +732,7 @@ export default async function ProjectPage({ params, searchParams }) {
                     isClient,
                     sharedDocuments: artisanSharedDocuments,
                     otherArtisans,
+                    milestoneSplits,
                   },
                 };
               })}
