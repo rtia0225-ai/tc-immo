@@ -3,6 +3,7 @@ import ReviewList from "@/components/ReviewList";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import Link from "next/link";
 import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
+import { firstNameOnly } from "@/lib/displayName";
 
 // Crédits photo discrets pour quelques profils de démonstration dont la
 // photo vient d'une banque d'images gratuite (licence Freepik).
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }) {
 
   if (!artisan) return { title: "Professionnel" };
 
-  const name = artisan.profiles?.full_name || "Professionnel";
+  const name = firstNameOnly(artisan.profiles?.full_name);
   const city = artisan.profiles?.city;
 
   return {
@@ -92,7 +93,7 @@ export default async function ArtisanProfilePage({ params }) {
     return <p className="px-4 py-12">Professionnel introuvable.</p>;
   }
 
-  const firstName = (artisan.profiles?.full_name || "").trim().split(/\s+/)[0] || "Professionnel";
+  const firstName = firstNameOnly(artisan.profiles?.full_name);
   const ratings = (reviews || []).map((r) => r.rating).filter((r) => typeof r === "number");
   const avgRating = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
   const filledStars = Math.round(avgRating);

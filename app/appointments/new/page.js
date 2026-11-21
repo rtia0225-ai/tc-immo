@@ -2,6 +2,7 @@ import { bookAvailabilitySlot } from "@/app/dashboard/availabilityActions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import SubmitButton from "@/components/SubmitButton";
+import { firstNameOnly } from "@/lib/displayName";
 
 export default async function NewAppointmentPage({ searchParams }) {
   const artisanId = searchParams?.artisan;
@@ -78,12 +79,12 @@ export default async function NewAppointmentPage({ searchParams }) {
       </h1>
       {artisan && (
         <p className="text-gray-600">
-          avec {artisan.profiles?.full_name} ({artisan.trade})
+          avec {firstNameOnly(artisan.profiles?.full_name)} ({artisan.trade})
         </p>
       )}
       {regardingArtisan && (
         <p className="mb-6 text-sm text-gray-500">
-          Au sujet de : <strong className="text-ink">{regardingArtisan.profiles?.full_name}</strong>
+          Au sujet de : <strong className="text-ink">{firstNameOnly(regardingArtisan.profiles?.full_name)}</strong>
         </p>
       )}
       {!regardingArtisan && <div className="mb-6" />}

@@ -6,6 +6,7 @@ import { translateStatus } from "@/lib/statusLabels";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import { bookInterviewSlot } from "../admin/interviewActions";
 import DeleteProjectButton from "@/components/DeleteProjectButton";
+import { firstNameOnly } from "@/lib/displayName";
 
 const CLIENT_TABS = [
   { key: "projets", label: "Mes projets" },
@@ -453,7 +454,12 @@ export default async function DashboardPage({ searchParams }) {
             ) : (
               conversations.map((c) => (
                 <Link key={c.id} href={`/messages/${c.id}`} className="rounded-lg bg-white p-3 text-sm shadow-card hover:shadow-md">
-                  Conversation avec {isArtisan ? c.client?.full_name : c.artisan?.profiles?.full_name || c.client?.full_name}
+                  Conversation avec{" "}
+                  {isArtisan
+                    ? c.client?.full_name
+                    : c.artisan?.profiles?.full_name
+                      ? firstNameOnly(c.artisan.profiles.full_name)
+                      : c.client?.full_name}
                 </Link>
               ))
             )}

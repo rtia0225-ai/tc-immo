@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CI_CITIES, CONSTRUCTION_SERVICES, RECOMMENDATION_OPTIONS } from "@/lib/constants";
 import CitySelect from "@/components/CitySelect";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
+import { firstNameOnly } from "@/lib/displayName";
 
 export const metadata = {
   title: "Trouver un professionnel vérifié en Côte d'Ivoire",
@@ -177,7 +178,7 @@ export default async function ArtisansPage({ searchParams }) {
         ) : (
           <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {artisans.map((a) => {
-              const firstName = (a.profiles?.full_name || "").trim().split(/\s+/)[0] || "Professionnel";
+              const firstName = firstNameOnly(a.profiles?.full_name);
               return (
                 <Link
                   key={a.id}

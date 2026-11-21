@@ -6,6 +6,7 @@ import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHE
 import { logClientActivity } from "@/lib/activityLog";
 import { logTimelineEvent } from "@/lib/projectTimeline";
 import { sendPush } from "@/lib/notifications";
+import { firstNameOnly } from "@/lib/displayName";
 
 // Vérifie que l'échéancier respecte la règle du métier : une seule
 // échéance (100%) pour le Topographe ; pas de minimum imposé pour
@@ -663,7 +664,7 @@ export async function submitParticipantMilestoneSchedule(formData) {
   await sendPush(
     participant.project.client_id,
     "Échéancier à valider",
-    `L'échéancier de ${artisanForRule?.profiles?.full_name || "ce professionnel"} pour "${participant.project.title}" est prêt à être vérifié.`,
+    `L'échéancier de ${artisanForRule?.profiles?.full_name ? firstNameOnly(artisanForRule.profiles.full_name) : "ce professionnel"} pour "${participant.project.title}" est prêt à être vérifié.`,
     `/projects/${projectId}`
   );
 

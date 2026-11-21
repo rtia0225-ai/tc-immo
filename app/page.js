@@ -4,6 +4,7 @@ import TrustBanner from "@/components/TrustBanner";
 import ConstructionWizard from "@/components/ConstructionWizard";
 import { CI_CITIES, CONSTRUCTION_SERVICES, HOUSE_TYPES, RECOMMENDATION_OPTIONS } from "@/lib/constants";
 import CitySelect from "@/components/CitySelect";
+import { firstNameOnly } from "@/lib/displayName";
 
 const STEPS = [
   {
@@ -184,7 +185,7 @@ export default async function HomePage() {
         ) : (
           <div className="mt-6 flex gap-5 overflow-x-auto pb-2 scrollbar-hide">
             {artisans.map((a) => {
-              const firstName = (a.profiles?.full_name || "").trim().split(/\s+/)[0] || "Professionnel";
+              const firstName = firstNameOnly(a.profiles?.full_name);
               return (
                 <Link
                   key={a.id}

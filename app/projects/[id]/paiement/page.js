@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { firstNameOnly } from "@/lib/displayName";
 
 export default async function ProjectPaymentPage({ params }) {
   const supabase = createClient();
@@ -36,7 +37,7 @@ export default async function ProjectPaymentPage({ params }) {
       artisanId: project.artisan_id,
       isPrimary: true,
       trade: project.artisan?.trade,
-      fullName: project.artisan?.profiles?.full_name,
+      fullName: isClient ? firstNameOnly(project.artisan?.profiles?.full_name) : project.artisan?.profiles?.full_name,
       amount: project.amount,
       currency: project.currency,
       description: project.description,
@@ -45,7 +46,7 @@ export default async function ProjectPaymentPage({ params }) {
       artisanId: p.artisan_id,
       isPrimary: false,
       trade: p.artisan?.trade,
-      fullName: p.artisan?.profiles?.full_name,
+      fullName: isClient ? firstNameOnly(p.artisan?.profiles?.full_name) : p.artisan?.profiles?.full_name,
       amount: p.amount,
       currency: p.currency,
       description: p.description,

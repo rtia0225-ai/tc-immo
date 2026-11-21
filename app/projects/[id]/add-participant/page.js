@@ -4,6 +4,7 @@ import { addParticipant } from "../../actions";
 import { CONSTRUCTION_SERVICES } from "@/lib/constants";
 import SubmitButton from "@/components/SubmitButton";
 import Link from "next/link";
+import { firstNameOnly } from "@/lib/displayName";
 
 export default async function AddParticipantPage({ params, searchParams }) {
   const supabase = createClient();
@@ -35,10 +36,10 @@ export default async function AddParticipantPage({ params, searchParams }) {
 
     return (
       <div className="mx-auto max-w-6xl px-4 py-12">
-        <h1 className="font-heading text-2xl font-bold">Prestation de {artisan?.profiles?.full_name}</h1>
+        <h1 className="font-heading text-2xl font-bold">Prestation de {firstNameOnly(artisan?.profiles?.full_name)}</h1>
         <p className="mt-1 text-sm text-gray-500">{artisan?.trade}, projet "{project.title}"</p>
         <p className="mt-3 text-sm text-gray-500">
-          Décris ce que tu attends de {artisan?.profiles?.full_name}.{" "}
+          Décris ce que tu attends de {firstNameOnly(artisan?.profiles?.full_name)}.{" "}
           <strong className="text-ink">C'est ensuite lui qui remplira l'échéancier de paiement</strong> de sa
           propre prestation (étapes, montant, pourcentages), tu le valideras avant que le contrat ne soit signé,
           comme pour le professionnel principal.
@@ -66,7 +67,7 @@ export default async function AddParticipantPage({ params, searchParams }) {
             pendingLabel="Envoi en cours…"
             className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark disabled:opacity-60"
           >
-            Envoyer la demande à {artisan?.profiles?.full_name || "ce professionnel"}
+            Envoyer la demande à {artisan?.profiles?.full_name ? firstNameOnly(artisan.profiles.full_name) : "ce professionnel"}
           </SubmitButton>
         </form>
       </div>
@@ -121,14 +122,14 @@ export default async function AddParticipantPage({ params, searchParams }) {
               <div className="flex items-center gap-3">
                 {a.profiles?.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={a.profiles.avatar_url} alt={a.profiles?.full_name} className="h-10 w-10 rounded-full object-cover" />
+                  <img src={a.profiles.avatar_url} alt={firstNameOnly(a.profiles?.full_name)} className="h-10 w-10 rounded-full object-cover" />
                 ) : (
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-xs font-bold text-gray-300">
-                    {a.profiles?.full_name?.slice(0, 2).toUpperCase()}
+                    {firstNameOnly(a.profiles?.full_name).slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-bold text-ink">{a.profiles?.full_name}</p>
+                  <p className="text-sm font-bold text-ink">{firstNameOnly(a.profiles?.full_name)}</p>
                   <p className="text-xs text-gray-500">{a.trade} · {a.profiles?.city}</p>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { notifyNewMessage } from "@/lib/notifications";
 import { containsPhoneNumber, containsEmailAddress, containsExternalPlatformMention, containsFullName } from "@/lib/phoneFilter";
+import { firstNameOnly } from "@/lib/displayName";
 
 export async function startConversation(formData) {
   const supabase = createClient();
@@ -194,7 +195,9 @@ export async function addConversationParticipant(formData) {
   await supabase.from("messages").insert({
     conversation_id: conversationId,
     sender_id: user.id,
-    content: `${addedProfile?.full_name || "Un participant"} a été ajouté à la discussion.`,
+    // Ce message système est vu par tout le monde dans la discussion, y
+    // compris potentiellement le client : on ne met jamais que le prénom.
+    content: `${addedProfile?.full_name ? firstNameOnly(addedProfile.full_name) : "Un participant"} a été ajouté à la discussion.`,
   });
 
   await notifyNewMessage(newUserId);
@@ -234,7 +237,7 @@ export async function removeConversationParticipant(formData) {
   await supabase.from("messages").insert({
     conversation_id: conversationId,
     sender_id: user.id,
-    content: `${targetProfile?.full_name || "Un participant"} a été retiré de la discussion.`,
+    content: `${targetProfile?.full_name ? firstNameOnly(targetProfile.full_name) : "Un participant"} a été retiré de la discussion.`,
   });
 
   redirect(`/messages/${conversationId}`);

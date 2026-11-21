@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { confirmAppointment, cancelAppointment, proposeNewTime } from "./actions";
 import SubmitButton from "@/components/SubmitButton";
+import { firstNameOnly } from "@/lib/displayName";
 
 const STATUS_LABELS = {
   proposed: "En attente de confirmation",
@@ -72,11 +73,14 @@ export default async function AppointmentsPage() {
                   Avec{" "}
                   {isArtisan
                     ? a.client?.full_name
-                    : a.artisan?.profiles?.full_name}
+                    : firstNameOnly(a.artisan?.profiles?.full_name)}
                 </p>
                 {a.regarding?.profiles?.full_name && (
                   <p className="text-xs text-gray-500">
-                    Au sujet de : <strong className="text-ink">{a.regarding.profiles.full_name}</strong>
+                    Au sujet de :{" "}
+                    <strong className="text-ink">
+                      {isArtisan ? a.regarding.profiles.full_name : firstNameOnly(a.regarding.profiles.full_name)}
+                    </strong>
                   </p>
                 )}
                 {a.notes && (

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { firstNameOnly } from "@/lib/displayName";
 
 function formatDate(d) {
   return new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
@@ -57,7 +58,7 @@ export default async function ProjectDocumentsPage({ params }) {
             return {
               id: `file-${f.document_url}`,
               label: `${deliv.label} : ${m.title}`,
-              who: m.artisan?.profiles?.full_name,
+              who: !isArtisan && !isAdmin ? firstNameOnly(m.artisan?.profiles?.full_name) : m.artisan?.profiles?.full_name,
               trade: m.artisan?.trade,
               date: f.reviewed_at || f.created_at,
               url: data?.signedUrl || null,

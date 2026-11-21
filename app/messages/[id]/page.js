@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import VoiceRecorder from "@/components/VoiceRecorder";
 import ConversationMessageForm from "@/components/ConversationMessageForm";
 import ConversationSpacePanel from "@/components/ConversationSpacePanel";
+import { firstNameOnly } from "@/lib/displayName";
 
 function formatDateTime(d) {
   return new Date(d).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
@@ -90,6 +91,11 @@ export default async function ConversationPage({ params, searchParams }) {
       .filter((p) => p.id !== user.id)
       .map((p) => ({
         ...p,
+        // Un client ne doit jamais voir le nom de famille d'un
+        // professionnel (cf. consigne Rose) ; ici, dès que le viewer est
+        // le client, tout ce qui reste dans la liste est un professionnel
+        // (son propre client a été retiré par le filtre ci-dessus).
+        name: isClientViewer ? firstNameOnly(p.name) : p.name,
         phone: !isClientViewer && !p.isClient ? p.phone : null,
         inConversation: participantIds.has(p.id),
       }));
@@ -113,7 +119,10 @@ export default async function ConversationPage({ params, searchParams }) {
     <div className="mx-auto flex h-[80vh] max-w-6xl flex-col px-4 py-4">
       {conversation?.regarding?.profiles?.full_name && (
         <p className="mb-2 text-sm text-gray-500">
-          Au sujet de : <strong className="text-ink">{conversation.regarding.profiles.full_name}</strong>
+          Au sujet de :{" "}
+          <strong className="text-ink">
+            {isClientViewer ? firstNameOnly(conversation.regarding.profiles.full_name) : conversation.regarding.profiles.full_name}
+          </strong>
         </p>
       )}
 
@@ -138,7 +147,9 @@ export default async function ConversationPage({ params, searchParams }) {
                 }`}
               >
                 {m.sender_id !== user.id && participantIds.size > 2 && (
-                  <p className="mb-1 text-[10px] font-bold text-gray-400">{m.sender?.full_name}</p>
+                  <p className="mb-1 text-[10px] font-bold text-gray-400">
+                    {isClientViewer ? firstNameOnly(m.sender?.full_name) : m.sender?.full_name}
+                  </p>
                 )}
                 {m.audio_url && <audio controls src={m.audio_url} className="h-10 w-56" />}
                 {m.content && <p>{m.content}</p>}

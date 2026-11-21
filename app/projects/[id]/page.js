@@ -11,6 +11,7 @@ import {
 import { DEFAULT_MILESTONES_BY_TRADE, SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { firstNameOnly } from "@/lib/displayName";
 
 const PENDING_STATUSES = ["pending_schedule", "pending_client_review", "pending_contract_signature"];
 
@@ -68,6 +69,12 @@ export default async function ProjectPage({ params, searchParams }) {
 
   if (!project) return <p>Projet introuvable.</p>;
 
+  const isClient = project.client_id === user.id;
+  // Un client ne doit jamais voir le nom de famille d'un professionnel sur
+  // la plateforme (cf. consigne Rose) ; les autres professionnels du
+  // projet et l'admin continuent de voir les noms complets entre eux.
+  const nameForViewer = (full) => (isClient ? firstNameOnly(full) : full);
+
   const { data: rawProgressReports } = await supabase
     .from("technician_progress_reports")
     .select("*, technician:technician_id ( full_name ), technician_report_media ( media_url, media_type )")
@@ -89,11 +96,27 @@ export default async function ProjectPage({ params, searchParams }) {
     }))
   );
 
-  const { data: additionRequests } = await supabase
+  const { data: rawAdditionRequests } = await supabase
     .from("project_addition_requests")
     .select("*, requester:requested_by ( full_name )")
     .eq("project_id", id)
     .order("created_at", { ascending: false });
+
+  // "Demandé par" est visible de tout le monde sur le projet : si le
+  // demandeur est un professionnel et que je suis le client, je ne vois
+  // que son prénom. Si le demandeur est le client lui-même, son nom (le
+  // mien, ou celui que je lis en tant que professionnel) n'est pas
+  // concerné par cette règle.
+  const additionRequests = (rawAdditionRequests || []).map((r) => ({
+    ...r,
+    requester: {
+      ...r.requester,
+      full_name:
+        isClient && r.requested_by !== project.client_id
+          ? firstNameOnly(r.requester?.full_name)
+          : r.requester?.full_name,
+    },
+  }));
 
   const { data: projectAppointments } = await supabase
     .from("appointments")
@@ -126,7 +149,7 @@ export default async function ProjectPage({ params, searchParams }) {
             artisanId: project.artisan_id,
             isPrimary: true,
             trade: project.artisan?.trade,
-            fullName: project.artisan?.profiles?.full_name,
+            fullName: nameForViewer(project.artisan?.profiles?.full_name),
             avatarUrl: project.artisan?.profiles?.avatar_url,
             amount: project.amount,
             currency: project.currency,
@@ -139,7 +162,7 @@ export default async function ProjectPage({ params, searchParams }) {
       isPrimary: false,
       participantId: p.id,
       trade: p.artisan?.trade,
-      fullName: p.artisan?.profiles?.full_name,
+      fullName: nameForViewer(p.artisan?.profiles?.full_name),
       avatarUrl: p.artisan?.profiles?.avatar_url,
       amount: p.amount,
       currency: p.currency,
@@ -155,7 +178,7 @@ export default async function ProjectPage({ params, searchParams }) {
       artisanId: project.artisan_id,
       isPrimary: true,
       trade: project.artisan?.trade,
-      fullName: project.artisan?.profiles?.full_name,
+      fullName: nameForViewer(project.artisan?.profiles?.full_name),
       avatarUrl: project.artisan?.profiles?.avatar_url,
     },
     ...(participants || []).map((p) => ({
@@ -163,7 +186,7 @@ export default async function ProjectPage({ params, searchParams }) {
       isPrimary: false,
       participantId: p.id,
       trade: p.artisan?.trade,
-      fullName: p.artisan?.profiles?.full_name,
+      fullName: nameForViewer(p.artisan?.profiles?.full_name),
       avatarUrl: p.artisan?.profiles?.avatar_url,
     })),
   ];
@@ -269,8 +292,6 @@ export default async function ProjectPage({ params, searchParams }) {
     .or(`client_id.eq.${user.id},artisan_id.eq.${user.id}`)
     .limit(1)
     .maybeSingle();
-
-  const isClient = project.client_id === user.id;
 
   const { data: educationRows } = await supabase
     .from("milestone_education_content")
@@ -483,14 +504,14 @@ export default async function ProjectPage({ params, searchParams }) {
         .map((p) => (
         <div key={p.id} className="mb-6 rounded-lg bg-white shadow-card p-5">
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
-            {p.artisan?.profiles?.full_name} ({p.artisan?.trade})
+            {nameForViewer(p.artisan?.profiles?.full_name)} ({p.artisan?.trade})
           </p>
 
           {p.status === "pending_schedule" && (
             isClient ? (
               <>
                 <p className="font-bold text-ink">
-                  ⏳ En attente que {p.artisan?.profiles?.full_name || "le professionnel"} remplisse l'échéancier de paiement.
+                  ⏳ En attente que {p.artisan?.profiles?.full_name ? firstNameOnly(p.artisan.profiles.full_name) : "le professionnel"} remplisse l'échéancier de paiement.
                 </p>
                 {p.milestone_feedback_note && (
                   <p className="mt-2 text-sm text-gray-500">Ta demande de correction lui a été envoyée.</p>
@@ -513,7 +534,7 @@ export default async function ProjectPage({ params, searchParams }) {
             isClient ? (
               <>
                 <p className="font-bold text-ink">
-                  À valider : échéancier proposé par {p.artisan?.profiles?.full_name || "le professionnel"}
+                  À valider : échéancier proposé par {p.artisan?.profiles?.full_name ? firstNameOnly(p.artisan.profiles.full_name) : "le professionnel"}
                 </p>
                 <div className="mt-3 flex flex-col gap-1.5">
                   {milestonesWithDeliverables
@@ -589,7 +610,7 @@ export default async function ProjectPage({ params, searchParams }) {
             isClient ? (
               <>
                 <p className="font-bold text-ink">
-                  ⏳ En attente que {project.artisan?.profiles?.full_name || "le professionnel"} remplisse l'échéancier de paiement.
+                  ⏳ En attente que {project.artisan?.profiles?.full_name ? firstNameOnly(project.artisan.profiles.full_name) : "le professionnel"} remplisse l'échéancier de paiement.
                 </p>
                 {project.milestone_feedback_note && (
                   <p className="mt-2 text-sm text-gray-500">Ta demande de correction lui a été envoyée.</p>
@@ -613,7 +634,7 @@ export default async function ProjectPage({ params, searchParams }) {
             isClient ? (
               <>
                 <p className="font-bold text-ink">
-                  À valider : échéancier proposé par {project.artisan?.profiles?.full_name || "le professionnel"}
+                  À valider : échéancier proposé par {project.artisan?.profiles?.full_name ? firstNameOnly(project.artisan.profiles.full_name) : "le professionnel"}
                 </p>
                 <div className="mt-3 flex flex-col gap-1.5">
                   {milestonesWithDeliverables

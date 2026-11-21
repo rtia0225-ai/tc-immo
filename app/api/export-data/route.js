@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { firstNameOnly } from "@/lib/displayName";
 
 function formatDate(d) {
   if (!d) return "";
@@ -69,7 +70,7 @@ export async function GET() {
     parts.push("Aucun projet démarré pour le moment.");
   }
   for (const p of projects || []) {
-    parts.push(`• ${p.title}, avec ${p.artisan?.full_name || "professionnel"}`);
+    parts.push(`• ${p.title}, avec ${p.artisan?.full_name ? firstNameOnly(p.artisan.full_name) : "professionnel"}`);
     parts.push(`  Statut : ${p.status} | Montant : ${p.amount} ${p.currency || ""}`);
     parts.push(`  Créé le ${formatDate(p.created_at)}`);
     if (p.terrain_location) parts.push(`  Terrain : ${p.terrain_location}${p.terrain_reference_number ? " (réf. " + p.terrain_reference_number + ")" : ""}`);
@@ -109,7 +110,7 @@ export async function GET() {
     parts.push("Aucun rendez-vous pour le moment.");
   }
   for (const a of appointments || []) {
-    parts.push(`• ${formatDate(a.scheduled_at)} (${a.duration_minutes} min) avec ${a.artisan?.full_name || "professionnel"}, ${a.status}`);
+    parts.push(`• ${formatDate(a.scheduled_at)} (${a.duration_minutes} min) avec ${a.artisan?.full_name ? firstNameOnly(a.artisan.full_name) : "professionnel"}, ${a.status}`);
     if (a.notes) parts.push(`  Notes : ${a.notes}`);
   }
   parts.push("");
@@ -125,10 +126,11 @@ export async function GET() {
     parts.push("Aucune conversation pour le moment.");
   }
   for (const c of conversations || []) {
-    parts.push(`• Conversation avec ${c.artisan?.full_name || "professionnel"} (ouverte le ${formatDate(c.created_at)})`);
+    const artisanFirstName = c.artisan?.full_name ? firstNameOnly(c.artisan.full_name) : "professionnel";
+    parts.push(`• Conversation avec ${artisanFirstName} (ouverte le ${formatDate(c.created_at)})`);
     const msgs = [...(c.messages || [])].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     for (const m of msgs) {
-      const author = m.sender_id === user.id ? "Vous" : c.artisan?.full_name || "Professionnel";
+      const author = m.sender_id === user.id ? "Vous" : artisanFirstName;
       parts.push(`   [${formatDate(m.created_at)}] ${author} : ${m.content || ""}${m.audio_url ? " (note vocale : " + m.audio_url + ")" : ""}`);
     }
     parts.push("");

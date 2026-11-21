@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { firstNameOnly } from "@/lib/displayName";
 
 export default async function MessagesPage() {
   const supabase = createClient();
@@ -9,6 +10,13 @@ export default async function MessagesPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/login");
+
+  // Le rôle du viewer détermine s'il s'agit d'un vrai client (qui ne doit
+  // voir que le prénom du professionnel en face) — nécessaire car
+  // client_id/artisan_id ne reflètent pas toujours "le client" et "le
+  // prestataire", voir plus bas.
+  const { data: viewerProfile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const isRealClientViewer = viewerProfile?.role !== "artisan";
 
   const { data: conversations } = await supabase
     .from("conversations")
@@ -28,7 +36,13 @@ export default async function MessagesPage() {
   // importe de quel côté il est rangé.
   function otherPartyName(c) {
     if (c.client_id === user.id) {
-      return c.artisan?.profiles?.full_name || c.artisan?.trade || "Professionnel";
+      // artisan_id désigne toujours un vrai professionnel (contrairement à
+      // client_id, qui peut aussi contenir un autre professionnel dans une
+      // conversation pro-à-pro) : on ne raccourcit son nom que si moi,
+      // viewer, suis un vrai client — jamais si je suis moi-même un
+      // professionnel rangé côté "client_id".
+      const name = c.artisan?.profiles?.full_name || c.artisan?.trade || "Professionnel";
+      return isRealClientViewer ? firstNameOnly(name, c.artisan?.trade || "Professionnel") : name;
     }
     return c.client?.full_name || "Utilisateur";
   }

@@ -6,6 +6,7 @@ import { ID_DOCUMENT_TYPES } from "@/lib/constants";
 import FileInputButton from "@/components/FileInputButton";
 import GpsCaptureButton from "@/components/GpsCaptureButton";
 import SubmitButton from "@/components/SubmitButton";
+import { firstNameOnly } from "@/lib/displayName";
 
 export default async function NewProjectPage({ searchParams }) {
   const artisanId = searchParams?.artisan;
@@ -29,6 +30,7 @@ export default async function NewProjectPage({ searchParams }) {
   if (profile?.role === "artisan" && !profile?.is_admin) {
     redirect("/dashboard");
   }
+  const isAdmin = !!profile?.is_admin;
 
   const { data: artisan } = await supabase
     .from("artisan_profiles")
@@ -89,11 +91,11 @@ export default async function NewProjectPage({ searchParams }) {
       <h1 className="font-heading text-2xl font-bold">Sécurisez vos travaux</h1>
       {artisan && (
         <p className="mt-1 text-sm text-gray-500">
-          Contrat avec {artisan.profiles?.full_name} ({artisan.trade})
+          Contrat avec {isAdmin ? artisan.profiles?.full_name : firstNameOnly(artisan.profiles?.full_name)} ({artisan.trade})
         </p>
       )}
       <p className="mt-3 text-sm text-gray-500">
-        {artisan?.profiles?.full_name || "Le professionnel"} proposera ensuite l'échéancier de paiement, que tu valideras avant la signature du contrat.
+        {artisan?.profiles?.full_name ? (isAdmin ? artisan.profiles.full_name : firstNameOnly(artisan.profiles.full_name)) : "Le professionnel"} proposera ensuite l'échéancier de paiement, que tu valideras avant la signature du contrat.
       </p>
 
       {searchParams?.error && (
@@ -194,7 +196,8 @@ export default async function NewProjectPage({ searchParams }) {
           pendingLabel="Envoi en cours…"
           className="mt-2 rounded-lg bg-brand py-3 font-heading font-bold text-white hover:bg-brand-dark disabled:opacity-60"
         >
-          Envoyer la demande à {artisan?.profiles?.full_name || "le professionnel"}
+          Envoyer la demande à{" "}
+          {artisan?.profiles?.full_name ? (isAdmin ? artisan.profiles.full_name : firstNameOnly(artisan.profiles.full_name)) : "le professionnel"}
         </SubmitButton>
       </form>
     </div>
