@@ -132,7 +132,7 @@ export default async function ArtisansPage({ searchParams }) {
                 defaultValue={recommendation || ""}
                 className="h-full w-full rounded-full bg-transparent p-3 text-left text-sm text-ink focus:outline-none"
               >
-                <option value="">Mot-clé libre...</option>
+                <option value="">Toute la liste</option>
                 {RECOMMENDATION_OPTIONS.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
