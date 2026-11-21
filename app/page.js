@@ -113,9 +113,14 @@ export default async function HomePage() {
         <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10">
           <form
             action="/artisans"
-            className="grid gap-px overflow-hidden rounded-xl bg-brand shadow-xl sm:grid-cols-5"
+            className="grid gap-px rounded-xl bg-brand shadow-xl sm:grid-cols-5"
           >
-            <div className="bg-white p-3">
+            {/* overflow-hidden a été retiré : il arrondissait joliment les
+                coins du bandeau, mais coupait aussi la liste déroulante des
+                villes qui dépasse par le bas. L'arrondi des coins extrêmes
+                est donc refait ici, cellule par cellule, plutôt que par un
+                clip global. */}
+            <div className="rounded-t-xl bg-white p-3 sm:rounded-l-xl sm:rounded-tr-none">
               <label className="block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Métier</label>
               <select name="trade" defaultValue="" className="mt-0.5 w-full border-0 bg-transparent p-0 text-sm font-medium text-ink focus:outline-none">
                 <option value="">Tous</option>
@@ -153,7 +158,7 @@ export default async function HomePage() {
             </div>
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 bg-brand text-sm font-bold text-white hover:bg-brand-dark"
+              className="flex items-center justify-center gap-2 rounded-b-xl bg-brand text-sm font-bold text-white hover:bg-brand-dark sm:rounded-r-xl sm:rounded-bl-none"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <circle cx="11" cy="11" r="8" />
