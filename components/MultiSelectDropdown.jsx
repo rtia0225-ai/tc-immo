@@ -43,19 +43,19 @@ export default function MultiSelectDropdown({ name, options, defaultValues = [],
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 w-64 overflow-y-auto rounded-lg bg-white shadow-card p-2 shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 max-h-64 w-64 overflow-y-auto rounded-lg bg-white text-ink shadow-card p-2 shadow-lg">
           {searchable && (
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Rechercher..."
-              className="mb-2 w-full rounded border border-gray-200 p-1.5 text-sm focus:outline-none"
+              className="mb-2 w-full rounded border border-gray-200 p-1.5 text-sm text-ink focus:outline-none"
               autoFocus
             />
           )}
           {visibleOptions.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-gray-50">
+            <label key={opt} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-ink hover:bg-gray-50">
               <input
                 type="checkbox"
                 checked={selected.includes(opt)}

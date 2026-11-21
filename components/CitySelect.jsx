@@ -75,13 +75,13 @@ export default function CitySelect({
           </div>
         )}
         {open && filtered.length > 0 && (
-          <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white shadow-card shadow-lg">
+          <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white text-ink shadow-card shadow-lg">
             {filtered.slice(0, 50).map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => toggleCity(c)}
-                className={`block w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${
+                className={`block w-full px-3 py-2 text-left text-sm text-ink hover:bg-gray-50 ${
                   selected.includes(c) ? "bg-forest-light text-forest" : ""
                 }`}
               >
@@ -110,7 +110,7 @@ export default function CitySelect({
         className={inputClassName}
       />
       {open && filtered.length > 0 && (
-        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white shadow-card shadow-lg">
+        <div className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg bg-white text-ink shadow-card shadow-lg">
           {filtered.slice(0, 50).map((c) => (
             <button
               key={c}
@@ -119,7 +119,7 @@ export default function CitySelect({
                 setQuery(c);
                 setOpen(false);
               }}
-              className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
+              className="block w-full px-3 py-2 text-left text-sm text-ink hover:bg-gray-50"
             >
               {c}
             </button>
