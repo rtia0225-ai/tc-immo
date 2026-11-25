@@ -102,9 +102,25 @@ export default async function SignupPage({ searchParams }) {
 
         {/* --- Compte --- */}
         <div className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Nom complet</label>
-            <input name="fullName" required className="w-full rounded-lg border border-gray-300 p-2" />
+          {/* Saisis séparément (le prénom, s'il y en a plusieurs, reste un
+              seul mot) : seul ce prénom est ensuite montré au client sur
+              toute la plateforme — le nom complet n'apparaît que dans son
+              propre espace, chez l'admin et sur le contrat. Cf. consigne
+              Rose du 2026-11-25. */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium">Prénom</label>
+              <input
+                name="firstName"
+                required
+                placeholder="ex: Jean Marc"
+                className="w-full rounded-lg border border-gray-300 p-2"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Nom</label>
+              <input name="lastName" required className="w-full rounded-lg border border-gray-300 p-2" />
+            </div>
           </div>
           {role === "client" ? (
             <div>

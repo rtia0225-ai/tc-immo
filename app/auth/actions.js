@@ -11,7 +11,13 @@ export async function signup(formData) {
 
   const identifier = formData.get("identifier"); // email OU numéro de téléphone
   const password = formData.get("password");
-  const fullName = formData.get("fullName");
+  // Saisis séparément sur le formulaire (prénom, nom) puis recombinés ici,
+  // prénom en premier : firstNameOnly() (lib/displayName.js) prend déjà le
+  // premier mot de full_name, donc rien d'autre à changer pour que le
+  // client ne voie jamais que ce prénom. Cf. consigne Rose du 2026-11-25.
+  const firstName = (formData.get("firstName") || "").trim();
+  const lastName = (formData.get("lastName") || "").trim();
+  const fullName = [firstName, lastName].filter(Boolean).join(" ");
   const role = formData.get("role"); // 'client' ou 'artisan'
   const city = formData.get("city");
   const country = formData.get("country");
