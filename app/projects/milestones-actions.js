@@ -580,6 +580,105 @@ export async function addMilestoneSplit(formData) {
   redirect(`/projects/${projectId}`);
 }
 
+// ---------------------------------------------------------
+// PRESTATAIRE EXTERNE (ex: technicien → menuisier, ferrailleur, carreleur…)
+// Contrairement à addMilestoneSplit ci-dessus (répartition interne d'une
+// étape déjà payée au professionnel), ici le CLIENT paie DIRECTEMENT ce
+// prestataire : on crée une étape à part entière (pas un enfant), rattachée
+// au prestataire, mais déclarée par un autre professionnel déjà sur le
+// projet (ex: le technicien). Le client ne voit jamais l'identité du
+// prestataire — seulement l'intitulé du métier qu'on lui donne ici en
+// titre. Cf. consigne Rose du 2026-11-25 : "il n'y a que l'argent des
+// maçons qui passe par le technicien" — tout le reste (prestataires
+// occasionnels) est payé en direct.
+export async function addExternalProvider(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+  const label = (formData.get("label") || "").trim();
+  const providerPhone = (formData.get("providerPhone") || "").trim();
+  const amount = parseFloat(formData.get("amount"));
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  if (!label || !providerPhone || !amount || amount <= 0) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Indique l'intitulé du métier, un téléphone et un montant valides.")}`);
+  }
+
+  const { data: providerProfile } = await supabase
+    .from("profiles")
+    .select("id, role, artisan_profiles ( id )")
+    .eq("phone", providerPhone)
+    .eq("role", "artisan")
+    .maybeSingle();
+
+  if (!providerProfile?.artisan_profiles) {
+    redirect(
+      `/projects/${projectId}?error=${encodeURIComponent(
+        "Aucun professionnel inscrit sur la plateforme avec ce numéro. Il doit d'abord créer son compte."
+      )}`
+    );
+  }
+
+  if (providerProfile.id === user.id) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Tu ne peux pas te déclarer toi-même comme prestataire externe.")}`);
+  }
+
+  const { error } = await supabase.from("project_milestones").insert({
+    project_id: projectId,
+    artisan_id: providerProfile.id,
+    declared_by_id: user.id,
+    hide_identity: true,
+    title: label,
+    order_index: 1,
+    amount,
+  });
+
+  if (error) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Impossible d'ajouter ce prestataire : " + error.message)}`);
+  }
+
+  await sendPush(
+    providerProfile.id,
+    "Nouvelle étape sur un chantier",
+    `Tu as été ajouté sur un projet pour « ${label} », ${amount.toLocaleString("fr-FR")} : suis le paiement depuis le projet.`,
+    `/projects/${projectId}`
+  );
+
+  redirect(`/projects/${projectId}`);
+}
+
+export async function removeExternalProvider(formData) {
+  const supabase = createClient();
+  const milestoneId = formData.get("milestoneId");
+  const projectId = formData.get("projectId");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: milestone } = await supabase
+    .from("project_milestones")
+    .select("id, declared_by_id, paid_at")
+    .eq("id", milestoneId)
+    .single();
+
+  if (!milestone || milestone.declared_by_id !== user.id) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Tu ne peux retirer que les prestataires que tu as toi-même ajoutés.")}`);
+  }
+
+  if (milestone.paid_at) {
+    redirect(`/projects/${projectId}?error=${encodeURIComponent("Cette étape a déjà été payée, elle ne peut plus être retirée.")}`);
+  }
+
+  await supabase.from("project_milestones").delete().eq("id", milestoneId);
+
+  redirect(`/projects/${projectId}`);
+}
+
 export async function removeMilestoneSplit(formData) {
   const supabase = createClient();
   const splitId = formData.get("splitId");

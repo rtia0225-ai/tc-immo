@@ -211,6 +211,13 @@ export async function submitMilestoneSchedule(formData) {
   const milestonePercentages = formData.getAll("milestonePercentage");
   const milestoneDeliverables = formData.getAll("milestoneDeliverable");
   const milestoneTeamPhones = formData.getAll("milestoneTeamPhones");
+  // Case "je fais également le suivi de chantier" (architecte uniquement) :
+  // jamais envoyée au client, mais si cochée, l'ingénieur et le chef de
+  // chantier doivent être déclarés dès maintenant — cf. consigne Rose du
+  // 2026-11-25.
+  const siteSupervision = formData.get("siteSupervision") === "on";
+  const siteSupervisionEngineerPhone = (formData.get("siteSupervisionEngineerPhone") || "").trim();
+  const siteSupervisionSiteManagerPhone = (formData.get("siteSupervisionSiteManagerPhone") || "").trim();
 
   const {
     data: { user },
@@ -238,6 +245,16 @@ export async function submitMilestoneSchedule(formData) {
     redirect(`/projects/${projectId}/schedule?error=${encodeURIComponent(ruleError)}`);
   }
 
+  if (artisanForRule?.trade === "Architecture" && siteSupervision) {
+    if (!siteSupervisionEngineerPhone || !siteSupervisionSiteManagerPhone) {
+      redirect(
+        `/projects/${projectId}/schedule?error=${encodeURIComponent(
+          "Suivi de chantier : indique le téléphone de ton ingénieur et de ton chef de chantier."
+        )}`
+      );
+    }
+  }
+
   // Resoumission : on repart propre, pas d'accumulation des anciennes lignes.
   await supabase.from("project_milestones").delete().eq("project_id", projectId).eq("artisan_id", user.id);
 
@@ -251,6 +268,14 @@ export async function submitMilestoneSchedule(formData) {
       .split(/[,\n]/)
       .map((p) => p.trim())
       .filter(Boolean);
+    // L'ingénieur et le chef de chantier de l'architecte interviennent sur
+    // l'ensemble du suivi : on les rattache à chaque étape, pas une seule,
+    // pour qu'il puisse leur attribuer une part sur n'importe laquelle.
+    if (artisanForRule?.trade === "Architecture" && siteSupervision) {
+      for (const p of [siteSupervisionEngineerPhone, siteSupervisionSiteManagerPhone]) {
+        if (p && !teamPhones.includes(p)) teamPhones.push(p);
+      }
+    }
     return {
       project_id: projectId,
       artisan_id: user.id,
@@ -276,7 +301,12 @@ export async function submitMilestoneSchedule(formData) {
 
   await supabase
     .from("projects")
-    .update({ amount: totalAmount, status: "pending_client_review", milestone_feedback_note: null })
+    .update({
+      amount: totalAmount,
+      status: "pending_client_review",
+      milestone_feedback_note: null,
+      ...(artisanForRule?.trade === "Architecture" ? { architect_site_supervision: siteSupervision } : {}),
+    })
     .eq("id", projectId);
 
   await logTimelineEvent(supabase, {

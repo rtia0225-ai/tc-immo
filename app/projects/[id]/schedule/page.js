@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { submitMilestoneSchedule } from "../../actions";
 import MilestoneBuilder from "@/components/MilestoneBuilder";
+import SiteSupervisionToggle from "@/components/SiteSupervisionToggle";
 import SubmitButton from "@/components/SubmitButton";
 
 // L'artisan principal remplit (ou corrige) l'échéancier de paiement de ce
@@ -19,7 +20,9 @@ export default async function ProjectSchedulePage({ params, searchParams }) {
 
   const { data: project } = await supabase
     .from("projects")
-    .select("id, title, client_id, artisan_id, status, currency, milestone_feedback_note, client:client_id ( full_name )")
+    .select(
+      "id, title, client_id, artisan_id, status, currency, milestone_feedback_note, architect_site_supervision, client:client_id ( full_name )"
+    )
     .eq("id", id)
     .single();
 
@@ -95,6 +98,10 @@ export default async function ProjectSchedulePage({ params, searchParams }) {
         </div>
 
         <MilestoneBuilder trade={artisan?.trade} initialRows={initialRows} />
+
+        {artisan?.trade === "Architecture" && (
+          <SiteSupervisionToggle defaultChecked={project.architect_site_supervision} />
+        )}
 
         <SubmitButton
           pendingLabel="Envoi en cours…"

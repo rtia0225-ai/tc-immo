@@ -8,10 +8,12 @@ import {
   validateParticipantMilestoneSchedule,
   requestParticipantMilestoneChanges,
 } from "../actions";
-import { DEFAULT_MILESTONES_BY_TRADE, SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES } from "@/lib/constants";
+import { addExternalProvider, removeExternalProvider, releasePayment } from "../milestones-actions";
+import { DEFAULT_MILESTONES_BY_TRADE, SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, CONSTRUCTION_SERVICES } from "@/lib/constants";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { firstNameOnly } from "@/lib/displayName";
+import SubmitButton from "@/components/SubmitButton";
 
 const PENDING_STATUSES = ["pending_schedule", "pending_client_review", "pending_contract_signature"];
 
@@ -263,6 +265,20 @@ export default async function ProjectPage({ params, searchParams }) {
     .select("artisan_id, client_signed_at, artisan_signed_at")
     .eq("project_id", id)
     .in("artisan_id", artisanIds);
+
+  // Prestataires externes déclarés par un technicien (ex: menuisier,
+  // ferrailleur) : jamais rattachés à l'échéancier d'un artisan du projet,
+  // payés directement par le client, et son identité n'est JAMAIS
+  // remontée ici — on ne sélectionne même pas son nom, pour qu'elle ne
+  // transite jamais vers la page. Cf. consigne Rose du 2026-11-25.
+  const { data: externalProviders } = await supabase
+    .from("project_milestones")
+    .select("id, title, amount, paid_at, declared_by_id, artisan_id")
+    .eq("project_id", id)
+    .not("declared_by_id", "is", null);
+
+  const myTrade = artisansOnProject.find((a) => a.artisanId === user.id)?.trade;
+  const canAddExternalProvider = isArtisan && !isAdmin && myTrade === "Technicien BTP";
 
   // Documents qu'un professionnel a reçus (partagés par le client depuis le
   // dossier d'un autre professionnel du même projet) — on génère un lien
@@ -769,6 +785,90 @@ export default async function ProjectPage({ params, searchParams }) {
               isArtisanViewer={isArtisan && !isAdmin}
             />
           </div>
+
+          {/* Prestataires externes occasionnels (menuisier, ferrailleur...)
+              déclarés par un technicien : payés directement par le client,
+              jamais visibles nommément — seul l'intitulé du métier l'est. */}
+          {(externalProviders?.length > 0 || canAddExternalProvider) && (
+            <div className="mb-6 rounded-lg bg-white shadow-card p-4">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
+                Prestataires externes
+              </p>
+
+              {(externalProviders || []).length > 0 && (
+                <ul className="flex flex-col gap-2">
+                  {externalProviders.map((m) => (
+                    <li key={m.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3 text-sm">
+                      <div>
+                        <p className="font-semibold text-ink">{m.title}</p>
+                        <p className="text-gray-500">
+                          {Number(m.amount || 0).toLocaleString("fr-FR")} {project.currency || "XOF"}
+                          {m.paid_at ? " · Payé" : " · En attente de paiement"}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {isClient && !m.paid_at && (
+                          <form action={releasePayment}>
+                            <input type="hidden" name="milestoneId" value={m.id} />
+                            <input type="hidden" name="projectId" value={project.id} />
+                            <SubmitButton
+                              pendingLabel="…"
+                              className="rounded-md bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-dark"
+                            >
+                              Je confirme avoir payé
+                            </SubmitButton>
+                          </form>
+                        )}
+                        {m.declared_by_id === user.id && !m.paid_at && (
+                          <form action={removeExternalProvider}>
+                            <input type="hidden" name="milestoneId" value={m.id} />
+                            <input type="hidden" name="projectId" value={project.id} />
+                            <button type="submit" className="text-xs font-medium text-gray-400 hover:text-brand">
+                              Retirer
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {canAddExternalProvider && (
+                <form action={addExternalProvider} className="mt-4 grid grid-cols-1 gap-2 border-t border-gray-100 pt-4 sm:grid-cols-4">
+                  <input type="hidden" name="projectId" value={project.id} />
+                  <select name="label" required className="rounded-md border border-gray-300 p-2 text-sm sm:col-span-2">
+                    <option value="">Métier du prestataire</option>
+                    {CONSTRUCTION_SERVICES.filter((s) => s !== "Technicien BTP").map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    name="providerPhone"
+                    required
+                    placeholder="Téléphone du prestataire"
+                    className="rounded-md border border-gray-300 p-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    name="amount"
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder={`Montant (${project.currency || "XOF"})`}
+                    className="rounded-md border border-gray-300 p-2 text-sm"
+                  />
+                  <SubmitButton
+                    pendingLabel="Ajout…"
+                    className="rounded-md bg-forest px-3 py-2 text-xs font-bold text-white hover:opacity-90 sm:col-span-4"
+                  >
+                    + Ajouter ce prestataire (son identité ne sera jamais montrée au client)
+                  </SubmitButton>
+                </form>
+              )}
+            </div>
+          )}
 
           {/* Rapports d'avancement libres (photos/vidéos) envoyés par le
               technicien — les ajouts imprévus (paiement, document, autre) se
