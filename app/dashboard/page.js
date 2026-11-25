@@ -194,6 +194,20 @@ export default async function DashboardPage({ searchParams }) {
     ...participantProjects.filter((p) => !(projects || []).some((existing) => existing.id === p.id)),
   ];
 
+  // Chantiers où CE professionnel est déclaré comme chef de chantier
+  // délégué par un architecte (suivi de chantier) : il n'est ni l'artisan
+  // principal ni un participant classique, donc on ne les mélange pas à
+  // allProjects — il ne remplit que l'échéancier d'exécution, pas tout le
+  // reste du projet. Cf. consigne Rose du 2026-11-25.
+  let delegatedExecutionProjects = [];
+  if (isArtisan) {
+    const { data } = await supabase
+      .from("projects")
+      .select("id, title, status")
+      .eq("architect_site_manager_id", user.id);
+    delegatedExecutionProjects = data || [];
+  }
+
   const activeProject = allProjects.find(
     (p) => p.status !== "released" && p.status !== "cancelled"
   );
@@ -383,6 +397,29 @@ export default async function DashboardPage({ searchParams }) {
                 ) : (
                   <p className="text-gray-500">Aucun projet en cours pour le moment.</p>
                 )}
+              </div>
+            )}
+
+            {delegatedExecutionProjects.length > 0 && (
+              <div className="mb-4">
+                <p className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">
+                  Suivi de chantier délégué par un architecte
+                </p>
+                <div className="flex flex-col gap-3">
+                  {delegatedExecutionProjects.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/projects/${p.id}/execution-schedule`}
+                      className="flex items-center justify-between rounded-lg bg-white p-4 shadow-card hover:shadow-md"
+                    >
+                      <div>
+                        <p className="font-heading font-bold text-ink">{p.title}</p>
+                        <p className="mt-0.5 text-xs text-gray-500">{translateStatus(p.status)}</p>
+                      </div>
+                      <span className="text-brand">→</span>
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
 

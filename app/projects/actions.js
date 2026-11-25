@@ -299,13 +299,32 @@ export async function submitMilestoneSchedule(formData) {
     await insertMilestoneDeliverables(supabase, sortedInserted, milestoneDeliverables);
   }
 
+  // Si un chef de chantier est déclaré, il pourra lui-même se connecter et
+  // remplir l'échéancier "exécution / gros œuvre" de CE projet, pour le
+  // compte de l'architecte — l'argent continue néanmoins d'être payé à
+  // l'architecte (cf. consigne Rose du 2026-11-25). Résolu par téléphone,
+  // doit déjà être un professionnel inscrit (même règle que les parts
+  // d'étape existantes).
+  let architectSiteManagerId = null;
+  if (artisanForRule?.trade === "Architecture" && siteSupervision && siteSupervisionSiteManagerPhone) {
+    const { data: siteManagerProfile } = await supabase
+      .from("profiles")
+      .select("id, artisan_profiles ( id )")
+      .eq("phone", siteSupervisionSiteManagerPhone)
+      .eq("role", "artisan")
+      .maybeSingle();
+    architectSiteManagerId = siteManagerProfile?.artisan_profiles ? siteManagerProfile.id : null;
+  }
+
   await supabase
     .from("projects")
     .update({
       amount: totalAmount,
       status: "pending_client_review",
       milestone_feedback_note: null,
-      ...(artisanForRule?.trade === "Architecture" ? { architect_site_supervision: siteSupervision } : {}),
+      ...(artisanForRule?.trade === "Architecture"
+        ? { architect_site_supervision: siteSupervision, architect_site_manager_id: architectSiteManagerId }
+        : {}),
     })
     .eq("id", projectId);
 
@@ -320,6 +339,95 @@ export async function submitMilestoneSchedule(formData) {
     project.client_id,
     "Échéancier à valider",
     `L'échéancier de paiement pour "${project.title}" est prêt. Vérifie qu'il correspond bien à ce que vous avez convenu.`,
+    `/projects/${projectId}`
+  );
+
+  redirect(`/projects/${projectId}`);
+}
+
+// Échéancier "exécution / gros œuvre" d'un architecte en suivi de chantier
+// (track='execution') — distinct de son échéancier d'honoraires
+// (submitMilestoneSchedule ci-dessus). Payé à l'architecte dans tous les
+// cas, mais la SAISIE peut être faite par l'architecte lui-même ou par le
+// chef de chantier qu'il a déclaré (project.architect_site_manager_id).
+// Cf. consigne Rose du 2026-11-25.
+export async function submitExecutionSchedule(formData) {
+  const supabase = createClient();
+  const projectId = formData.get("projectId");
+  const amount = formData.get("amount");
+  const milestoneTitles = formData.getAll("milestoneTitle");
+  const milestonePercentages = formData.getAll("milestonePercentage");
+  const milestoneDeliverables = formData.getAll("milestoneDeliverable");
+  const milestoneTeamPhones = formData.getAll("milestoneTeamPhones");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("client_id, artisan_id, title, architect_site_supervision, architect_site_manager_id")
+    .eq("id", projectId)
+    .single();
+
+  const isArchitect = project?.artisan_id === user.id;
+  const isDelegatedSiteManager = project?.architect_site_manager_id === user.id;
+  if (!project || !project.architect_site_supervision || (!isArchitect && !isDelegatedSiteManager)) {
+    redirect(`/projects/${projectId}`);
+  }
+
+  // Resoumission : on repart propre, mais seulement sur ce track — on ne
+  // touche jamais à l'échéancier d'honoraires de l'architecte (track NULL).
+  await supabase
+    .from("project_milestones")
+    .delete()
+    .eq("project_id", projectId)
+    .eq("artisan_id", project.artisan_id)
+    .eq("track", "execution");
+
+  const totalAmount = Number(amount) || 0;
+  const milestoneRows = milestoneTitles.map((t, i) => {
+    const pct = Number(milestonePercentages[i]) || 0;
+    const teamPhones = (milestoneTeamPhones[i] || "")
+      .split(/[,\n]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    return {
+      project_id: projectId,
+      artisan_id: project.artisan_id,
+      track: "execution",
+      title: t,
+      order_index: i + 1,
+      payment_percentage: pct,
+      amount: Math.round((totalAmount * pct) / 100),
+      team_phones: teamPhones,
+    };
+  });
+
+  if (milestoneRows.length > 0) {
+    const { data: insertedMilestones, error: milestonesError } = await supabase
+      .from("project_milestones")
+      .insert(milestoneRows)
+      .select("id, order_index");
+    if (milestonesError) {
+      redirect(`/projects/${projectId}/execution-schedule?error=${encodeURIComponent(milestonesError.message)}`);
+    }
+    const sortedInserted = (insertedMilestones || []).sort((a, b) => a.order_index - b.order_index);
+    await insertMilestoneDeliverables(supabase, sortedInserted, milestoneDeliverables);
+  }
+
+  await logTimelineEvent(supabase, {
+    projectId,
+    eventType: "addition_requested",
+    title: "Échéancier d'exécution (gros œuvre) envoyé pour validation",
+    actorId: user.id,
+  });
+
+  await sendPush(
+    project.client_id,
+    "Échéancier d'exécution à valider",
+    `L'échéancier de suivi de chantier pour "${project.title}" est prêt. Vérifie qu'il correspond bien à ce que vous avez convenu.`,
     `/projects/${projectId}`
   );
 

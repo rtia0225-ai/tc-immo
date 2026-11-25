@@ -280,6 +280,21 @@ export default async function ProjectPage({ params, searchParams }) {
   const myTrade = artisansOnProject.find((a) => a.artisanId === user.id)?.trade;
   const canAddExternalProvider = isArtisan && !isAdmin && myTrade === "Technicien BTP";
 
+  // Échéancier d'exécution (gros œuvre) d'un architecte en suivi de
+  // chantier : track='execution', toujours payé à l'architecte, mais
+  // affiché à part de ses honoraires. Visible du client, de l'architecte
+  // et du chef de chantier délégué (RLS) — jamais des autres.
+  const { data: executionMilestones } = await supabase
+    .from("project_milestones")
+    .select("id, title, amount, payment_percentage, paid_at, artisan_id")
+    .eq("project_id", id)
+    .eq("track", "execution")
+    .order("order_index", { ascending: true });
+
+  const isArchitectWithSupervision =
+    project.architect_site_supervision && isArtisan && !isAdmin && user.id === project.artisan_id;
+  const isDelegatedSiteManager = isArtisan && !isAdmin && project.architect_site_manager_id === user.id;
+
   // Documents qu'un professionnel a reçus (partagés par le client depuis le
   // dossier d'un autre professionnel du même projet) — on génère un lien
   // signé pour chacun, comme pour les livrables classiques.
@@ -727,7 +742,13 @@ export default async function ProjectPage({ params, searchParams }) {
                   contract?.client_signed_at && contract?.artisan_signed_at
                     ? [contract.client_signed_at, contract.artisan_signed_at].sort().pop()
                     : null;
-                const artisanMilestones = (milestonesWithDeliverables || []).filter((m) => m.artisan_id === a.artisanId);
+                // Le suivi d'exécution (gros œuvre) d'un architecte est un
+                // échéancier à part (track='execution'), affiché dans sa
+                // propre section plus bas — jamais mélangé à son échéancier
+                // d'honoraires ici.
+                const artisanMilestones = (milestonesWithDeliverables || []).filter(
+                  (m) => m.artisan_id === a.artisanId && !m.track
+                );
                 const artisanAppointments = (projectAppointments || []).filter((ap) => ap.artisan_id === a.artisanId);
                 const artisanAdditionRequests = (additionRequests || []).filter((r) => r.artisan_id === a.artisanId);
                 // Les documents que CE professionnel a reçus d'un autre,
@@ -866,6 +887,55 @@ export default async function ProjectPage({ params, searchParams }) {
                     + Ajouter ce prestataire (son identité ne sera jamais montrée au client)
                   </SubmitButton>
                 </form>
+              )}
+            </div>
+          )}
+
+          {/* Suivi de chantier (gros œuvre) d'un architecte : échéancier à
+              part de ses honoraires, mais toujours payé à lui. */}
+          {(executionMilestones?.length > 0 || isArchitectWithSupervision || isDelegatedSiteManager) && (
+            <div className="mb-6 rounded-lg bg-white shadow-card p-4">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
+                Suivi de chantier (gros œuvre)
+              </p>
+
+              {(executionMilestones || []).length > 0 ? (
+                <ul className="flex flex-col gap-2">
+                  {executionMilestones.map((m) => (
+                    <li key={m.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3 text-sm">
+                      <div>
+                        <p className="font-semibold text-ink">{m.title}</p>
+                        <p className="text-gray-500">
+                          {m.payment_percentage}% · {Number(m.amount || 0).toLocaleString("fr-FR")} {project.currency || "XOF"}
+                          {m.paid_at ? " · Payé" : " · En attente de paiement"}
+                        </p>
+                      </div>
+                      {isClient && !m.paid_at && (
+                        <form action={releasePayment}>
+                          <input type="hidden" name="milestoneId" value={m.id} />
+                          <input type="hidden" name="projectId" value={project.id} />
+                          <SubmitButton
+                            pendingLabel="…"
+                            className="shrink-0 rounded-md bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-dark"
+                          >
+                            Je confirme avoir payé
+                          </SubmitButton>
+                        </form>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">Aucune étape déclarée pour l'instant.</p>
+              )}
+
+              {(isArchitectWithSupervision || isDelegatedSiteManager) && (
+                <Link
+                  href={`/projects/${project.id}/execution-schedule`}
+                  className="mt-4 inline-block rounded-md bg-forest px-3 py-2 text-xs font-bold text-white hover:opacity-90"
+                >
+                  {executionMilestones?.length > 0 ? "Modifier l'échéancier d'exécution" : "Remplir l'échéancier d'exécution"}
+                </Link>
               )}
             </div>
           )}
