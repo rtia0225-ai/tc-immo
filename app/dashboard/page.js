@@ -312,7 +312,7 @@ export default async function DashboardPage({ searchParams }) {
       {isArtisan && !profile?.has_seen_onboarding && <OnboardingTutorial />}
 
       {/* Bandeau d'accueil */}
-      <div className="rounded-lg bg-forest p-6 text-white">
+      <div data-tour="welcome" className="rounded-lg bg-forest p-6 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand font-heading font-bold">
@@ -326,12 +326,17 @@ export default async function DashboardPage({ searchParams }) {
           <div className="flex items-center gap-3">
             <Link
               href={isArtisan ? "/dashboard/infos" : "/dashboard/profile"}
+              data-tour="mes-infos"
               className="text-xs text-white/80 underline hover:text-white"
             >
               Mes infos
             </Link>
             {isArtisan && (
-              <Link href="/dashboard/profile" className="text-xs text-white/80 underline hover:text-white">
+              <Link
+                href="/dashboard/profile"
+                data-tour="mon-profil"
+                className="text-xs text-white/80 underline hover:text-white"
+              >
                 Mon profil
               </Link>
             )}
@@ -360,7 +365,7 @@ export default async function DashboardPage({ searchParams }) {
       {/* Onglets, identiques dans leur fonctionnement pour le client et le
           professionnel : tout reste sur la même page, rien ne renvoie vers
           une autre page. */}
-      <div className="mt-6 flex gap-6 border-b border-gray-200 text-sm font-medium">
+      <div data-tour="tabs" className="mt-6 flex gap-6 border-b border-gray-200 text-sm font-medium">
         {(isArtisan ? ARTISAN_TABS : CLIENT_TABS).map((tab) => {
           const badgeCount = isArtisan && tab.key === "messagerie" ? unreadCount : isArtisan && tab.key === "rendezvous" ? upcomingCount : 0;
           return (
