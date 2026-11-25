@@ -28,13 +28,16 @@ export async function saveHomeLocation(latitude, longitude) {
 
   if (error) return { error: error.message };
 
-  revalidatePath("/dashboard/profile");
+  revalidatePath("/dashboard/infos");
   return { success: true };
 }
 
-// Met à jour à la fois les infos personnelles (privées) et le profil
-// professionnel public de l'artisan, en une seule soumission.
-export async function updateArtisanProfile(formData) {
+// Met à jour uniquement les informations personnelles et privées de
+// l'artisan (jamais visibles par le client) : identité, coordonnées,
+// moyen de paiement. Distinct du profil public ("Mon profil"), que le
+// client voit. Cf. consigne Rose du 2026-11-25 : "mes infos" et "mon
+// profil" doivent être deux espaces séparés.
+export async function updatePersonalInfo(formData) {
   const supabase = createClient();
 
   const {
@@ -42,12 +45,13 @@ export async function updateArtisanProfile(formData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  // --- Informations personnelles (jamais visibles du client) ---
   const fullName = formData.get("fullName");
   const phone = formData.get("phone");
   const emergencyContactName = formData.get("emergencyContactName");
   const emergencyContactPhone = formData.get("emergencyContactPhone");
   const city = formData.get("city");
+  const mobileMoneyOperator = formData.get("mobileMoneyOperator");
+  const mobileMoneyNumber = formData.get("mobileMoneyNumber");
 
   const { data: updatedPersonal, error: personalError } = await supabase
     .from("profiles")
@@ -62,10 +66,36 @@ export async function updateArtisanProfile(formData) {
     .select("id");
 
   if (personalError || !updatedPersonal || updatedPersonal.length === 0) {
-    redirect(`/dashboard/profile?error=${encodeURIComponent("Vos informations personnelles n'ont pas pu être enregistrées (" + (personalError?.message || "mise à jour refusée") + ")")}`);
+    redirect(`/dashboard/infos?error=${encodeURIComponent("Vos informations personnelles n'ont pas pu être enregistrées (" + (personalError?.message || "mise à jour refusée") + ")")}`);
   }
 
-  // --- Profil professionnel public ---
+  const { data: updatedMoney, error: moneyError } = await supabase
+    .from("artisan_profiles")
+    .update({
+      mobile_money_operator: mobileMoneyOperator || null,
+      mobile_money_number: mobileMoneyNumber || null,
+    })
+    .eq("id", user.id)
+    .select("id");
+
+  if (moneyError || !updatedMoney || updatedMoney.length === 0) {
+    redirect(`/dashboard/infos?error=${encodeURIComponent("Votre moyen de paiement n'a pas pu être enregistré (" + (moneyError?.message || "mise à jour refusée") + ")")}`);
+  }
+
+  redirect("/dashboard/infos?success=1");
+}
+
+// Met à jour uniquement le profil professionnel public de l'artisan — ce
+// que le client voit ("Mon profil"). Les informations personnelles sont
+// gérées séparément par updatePersonalInfo, sur /dashboard/infos.
+export async function updateArtisanProfile(formData) {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
   const trade = formData.get("trade");
   const services = formData.getAll("services"); // plusieurs cases cochées
   const bio = formData.get("bio");
@@ -73,8 +103,6 @@ export async function updateArtisanProfile(formData) {
   const pricingInfo = formData.get("pricingInfo");
   const mobilityScope = formData.get("mobilityScope"); // 'all' ou 'selected'
   const mobilityCities = formData.getAll("mobilityCities");
-  const mobileMoneyOperator = formData.get("mobileMoneyOperator");
-  const mobileMoneyNumber = formData.get("mobileMoneyNumber");
 
   // Tout ce que le client peut lire (description, tarification) ne doit
   // jamais contenir de numéro de téléphone, même règle que la messagerie.
@@ -110,8 +138,6 @@ export async function updateArtisanProfile(formData) {
       pricing_info: pricingInfo,
       mobility_scope: mobilityScope,
       mobility_cities: mobilityScope === "selected" ? mobilityCities : [],
-      mobile_money_operator: mobileMoneyOperator || null,
-      mobile_money_number: mobileMoneyNumber || null,
     })
     .eq("id", user.id)
     .select("id");

@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function ConfirmEmailPage({ searchParams }) {
   const role = searchParams?.role || "";
   const viaEmail = searchParams?.viaEmail === "1";
-  const redirectTo = searchParams?.redirect || (role === "artisan" ? "/dashboard/profile" : "");
+  const redirectTo = searchParams?.redirect || (role === "artisan" ? "/dashboard" : "");
   const loginHref = redirectTo
     ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}`
     : "/auth/login";
@@ -17,7 +17,7 @@ export default function ConfirmEmailPage({ searchParams }) {
         </p>
       ) : (
         <p className="text-gray-600">
-          Votre profil est déjà complet. Connectez-vous pour ajouter votre photo et votre pièce d'identité, c'est la dernière étape.
+          Votre profil est déjà complet. Connectez-vous : un petit tour vous guidera pour ajouter votre photo et votre pièce d'identité, c'est la dernière étape.
         </p>
       )}
       <Link

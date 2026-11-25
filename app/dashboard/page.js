@@ -6,6 +6,7 @@ import { translateStatus } from "@/lib/statusLabels";
 import ProjectTimeline from "@/components/ProjectTimeline";
 import { bookInterviewSlot } from "../admin/interviewActions";
 import DeleteProjectButton from "@/components/DeleteProjectButton";
+import OnboardingTutorial from "@/components/OnboardingTutorial";
 import { firstNameOnly } from "@/lib/displayName";
 
 const CLIENT_TABS = [
@@ -36,7 +37,7 @@ export default async function DashboardPage({ searchParams }) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, created_at, approval_status, is_admin")
+    .select("full_name, role, created_at, approval_status, is_admin, has_seen_onboarding")
     .eq("id", user.id)
     .single();
   const isArtisan = profile?.role === "artisan";
@@ -308,6 +309,8 @@ export default async function DashboardPage({ searchParams }) {
 
   return (
     <div className="mx-auto max-w-6xl bg-[#F8F6F1] px-4 py-8">
+      {isArtisan && !profile?.has_seen_onboarding && <OnboardingTutorial />}
+
       {/* Bandeau d'accueil */}
       <div className="rounded-lg bg-forest p-6 text-white">
         <div className="flex items-center justify-between">
@@ -321,9 +324,17 @@ export default async function DashboardPage({ searchParams }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard/profile" className="text-xs text-white/80 underline hover:text-white">
+            <Link
+              href={isArtisan ? "/dashboard/infos" : "/dashboard/profile"}
+              className="text-xs text-white/80 underline hover:text-white"
+            >
               Mes infos
             </Link>
+            {isArtisan && (
+              <Link href="/dashboard/profile" className="text-xs text-white/80 underline hover:text-white">
+                Mon profil
+              </Link>
+            )}
             <form action={logout}>
               <button className="text-xs text-white/70 hover:text-white">Déconnexion</button>
             </form>

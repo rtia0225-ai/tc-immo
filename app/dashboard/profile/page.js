@@ -1,9 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { updateArtisanProfile, addArtisanPhoto, deleteArtisanPhoto, uploadAvatar, updateClientProfile } from "./actions";
-import { uploadIdDocument } from "@/lib/idDocumentActions";
-import { CI_CITIES, CONSTRUCTION_SERVICES, ID_DOCUMENT_TYPES, MOBILE_MONEY_OPERATORS } from "@/lib/constants";
-import ShareLocationButton from "@/components/ShareLocationButton";
+import { CI_CITIES, CONSTRUCTION_SERVICES } from "@/lib/constants";
 import FileInputButton from "@/components/FileInputButton";
 import TradeAndServices from "@/components/TradeAndServices";
 import CitySelect from "@/components/CitySelect";
@@ -108,19 +107,18 @@ export default async function ProfileEditPage({ searchParams }) {
   const selectedServices = artisan?.services || [];
   const selectedMobilityCities = artisan?.mobility_cities || [];
 
-  // URL temporaire (1h) pour afficher la pièce d'identité déjà envoyée —
-  // le bucket est privé, jamais d'URL publique permanente.
-  let idDocumentSignedUrl = null;
-  if (profile?.id_document_url) {
-    const { data } = await supabase.storage
-      .from("id-documents")
-      .createSignedUrl(profile.id_document_url, 3600);
-    idDocumentSignedUrl = data?.signedUrl || null;
-  }
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-heading text-2xl font-bold">Modifier mon profil</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-2xl font-bold">Mon profil</h1>
+        <Link href="/dashboard/infos" className="text-sm font-medium text-brand hover:underline">
+          Voir mes infos →
+        </Link>
+      </div>
+      <p className="mt-1 text-sm text-gray-500">
+        C'est ce que voit un client qui consulte votre fiche. Vos informations personnelles (nom, téléphone, adresse, pièce d'identité...) se trouvent dans{" "}
+        <Link href="/dashboard/infos" className="font-medium text-brand hover:underline">Mes infos</Link>.
+      </p>
 
       {adminNotes && adminNotes.length > 0 && (
         <div className="mt-4 rounded-lg bg-brand-light p-4 shadow-card">
@@ -176,142 +174,7 @@ export default async function ProfileEditPage({ searchParams }) {
         </p>
       </section>
 
-      {/* Pièce d'identité, en dehors du formulaire principal (upload indépendant) */}
-      <section className="mt-8">
-        <h2 className="font-heading text-lg font-bold text-brand">Pièce d'identité</h2>
-        {idDocumentSignedUrl && (
-          <p className="mt-2 text-sm text-forest">
-            ✓ Document déjà envoyé{profile?.id_document_type ? ` (${profile.id_document_type}${profile.id_document_number ? ` n° ${profile.id_document_number}` : ""})` : ""} ,{" "}
-            <a href={idDocumentSignedUrl} target="_blank" rel="noreferrer" className="underline">
-              voir le fichier
-            </a>
-          </p>
-        )}
-        <form action={uploadIdDocument} className="mt-3 flex flex-col gap-2">
-          <input type="hidden" name="returnTo" value="/dashboard/profile" />
-          <select
-            name="documentType"
-            required
-            defaultValue=""
-            className="rounded-lg border border-gray-300 p-2 text-sm"
-          >
-            <option value="" disabled>Type de pièce</option>
-            {ID_DOCUMENT_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-          <input
-            name="documentNumber"
-            required
-            placeholder="Numéro de la pièce"
-            className="rounded-lg border border-gray-300 p-2 text-sm"
-          />
-          <div className="flex items-center gap-2">
-            <FileInputButton name="idDocument" accept="image/*,.pdf" required label="Choisir un fichier" />
-            <button
-              type="submit"
-              className="shrink-0 rounded-lg bg-forest px-3 py-2 text-xs font-semibold text-white hover:bg-forest-dark"
-            >
-              Envoyer
-            </button>
-          </div>
-        </form>
-        <p className="mt-2 text-xs text-gray-500">
-          Carte nationale d'identité, passeport ou équivalent. Jamais visible par les clients.
-        </p>
-      </section>
-
       <form action={updateArtisanProfile} className="mt-8 flex flex-col gap-8">
-        {/* ------------------------------------------------------ */}
-        <section>
-          <h2 className="font-heading text-lg font-bold text-brand">Informations personnelles</h2>
-          <p className="mb-4 text-xs text-gray-500">
-            Le téléphone et le contact d'urgence ne sont jamais visibles par les clients, utilisés uniquement pour la vérification de votre profil.
-          </p>
-
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Nom complet</label>
-              <input
-                name="fullName"
-                defaultValue={profile?.full_name || ""}
-                required
-                className="w-full rounded-lg border border-gray-300 p-2"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">Téléphone (privé)</label>
-              <input
-                name="phone"
-                defaultValue={profile?.phone || ""}
-                placeholder="ex: +225 07 00 00 00 00"
-                className="w-full rounded-lg border border-gray-300 p-2"
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium">Contact d'un proche (privé)</label>
-                <input
-                  name="emergencyContactName"
-                  defaultValue={profile?.emergency_contact_name || ""}
-                  placeholder="Nom complet"
-                  className="w-full rounded-lg border border-gray-300 p-2"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">Téléphone du proche (privé)</label>
-                <input
-                  name="emergencyContactPhone"
-                  defaultValue={profile?.emergency_contact_phone || ""}
-                  placeholder="Téléphone"
-                  className="w-full rounded-lg border border-gray-300 p-2"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">Ville de base</label>
-              <CitySelect cities={CI_CITIES} name="city" defaultValue={profile?.city || ""} required />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">Comment recevoir vos paiements</label>
-              <div className="grid grid-cols-2 gap-2">
-                <select
-                  name="mobileMoneyOperator"
-                  defaultValue={artisan?.mobile_money_operator || ""}
-                  className="rounded-lg border border-gray-300 p-2"
-                >
-                  <option value="" disabled>Choisir</option>
-                  {MOBILE_MONEY_OPERATORS.map((op) => (
-                    <option key={op} value={op}>{op}</option>
-                  ))}
-                </select>
-                <input
-                  name="mobileMoneyNumber"
-                  defaultValue={artisan?.mobile_money_number || ""}
-                  placeholder="Numéro"
-                  className="rounded-lg border border-gray-300 p-2"
-                />
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                C'est ici que les clients enverront vos paiements pour chaque étape terminée.
-              </p>
-            </div>
-
-            <div className="border-t border-gray-100 pt-4">
-              <label className="mb-2 block text-sm font-medium">Adresse exacte (position GPS, privée)</label>
-              <ShareLocationButton
-                latitude={profile?.home_latitude}
-                longitude={profile?.home_longitude}
-                capturedAt={profile?.home_location_captured_at}
-              />
-            </div>
-          </div>
-        </section>
-
         {/* ------------------------------------------------------ */}
         <section>
           <h2 className="font-heading text-lg font-bold text-brand">Profil visible par les clients</h2>
