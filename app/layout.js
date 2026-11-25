@@ -1,5 +1,6 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallAssistant from "@/components/InstallAssistant";
@@ -87,6 +88,7 @@ export default async function RootLayout({ children }) {
       <body className="flex min-h-screen flex-col">
         <ServiceWorkerRegister />
         <Navbar user={user} isAdmin={isAdmin} />
+        <BackButton />
         <main className="flex-1">{children}</main>
         <Footer />
         <InstallAssistant loggedIn={!!user} />
