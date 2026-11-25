@@ -95,10 +95,16 @@ export default function ProjectRoadmap({ artisans, defaultOpenArtisanId, viewerI
         })}
       </div>
 
-      {/* Détail vertical de l'intervenant sélectionné */}
-      {ordered[openIndex] && (
+      {/* Détail vertical de l'intervenant sélectionné. Filet de sécurité :
+          si openIndex ne correspond plus à rien (ex: état d'un précédent
+          projet réutilisé sans remonter le composant), on retombe sur le
+          premier intervenant plutôt que de n'afficher aucun détail. */}
+      {(ordered[openIndex] || ordered[0]) && (
         <div className="mt-4">
-          <ProjectJourney key={ordered[openIndex].artisanId} {...ordered[openIndex].journeyProps} />
+          <ProjectJourney
+            key={(ordered[openIndex] || ordered[0]).artisanId}
+            {...(ordered[openIndex] || ordered[0]).journeyProps}
+          />
         </div>
       )}
     </div>

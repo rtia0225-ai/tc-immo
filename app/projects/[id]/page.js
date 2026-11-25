@@ -736,6 +736,14 @@ export default async function ProjectPage({ params, searchParams }) {
               noyé sous le détail de tout le monde à la fois. */}
           <div className="mb-6 rounded-lg bg-white shadow-card p-4">
             <ProjectRoadmap
+              // key=project.id : sans ça, en naviguant d'un projet à un
+              // autre par un lien (sans rechargement complet), React peut
+              // réutiliser ce composant et garder l'ancien "intervenant
+              // ouvert" en mémoire. Si le nouveau projet a moins
+              // d'intervenants, cet index ne correspond plus à rien et le
+              // détail vertical disparaît, alors que la ligne horizontale
+              // (qui n'en dépend pas) continue de s'afficher normalement.
+              key={project.id}
               artisans={(isArtisan && !isAdmin ? artisansOnProject.filter((a) => a.artisanId === user.id) : artisansOnProject).map((a) => {
                 const contract = allContracts?.find((c) => c.artisan_id === a.artisanId);
                 const contractSignedAt =
