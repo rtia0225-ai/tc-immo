@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { addAvailabilitySlot, removeAvailabilitySlot, addWeeklyAvailability, removeWeeklyAvailability } from "../availabilityActions";
+import { addAvailabilitySlot, removeAvailabilitySlot, saveWeeklyAvailability } from "../availabilityActions";
 import { ensureWeeklyAvailabilityGenerated, WEEKDAY_LABELS } from "@/lib/availabilityPatterns";
+import SubmitButton from "@/components/SubmitButton";
+
+// Lundi -> Dimanche à l'affichage (plus naturel), même si en base le jour
+// est stocké en convention JS (0 = dimanche ... 6 = samedi).
+const DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export default async function AvailabilityPage({ searchParams }) {
   const supabase = createClient();
@@ -25,8 +30,8 @@ export default async function AvailabilityPage({ searchParams }) {
   const { data: weeklyPatterns } = await supabase
     .from("availability_weekly_patterns")
     .select("*")
-    .eq("artisan_id", user.id)
-    .order("weekday", { ascending: true });
+    .eq("artisan_id", user.id);
+  const patternByWeekday = Object.fromEntries((weeklyPatterns || []).map((p) => [p.weekday, p]));
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -49,48 +54,51 @@ export default async function AvailabilityPage({ searchParams }) {
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
       )}
 
-      {/* Disponibilités standard : un jour de la semaine + un horaire, une
-          fois pour toutes — la plateforme génère elle-même les créneaux
-          réels des prochaines semaines, sans ressaisie date par date. */}
+      {/* Disponibilités standard : toute la semaine sur une seule page, type
+          Google Agenda — on remplit ce qu'on veut et on envoie une seule
+          fois. Un jour laissé vide = non disponible ce jour-là, aucun
+          blocage à l'envoi. La plateforme génère elle-même les créneaux
+          réels des prochaines semaines, sans ressaisie date par date.
+          Cf. consigne Rose du 2026-11-25. */}
       <div className="mt-6 rounded-lg bg-white shadow-card p-4">
         <p className="text-sm font-medium">Disponibilités standard (chaque semaine)</p>
         <p className="mt-1 text-xs text-gray-500">
-          Ex : tous les lundis de 18h à 20h. Générées automatiquement pour les 8 prochaines semaines.
+          Remplissez les jours où vous êtes disponible. Laissez un jour vide s'il n'y a pas de disponibilité ce jour-là. Générées automatiquement pour les 8 prochaines semaines.
         </p>
 
-        {weeklyPatterns?.length > 0 && (
-          <div className="mt-3 flex flex-col gap-2">
-            {weeklyPatterns.map((p) => (
-              <div key={p.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-2.5 text-sm">
-                <span className="font-medium text-ink">
-                  {WEEKDAY_LABELS[p.weekday]}, {p.start_time.slice(0, 5)} – {p.end_time.slice(0, 5)}
-                </span>
-                <form action={removeWeeklyAvailability}>
-                  <input type="hidden" name="patternId" value={p.id} />
-                  <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
-                    Retirer
-                  </button>
-                </form>
-              </div>
-            ))}
-          </div>
+        {searchParams?.success === "1" && (
+          <p className="mt-3 rounded-lg bg-forest-light p-2.5 text-xs font-medium text-forest">
+            Disponibilités enregistrées.
+          </p>
         )}
 
-        <form action={addWeeklyAvailability} className="mt-3 grid grid-cols-3 gap-2">
-          <select name="weekday" required defaultValue="" className="rounded-lg border border-gray-300 p-2 text-sm">
-            <option value="" disabled>Jour</option>
-            {WEEKDAY_LABELS.map((label, i) => (
-              <option key={i} value={i}>{label}</option>
-            ))}
-          </select>
-          <input type="time" name="startTime" required className="rounded-lg border border-gray-300 p-2 text-sm" />
-          <input type="time" name="endTime" required className="rounded-lg border border-gray-300 p-2 text-sm" />
-          <button
-            type="submit"
-            className="col-span-3 rounded-lg bg-forest py-2 text-sm font-bold text-white hover:opacity-90"
-          >
-            Ajouter cette disponibilité standard
-          </button>
+        <form action={saveWeeklyAvailability} className="mt-3 flex flex-col gap-2">
+          {DISPLAY_ORDER.map((weekday) => {
+            const existing = patternByWeekday[weekday];
+            return (
+              <div
+                key={weekday}
+                className="grid grid-cols-3 items-center gap-2 rounded-lg border border-gray-200 p-2.5 text-sm"
+              >
+                <span className="font-medium text-ink">{WEEKDAY_LABELS[weekday]}</span>
+                <input
+                  type="time"
+                  name={`startTime_${weekday}`}
+                  defaultValue={existing ? existing.start_time.slice(0, 5) : ""}
+                  className="rounded-lg border border-gray-300 p-2 text-sm"
+                />
+                <input
+                  type="time"
+                  name={`endTime_${weekday}`}
+                  defaultValue={existing ? existing.end_time.slice(0, 5) : ""}
+                  className="rounded-lg border border-gray-300 p-2 text-sm"
+                />
+              </div>
+            );
+          })}
+          <SubmitButton className="mt-2 rounded-lg bg-forest py-2 text-sm font-bold text-white hover:opacity-90">
+            Enregistrer mes disponibilités
+          </SubmitButton>
         </form>
       </div>
 

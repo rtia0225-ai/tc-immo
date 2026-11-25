@@ -5,64 +5,83 @@ import { redirect } from "next/navigation";
 import { logClientActivity } from "@/lib/activityLog";
 import { ensureWeeklyAvailabilityGenerated } from "@/lib/availabilityPatterns";
 
-// Disponibilité "standard" (récurrente, ex: tous les lundis 9h-12h) — les
-// créneaux réels sont générés automatiquement sur un horizon glissant par
-// ensureWeeklyAvailabilityGenerated, pas ressaisis date par date. Cf.
+// Disponibilités "standard", une grille pour toute la semaine remplie en
+// un seul envoi (type Google Agenda) : un jour laissé vide = pas
+// disponible ce jour-là, aucun blocage. Les créneaux réels sont générés
+// automatiquement sur un horizon glissant par
+// ensureWeeklyAvailabilityGenerated, jamais ressaisis date par date. Cf.
 // consigne Rose du 2026-11-25.
-export async function addWeeklyAvailability(formData) {
+export async function saveWeeklyAvailability(formData) {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
-  const weekday = parseInt(formData.get("weekday"), 10);
-  const startTime = formData.get("startTime");
-  const endTime = formData.get("endTime");
+  const { data: existingPatterns } = await supabase
+    .from("availability_weekly_patterns")
+    .select("id, weekday")
+    .eq("artisan_id", user.id);
+  const existingByWeekday = Object.fromEntries((existingPatterns || []).map((p) => [p.weekday, p.id]));
 
-  if (Number.isNaN(weekday) || !startTime || !endTime) {
-    redirect("/dashboard/availability?error=Merci+de+remplir+le+jour+et+les+heures");
-  }
-  if (startTime >= endTime) {
-    redirect("/dashboard/availability?error=L'heure+de+fin+doit+être+après+l'heure+de+début");
-  }
+  for (let weekday = 0; weekday <= 6; weekday++) {
+    const startTime = (formData.get(`startTime_${weekday}`) || "").trim();
+    const endTime = (formData.get(`endTime_${weekday}`) || "").trim();
+    const existingId = existingByWeekday[weekday];
 
-  await supabase.from("availability_weekly_patterns").insert({
-    artisan_id: user.id,
-    weekday,
-    start_time: startTime,
-    end_time: endTime,
-  });
+    if (!startTime || !endTime) {
+      // Jour laissé vide : pas disponible ce jour-là, on retire le modèle
+      // s'il y en avait un (les créneaux déjà réservés restent intacts).
+      if (existingId) {
+        await supabase
+          .from("availability_slots")
+          .delete()
+          .eq("source_pattern_id", existingId)
+          .eq("artisan_id", user.id)
+          .eq("is_booked", false);
+        await supabase.from("availability_weekly_patterns").delete().eq("id", existingId);
+      }
+      continue;
+    }
+
+    if (startTime >= endTime) {
+      redirect(
+        `/dashboard/availability?error=${encodeURIComponent(
+          "L'heure de fin doit être après l'heure de début (jour : " + weekday + ")."
+        )}`
+      );
+    }
+
+    if (existingId) {
+      // L'horaire change : on retire les créneaux futurs pas encore
+      // réservés (ancien horaire) et on recule le curseur pour que la
+      // génération les recrée avec le nouvel horaire juste après.
+      await supabase
+        .from("availability_slots")
+        .delete()
+        .eq("source_pattern_id", existingId)
+        .eq("artisan_id", user.id)
+        .eq("is_booked", false)
+        .gte("date", new Date().toISOString().slice(0, 10));
+      await supabase
+        .from("availability_weekly_patterns")
+        .update({
+          start_time: startTime,
+          end_time: endTime,
+          generated_until: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
+        })
+        .eq("id", existingId);
+    } else {
+      await supabase.from("availability_weekly_patterns").insert({
+        artisan_id: user.id,
+        weekday,
+        start_time: startTime,
+        end_time: endTime,
+      });
+    }
+  }
 
   await ensureWeeklyAvailabilityGenerated(supabase, user.id);
-
-  redirect("/dashboard/availability?success=1");
-}
-
-// Retire une disponibilité standard : les créneaux déjà générés et non
-// encore réservés pour ce jour-là sont annulés aussi (ex: le professionnel
-// ne travaille plus ce jour) ; ceux déjà réservés par un client restent.
-export async function removeWeeklyAvailability(formData) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/login");
-
-  const patternId = formData.get("patternId");
-
-  await supabase
-    .from("availability_slots")
-    .delete()
-    .eq("source_pattern_id", patternId)
-    .eq("artisan_id", user.id)
-    .eq("is_booked", false);
-
-  await supabase
-    .from("availability_weekly_patterns")
-    .delete()
-    .eq("id", patternId)
-    .eq("artisan_id", user.id);
 
   redirect("/dashboard/availability?success=1");
 }
