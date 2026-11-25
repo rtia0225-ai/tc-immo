@@ -120,6 +120,18 @@ export default async function ProfileEditPage({ searchParams }) {
         <Link href="/dashboard/infos" className="font-medium text-brand hover:underline">Mes infos</Link>.
       </p>
 
+      <Link
+        href={`/artisans/${user.id}`}
+        target="_blank"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-ink hover:bg-gray-200"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        Aperçu de mon profil, tel qu'un client le voit
+      </Link>
+
       {adminNotes && adminNotes.length > 0 && (
         <div className="mt-4 rounded-lg bg-brand-light p-4 shadow-card">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-dark">
@@ -243,7 +255,7 @@ export default async function ProfileEditPage({ searchParams }) {
             <div>
               <label className="mb-1 block text-sm font-medium">Facteurs qui jouent dans votre tarif</label>
               <p className="mb-1 text-xs text-gray-500">
-                Pas de prix ici. Ce champ n'est pas visible par le client. Juste ce qui fait varier votre tarif, pour que vous ayez vous-même une idée claire en discutant avec lui (ex : expérience, taille de l'équipe, surface du chantier, type de matériaux...).
+                Ce champ n'est pas visible par le client.
               </p>
               <textarea
                 name="pricingInfo"
