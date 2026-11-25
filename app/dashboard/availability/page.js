@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { addAvailabilitySlot, removeAvailabilitySlot } from "../availabilityActions";
+import { addAvailabilitySlot, removeAvailabilitySlot, addWeeklyAvailability, removeWeeklyAvailability } from "../availabilityActions";
+import { ensureWeeklyAvailabilityGenerated, WEEKDAY_LABELS } from "@/lib/availabilityPatterns";
 
 export default async function AvailabilityPage({ searchParams }) {
   const supabase = createClient();
@@ -15,6 +16,17 @@ export default async function AvailabilityPage({ searchParams }) {
     .eq("id", user.id)
     .single();
   if (profile?.role !== "artisan") redirect("/dashboard");
+
+  // Avant d'afficher la liste, on complète l'horizon glissant des
+  // créneaux générés depuis les disponibilités standard, s'il reste
+  // derrière (nouvelle semaine atteinte depuis la dernière visite).
+  await ensureWeeklyAvailabilityGenerated(supabase, user.id);
+
+  const { data: weeklyPatterns } = await supabase
+    .from("availability_weekly_patterns")
+    .select("*")
+    .eq("artisan_id", user.id)
+    .order("weekday", { ascending: true });
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -37,8 +49,53 @@ export default async function AvailabilityPage({ searchParams }) {
         <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{searchParams.error}</p>
       )}
 
+      {/* Disponibilités standard : un jour de la semaine + un horaire, une
+          fois pour toutes — la plateforme génère elle-même les créneaux
+          réels des prochaines semaines, sans ressaisie date par date. */}
+      <div className="mt-6 rounded-lg bg-white shadow-card p-4">
+        <p className="text-sm font-medium">Disponibilités standard (chaque semaine)</p>
+        <p className="mt-1 text-xs text-gray-500">
+          Ex : tous les lundis de 18h à 20h. Générées automatiquement pour les 8 prochaines semaines.
+        </p>
+
+        {weeklyPatterns?.length > 0 && (
+          <div className="mt-3 flex flex-col gap-2">
+            {weeklyPatterns.map((p) => (
+              <div key={p.id} className="flex items-center justify-between rounded-lg border border-gray-200 p-2.5 text-sm">
+                <span className="font-medium text-ink">
+                  {WEEKDAY_LABELS[p.weekday]}, {p.start_time.slice(0, 5)} – {p.end_time.slice(0, 5)}
+                </span>
+                <form action={removeWeeklyAvailability}>
+                  <input type="hidden" name="patternId" value={p.id} />
+                  <button type="submit" className="text-xs text-gray-400 hover:text-red-600">
+                    Retirer
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <form action={addWeeklyAvailability} className="mt-3 grid grid-cols-3 gap-2">
+          <select name="weekday" required defaultValue="" className="rounded-lg border border-gray-300 p-2 text-sm">
+            <option value="" disabled>Jour</option>
+            {WEEKDAY_LABELS.map((label, i) => (
+              <option key={i} value={i}>{label}</option>
+            ))}
+          </select>
+          <input type="time" name="startTime" required className="rounded-lg border border-gray-300 p-2 text-sm" />
+          <input type="time" name="endTime" required className="rounded-lg border border-gray-300 p-2 text-sm" />
+          <button
+            type="submit"
+            className="col-span-3 rounded-lg bg-forest py-2 text-sm font-bold text-white hover:opacity-90"
+          >
+            Ajouter cette disponibilité standard
+          </button>
+        </form>
+      </div>
+
       <form action={addAvailabilitySlot} className="mt-6 flex flex-col gap-3 rounded-lg bg-white shadow-card p-4">
-        <p className="text-sm font-medium">Ajouter un créneau</p>
+        <p className="text-sm font-medium">Créneau exceptionnel (une seule date)</p>
         <div className="grid grid-cols-3 gap-2">
           <input type="date" name="date" required min={today} className="rounded-lg border border-gray-300 p-2 text-sm" />
           <input type="time" name="startTime" required className="rounded-lg border border-gray-300 p-2 text-sm" />

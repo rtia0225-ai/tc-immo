@@ -3,6 +3,69 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { logClientActivity } from "@/lib/activityLog";
+import { ensureWeeklyAvailabilityGenerated } from "@/lib/availabilityPatterns";
+
+// Disponibilité "standard" (récurrente, ex: tous les lundis 9h-12h) — les
+// créneaux réels sont générés automatiquement sur un horizon glissant par
+// ensureWeeklyAvailabilityGenerated, pas ressaisis date par date. Cf.
+// consigne Rose du 2026-11-25.
+export async function addWeeklyAvailability(formData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const weekday = parseInt(formData.get("weekday"), 10);
+  const startTime = formData.get("startTime");
+  const endTime = formData.get("endTime");
+
+  if (Number.isNaN(weekday) || !startTime || !endTime) {
+    redirect("/dashboard/availability?error=Merci+de+remplir+le+jour+et+les+heures");
+  }
+  if (startTime >= endTime) {
+    redirect("/dashboard/availability?error=L'heure+de+fin+doit+être+après+l'heure+de+début");
+  }
+
+  await supabase.from("availability_weekly_patterns").insert({
+    artisan_id: user.id,
+    weekday,
+    start_time: startTime,
+    end_time: endTime,
+  });
+
+  await ensureWeeklyAvailabilityGenerated(supabase, user.id);
+
+  redirect("/dashboard/availability?success=1");
+}
+
+// Retire une disponibilité standard : les créneaux déjà générés et non
+// encore réservés pour ce jour-là sont annulés aussi (ex: le professionnel
+// ne travaille plus ce jour) ; ceux déjà réservés par un client restent.
+export async function removeWeeklyAvailability(formData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const patternId = formData.get("patternId");
+
+  await supabase
+    .from("availability_slots")
+    .delete()
+    .eq("source_pattern_id", patternId)
+    .eq("artisan_id", user.id)
+    .eq("is_booked", false);
+
+  await supabase
+    .from("availability_weekly_patterns")
+    .delete()
+    .eq("id", patternId)
+    .eq("artisan_id", user.id);
+
+  redirect("/dashboard/availability?success=1");
+}
 
 // L'artisan ajoute un créneau disponible (date + heure de début/fin).
 export async function addAvailabilitySlot(formData) {
