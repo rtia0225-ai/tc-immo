@@ -309,7 +309,7 @@ export default async function DashboardPage({ searchParams }) {
 
   return (
     <div className="mx-auto max-w-6xl bg-[#F8F6F1] px-4 py-8">
-      {isArtisan && !profile?.has_seen_onboarding && <OnboardingTutorial />}
+      {!profile?.has_seen_onboarding && <OnboardingTutorial isArtisan={isArtisan} />}
 
       {/* Bandeau d'accueil */}
       <div data-tour="welcome" className="rounded-lg bg-forest p-6 text-white">

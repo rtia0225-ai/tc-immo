@@ -9,7 +9,12 @@ import { completeOnboarding } from "@/app/dashboard/actions";
 // texte qui suit, au lieu d'un simple pavé de texte au milieu de l'écran.
 // Cf. consigne Rose du 2026-11-25 : "ça doit montrer sur la page, pas
 // juste un cadre qu'on lit au début."
-const STEPS = [
+//
+// Deux parcours distincts (Rose, 2026-11-26) : le professionnel a "Mes
+// infos" (privé) ET "Mon profil" (vitrine visible du client) ; le client
+// n'a qu'un seul "Mes infos" (ses informations personnelles), donc pas
+// d'étape "mon-profil" pour lui.
+const ARTISAN_STEPS = [
   {
     target: "welcome",
     title: "Bienvenue sur TCHolding-Immo",
@@ -32,12 +37,31 @@ const STEPS = [
   },
 ];
 
+const CLIENT_STEPS = [
+  {
+    target: "welcome",
+    title: "Bienvenue sur TCHolding-Immo",
+    body: "Ce petit tour vous montre où trouver ce dont vous avez besoin pour suivre votre projet de construction depuis la diaspora.",
+  },
+  {
+    target: "mes-infos",
+    title: "Mes infos",
+    body: "Vos informations personnelles : nom, téléphone, adresse. Vous les complétez ici, elles servent à vous identifier et à vous contacter.",
+  },
+  {
+    target: "tabs",
+    title: "Vos projets, paiements et messages",
+    body: "Retrouvez ici l'avancement de vos projets, l'historique de vos paiements, vos échanges avec les professionnels et tous vos documents.",
+  },
+];
+
 const PADDING = 6;
 const TOOLTIP_WIDTH = 320;
 const TOOLTIP_ESTIMATED_HEIGHT = 170;
 const MARGIN = 12;
 
-export default function OnboardingTutorial() {
+export default function OnboardingTutorial({ isArtisan }) {
+  const STEPS = isArtisan ? ARTISAN_STEPS : CLIENT_STEPS;
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState(null);
   const isLast = step === STEPS.length - 1;
