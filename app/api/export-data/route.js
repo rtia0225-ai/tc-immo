@@ -31,7 +31,7 @@ export async function GET() {
     .from("projects")
     .select(
       `id, title, description, amount, currency, status, terrain_location, terrain_reference_number, created_at,
-       artisan:artisan_id ( full_name ),
+       artisan:artisan_id ( profiles ( full_name ) ),
        project_milestones ( title, description, is_completed, completed_at, payment_percentage, amount, paid_at, order_index, parent_milestone_id, milestone_deliverables ( label, deliverable_files ( document_url ) ) ),
        contracts ( content, client_signed_at, artisan_signed_at, created_at )`
     )
@@ -40,13 +40,13 @@ export async function GET() {
 
   const { data: appointments } = await supabase
     .from("appointments")
-    .select("scheduled_at, duration_minutes, status, notes, meeting_link, artisan:artisan_id ( full_name )")
+    .select("scheduled_at, duration_minutes, status, notes, meeting_link, artisan:artisan_id ( profiles ( full_name ) )")
     .eq("client_id", user.id)
     .order("scheduled_at", { ascending: true });
 
   const { data: conversations } = await supabase
     .from("conversations")
-    .select("id, created_at, artisan:artisan_id ( full_name ), messages ( content, audio_url, created_at, sender_id )")
+    .select("id, created_at, artisan:artisan_id ( profiles ( full_name ) ), messages ( content, audio_url, created_at, sender_id )")
     .eq("client_id", user.id)
     .order("created_at", { ascending: true });
 
@@ -70,7 +70,7 @@ export async function GET() {
     parts.push("Aucun projet démarré pour le moment.");
   }
   for (const p of projects || []) {
-    parts.push(`• ${p.title}, avec ${p.artisan?.full_name ? firstNameOnly(p.artisan.full_name) : "professionnel"}`);
+    parts.push(`• ${p.title}, avec ${p.artisan?.profiles?.full_name ? firstNameOnly(p.artisan.profiles.full_name) : "professionnel"}`);
     parts.push(`  Statut : ${p.status} | Montant : ${p.amount} ${p.currency || ""}`);
     parts.push(`  Créé le ${formatDate(p.created_at)}`);
     if (p.terrain_location) parts.push(`  Terrain : ${p.terrain_location}${p.terrain_reference_number ? " (réf. " + p.terrain_reference_number + ")" : ""}`);
@@ -110,7 +110,7 @@ export async function GET() {
     parts.push("Aucun rendez-vous pour le moment.");
   }
   for (const a of appointments || []) {
-    parts.push(`• ${formatDate(a.scheduled_at)} (${a.duration_minutes} min) avec ${a.artisan?.full_name ? firstNameOnly(a.artisan.full_name) : "professionnel"}, ${a.status}`);
+    parts.push(`• ${formatDate(a.scheduled_at)} (${a.duration_minutes} min) avec ${a.artisan?.profiles?.full_name ? firstNameOnly(a.artisan.profiles.full_name) : "professionnel"}, ${a.status}`);
     if (a.notes) parts.push(`  Notes : ${a.notes}`);
   }
   parts.push("");
@@ -126,7 +126,7 @@ export async function GET() {
     parts.push("Aucune conversation pour le moment.");
   }
   for (const c of conversations || []) {
-    const artisanFirstName = c.artisan?.full_name ? firstNameOnly(c.artisan.full_name) : "professionnel";
+    const artisanFirstName = c.artisan?.profiles?.full_name ? firstNameOnly(c.artisan.profiles.full_name) : "professionnel";
     parts.push(`• Conversation avec ${artisanFirstName} (ouverte le ${formatDate(c.created_at)})`);
     const msgs = [...(c.messages || [])].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     for (const m of msgs) {
