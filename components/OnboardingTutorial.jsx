@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { completeOnboarding } from "@/app/dashboard/actions";
 
 // Vrai tutoriel guidé (type "product tour") : chaque étape pointe un
@@ -17,41 +18,41 @@ import { completeOnboarding } from "@/app/dashboard/actions";
 const ARTISAN_STEPS = [
   {
     target: "welcome",
-    title: "Bienvenue sur TCHolding-Immo",
-    body: "Vous êtes inscrit comme professionnel. Ce petit tour vous montre où trouver ce dont vous avez besoin pour démarrer.",
+    title: "Bienvenue !",
+    body: "Un petit tour pour démarrer.",
   },
   {
     target: "mes-infos",
     title: "Mes infos",
-    body: "Ici : votre identité, téléphone, adresse, pièce d'identité, et le moyen de paiement sur lequel vous recevrez l'argent des clients. Rien de tout cela n'est jamais visible par un client.",
+    body: "Vos infos privées. Le client ne les voit pas.",
   },
   {
     target: "mon-profil",
     title: "Mon profil",
-    body: "Ici, à l'inverse : ce que voit un client qui consulte votre fiche — votre métier, votre présentation, votre zone d'intervention, vos photos de réalisations. C'est votre vitrine.",
+    body: "Ce que le client voit : votre métier, vos photos.",
   },
   {
     target: "tabs",
-    title: "Vos projets et rendez-vous",
-    body: "Une fois contacté par un client, retrouvez tout ici : messages, rendez-vous, projets en cours et vos paiements à chaque étape terminée.",
+    title: "Vos projets",
+    body: "Vos messages, rendez-vous et paiements sont ici.",
   },
 ];
 
 const CLIENT_STEPS = [
   {
     target: "welcome",
-    title: "Bienvenue sur TCHolding-Immo",
-    body: "Ce petit tour vous montre où trouver ce dont vous avez besoin pour suivre votre projet de construction depuis la diaspora.",
+    title: "Bienvenue !",
+    body: "Un petit tour pour démarrer.",
   },
   {
     target: "mes-infos",
     title: "Mes infos",
-    body: "Vos informations personnelles : nom, téléphone, adresse. Vous les complétez ici, elles servent à vous identifier et à vous contacter.",
+    body: "Votre nom, téléphone, adresse.",
   },
   {
     target: "tabs",
-    title: "Vos projets, paiements et messages",
-    body: "Retrouvez ici l'avancement de vos projets, l'historique de vos paiements, vos échanges avec les professionnels et tous vos documents.",
+    title: "Vos projets",
+    body: "Vos projets, paiements et messages sont ici.",
   },
 ];
 
@@ -61,9 +62,11 @@ const TOOLTIP_ESTIMATED_HEIGHT = 170;
 const MARGIN = 12;
 
 export default function OnboardingTutorial({ isArtisan }) {
+  const router = useRouter();
   const STEPS = isArtisan ? ARTISAN_STEPS : CLIENT_STEPS;
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState(null);
+  const [closed, setClosed] = useState(false);
   const isLast = step === STEPS.length - 1;
   const current = STEPS[step];
 
@@ -98,8 +101,16 @@ export default function OnboardingTutorial({ isArtisan }) {
     };
   }, [current.target]);
 
-  async function finish() {
-    await completeOnboarding();
+  if (closed) return null;
+
+  // Cache le tutoriel tout de suite au clic (sans attendre le serveur),
+  // puis enregistre en base pour qu'il ne revienne plus. Avant ce correctif,
+  // seul l'enregistrement en base se faisait : la fenêtre ne disparaissait
+  // pas tant que la page n'était pas rechargée, ce qui donnait l'impression
+  // que le bouton ne faisait rien.
+  function finish() {
+    setClosed(true);
+    completeOnboarding().then(() => router.refresh());
   }
 
   // Position de la bulle : sous l'élément si la place le permet, sinon
