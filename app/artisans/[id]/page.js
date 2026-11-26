@@ -2,7 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import ReviewList from "@/components/ReviewList";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import Link from "next/link";
-import { SINGLE_INSTALLMENT_TRADES, FINAL_DOCUMENT_TRADES, MIN_INSTALLMENTS_OTHER_TRADES } from "@/lib/constants";
+import {
+  SINGLE_INSTALLMENT_TRADES,
+  FINAL_DOCUMENT_TRADES,
+  MIN_INSTALLMENTS_OTHER_TRADES,
+  DEFAULT_MILESTONES_BY_TRADE,
+} from "@/lib/constants";
 import { firstNameOnly } from "@/lib/displayName";
 
 // Crédits photo discrets pour quelques profils de démonstration dont la
@@ -101,37 +106,31 @@ export default async function ArtisanProfilePage({ params }) {
   // Texte "à savoir" condensé en une ou deux phrases courtes, pour ne pas
   // noyer la page sous le texte — le détail complet reste discuté avec
   // l'artisan au moment de la négociation.
+  // Exemple d'échéancier réaliste : on reprend les mêmes étapes et les
+  // mêmes pourcentages que ceux proposés par défaut au professionnel dans
+  // son propre échéancier (DEFAULT_MILESTONES_BY_TRADE), pour que le client
+  // voie un déroulé crédible plutôt qu'un texte vague ("1ère tranche"...).
   let aSavoirText;
   let echeancierExample;
+  const defaultMilestones = DEFAULT_MILESTONES_BY_TRADE[artisan.trade];
   if (SINGLE_INSTALLMENT_TRADES[artisan.trade]) {
     aSavoirText = `Paiement en une fois, à la livraison du ${SINGLE_INSTALLMENT_TRADES[artisan.trade]}. Les frais administratifs se règlent au fur et à mesure.`;
     echeancierExample = [
       `Livraison du ${SINGLE_INSTALLMENT_TRADES[artisan.trade]} : 100% de la main d'œuvre`,
       "Frais administratifs (dépôts, taxes, timbres...) : réglés au fur et à mesure des démarches",
     ];
-  } else if (FINAL_DOCUMENT_TRADES[artisan.trade]) {
-    aSavoirText = `Plusieurs étapes, la dernière étant la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}. Nombre de versements à discuter avec le professionnel.`;
-    echeancierExample = [
-      "1er versement : au démarrage",
-      "2e versement (optionnel) : à mi-parcours",
-      `Dernier versement : à la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}`,
-    ];
+  } else if (defaultMilestones) {
+    echeancierExample = defaultMilestones.map((m) => `${m.title} : ${m.percentage}%`);
+    aSavoirText = FINAL_DOCUMENT_TRADES[artisan.trade]
+      ? `Échéancier en ${defaultMilestones.length} étapes (exemple ci-dessous), la dernière étant la livraison du ${FINAL_DOCUMENT_TRADES[artisan.trade]}. Répartition à ajuster avec le professionnel.`
+      : `Échéancier type en ${defaultMilestones.length} étapes (exemple ci-dessous), à ajuster avec le professionnel selon l'avancement réel des travaux.`;
   } else {
     aSavoirText = `Échéancier d'au moins ${MIN_INSTALLMENTS_OTHER_TRADES} étapes, à définir avec le professionnel selon l'avancement des travaux.`;
-    echeancierExample =
-      artisan.trade === "Maçonnerie"
-        ? [
-            "Fondations : 20%",
-            "Élévation des murs : 20%",
-            "Dalle : 20%",
-            "Chaînage / poteaux : 20%",
-            "Enduits et finitions : 20%",
-          ]
-        : [
-            "Démarrage des travaux : 1ère tranche",
-            "Avancement à mi-parcours : tranche(s) intermédiaire(s)",
-            "Fin des travaux : dernière tranche",
-          ];
+    echeancierExample = [
+      "Démarrage des travaux : 1ère tranche",
+      "Avancement à mi-parcours : tranche(s) intermédiaire(s)",
+      "Fin des travaux : dernière tranche",
+    ];
   }
 
   return (

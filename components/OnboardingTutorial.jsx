@@ -19,22 +19,22 @@ const ARTISAN_STEPS = [
   {
     target: "welcome",
     title: "Bienvenue !",
-    body: "Un petit tour pour démarrer.",
+    body: "Petit tour rapide de votre espace.",
   },
   {
     target: "mes-infos",
     title: "Mes infos",
-    body: "Vos infos privées. Le client ne les voit pas.",
+    body: "Vos infos privées : identité, téléphone, moyen de paiement. Le client ne les voit jamais.",
   },
   {
     target: "mon-profil",
     title: "Mon profil",
-    body: "Ce que le client voit : votre métier, vos photos.",
+    body: "Ce que voit le client : votre métier, vos photos, votre présentation.",
   },
   {
     target: "tabs",
     title: "Vos projets",
-    body: "Vos messages, rendez-vous et paiements sont ici.",
+    body: "Messages, rendez-vous et paiements de vos clients, tout est ici.",
   },
 ];
 
@@ -42,17 +42,17 @@ const CLIENT_STEPS = [
   {
     target: "welcome",
     title: "Bienvenue !",
-    body: "Un petit tour pour démarrer.",
+    body: "Petit tour rapide de votre espace.",
   },
   {
     target: "mes-infos",
     title: "Mes infos",
-    body: "Votre nom, téléphone, adresse.",
+    body: "Vos informations personnelles : nom, téléphone, adresse.",
   },
   {
     target: "tabs",
     title: "Vos projets",
-    body: "Vos projets, paiements et messages sont ici.",
+    body: "Suivi de vos projets, paiements et messages, tout est ici.",
   },
 ];
 

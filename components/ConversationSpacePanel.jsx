@@ -86,9 +86,15 @@ export default function ConversationSpacePanel({ conversationId, professionals, 
         </div>
       )}
 
-      <p className="rounded-lg bg-gray-50 px-3 py-2 text-[11px] text-gray-400">
-        ℹ️ Les documents du client restent sur la plateforme (pas de partage par WhatsApp ou e-mail). Les appels et rencontres entre professionnels restent bien sûr possibles.
-      </p>
+      {/* Rappel destiné aux professionnels uniquement : il parle des
+          documents du client (pas à montrer au client lui-même) et des
+          échanges entre professionnels (contacts, rencontres) — rien de
+          tout ça ne regarde le client. */}
+      {!isClientViewer && (
+        <p className="rounded-lg bg-gray-50 px-3 py-2 text-[11px] text-gray-400">
+          ℹ️ Les documents du client restent sur la plateforme (pas de partage par WhatsApp ou e-mail). Les appels et rencontres entre professionnels restent bien sûr possibles.
+        </p>
+      )}
 
       <div className="flex gap-3">
         <button
