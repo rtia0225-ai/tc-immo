@@ -297,7 +297,10 @@ export default async function ArtisanProfilePage({ params }) {
             <span className="absolute left-3 top-3 z-10 rounded bg-black/55 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
               Galerie de réalisations
             </span>
-            <PhotoCarousel photos={photos} fullBleed />
+            {/* Plus haute qu'avant (h-64) : la colonne latérale est
+                désormais plus longue à cause du simulateur d'honoraires,
+                la galerie de photos ne doit pas paraître écrasée à côté. */}
+            <PhotoCarousel photos={photos} fullBleed heightClass="h-96" />
           </div>
 
           {/* Avis */}
