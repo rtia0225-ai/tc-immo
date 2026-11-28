@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import ReviewList from "@/components/ReviewList";
 import PhotoCarousel from "@/components/PhotoCarousel";
 import EngineerFeeSimulator from "@/components/EngineerFeeSimulator";
+import ArchitectFeeSimulator from "@/components/ArchitectFeeSimulator";
 import Link from "next/link";
 import {
   SINGLE_INSTALLMENT_TRADES,
@@ -309,9 +310,18 @@ export default async function ArtisanProfilePage({ params }) {
         </div>
 
         <div className="space-y-4">
-          {/* Simulateur de prix : pour l'instant réservé à l'ingénieur
-              (seul métier pour lequel il a été conçu et validé). */}
-          {artisan.trade === "Ingénieur génie civil" ? (
+          {/* Simulateur de prix : pour l'instant réservé à l'architecte et
+              à l'ingénieur (seuls métiers pour lesquels il a été conçu et
+              validé). */}
+          {artisan.trade === "Architecture" ? (
+            <div className="rounded-lg bg-white shadow-card p-5">
+              <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Combien coûte un architecte ?</p>
+              <p className="mt-0.5 text-[11px] text-gray-400">Estimez ses honoraires en 30 secondes.</p>
+              <div className="mt-3">
+                <ArchitectFeeSimulator />
+              </div>
+            </div>
+          ) : artisan.trade === "Ingénieur génie civil" ? (
             <div className="rounded-lg bg-white shadow-card p-5">
               <p className="text-xs font-bold uppercase tracking-wide text-gray-400">Combien coûte un ingénieur ?</p>
               <p className="mt-0.5 text-[11px] text-gray-400">Estimez ses honoraires en 30 secondes.</p>
