@@ -8,13 +8,17 @@ import { useState } from "react";
 // plus). Coûts de construction (FCFA/m²) : milieu des repères 2026 publiés
 // pour la Côte d'Ivoire (éco 160 000-220 000, moyen 250 000-350 000, haut
 // 400 000-550 000 — babi.immo, asahci.com, voyager-en-cote-divoire.com).
-// Le coefficient d'étages, l'estimation de surface par chambre et les
-// minimums ne viennent pas d'une source publiée.
+// Plans + permis : prix au m² déduit des honoraires de plans observés pour
+// une villa en Côte d'Ivoire, environ 100 m² (voyager-en-cote-divoire.com,
+// nyukoya.com, asahci.com). Le coefficient d'étages, l'estimation de
+// surface par chambre et les minimums ne viennent pas d'une source
+// publiée.
 const CONSTRUCTION_COST_PER_M2 = { eco: 190000, std: 300000, haut: 475000 };
-const FEE_RATE = [0.08, 0.1]; // taux bas / haut, mission complète
+const FULL_MISSION_RATE = [0.08, 0.1]; // taux bas / haut, mission complète
 const FLOOR_COEFFICIENT = [1, 1.1, 1.15, 1.2, 1.25];
-const MISSION_SHARE = { pc: 0.5, co: 1 };
-const MINIMUM_FEE = { pc: 300000, co: 600000 };
+const PLAN_RATE_PER_M2 = [8000, 12000]; // plans + permis : FCFA/m² de maison, bas / haut
+const MINIMUM_PLAN_FEE = 500000;
+const MINIMUM_FULL_FEE = 600000;
 const EUR_TO_FCFA = 655.957;
 
 const FLOOR_OPTIONS = [
@@ -71,9 +75,21 @@ export default function ArchitectFeeSimulator() {
     const totalSurface =
       surfaceValue >= 20 ? surfaceValue * levels : (40 + rooms * 30) * (finish === "haut" ? 1.25 : 1);
 
-    const base = totalSurface * CONSTRUCTION_COST_PER_M2[finish] * FLOOR_COEFFICIENT[floors] * MISSION_SHARE[mission];
-    const low = roundTo10k(Math.max(base * FEE_RATE[0], MINIMUM_FEE[mission]));
-    const high = roundTo10k(Math.max(base * FEE_RATE[1], MINIMUM_FEE[mission] * 1.25));
+    // Deux logiques bien distinctes selon la mission : "plans + permis" se
+    // facture au m² de maison, "mission complète" en pourcentage du coût
+    // du chantier (qui dépend lui de la finition et du nombre d'étages).
+    let low;
+    let high;
+    if (mission === "pc") {
+      low = Math.max(totalSurface * PLAN_RATE_PER_M2[0], MINIMUM_PLAN_FEE);
+      high = Math.max(totalSurface * PLAN_RATE_PER_M2[1], MINIMUM_PLAN_FEE * 1.5);
+    } else {
+      const constructionCost = totalSurface * CONSTRUCTION_COST_PER_M2[finish] * FLOOR_COEFFICIENT[floors];
+      low = Math.max(constructionCost * FULL_MISSION_RATE[0], MINIMUM_FULL_FEE);
+      high = Math.max(constructionCost * FULL_MISSION_RATE[1], MINIMUM_FULL_FEE * 1.25);
+    }
+    low = roundTo10k(low);
+    high = roundTo10k(high);
 
     setResult({ low, high, mission });
   }
